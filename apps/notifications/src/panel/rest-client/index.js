@@ -13,48 +13,38 @@ export function Client() {
 	this.initialAnnouncement = null;
 
 	store.dispatch( actions.ui.loadNotes() );
-	simperium().then( ( { meta, notifications } ) => {
-		this.meta = meta;
-		this.notifications = notifications;
+	this.announcer = simperium().port;
 
-		meta.on( 'index', async () => {
-			const data = await meta.find();
+	this.announcer.onmessage = ( { data: [ name, value ] } ) => {
+		switch ( name ) {
+			case 'last-seen-time':
+				this.lastSeenTime = value;
+				break;
+			case 'add-notes':
+				if ( ! this.hasIndexed ) {
+					store.dispatch( actions.ui.loadedNotes() );
+				}
+				this.hasIndexed = true;
+				store.dispatch( actions.notes.addNotes( value ) );
+				break;
+			case 'remove-notes':
+				store.dispatch( actions.notes.removeNotes( value ) );
+				break;
+		}
 
-			if ( ! data.length || ! data[ 0 ].id === 'meta' ) {
-				return;
-			}
+		this.ready();
+	};
 
-			this.lastSeenTime = data[ 0 ].last_seen;
-		} );
+	const getInitialNotes = () => {
+		if ( this.hasIndexed ) {
+			return;
+		}
 
-		meta.on( 'update', ( id, data ) => {
-			this.lastSeenTime = data.last_seen;
+		this.announcer.postMessage( [ 'get-all-notes' ] );
+		setTimeout( getInitialNotes, 100 );
+	};
 
-			this.ready();
-		} );
-
-		notifications.on( 'index', async () => {
-			this.hasIndexed = true;
-			store.dispatch( actions.ui.loadedNotes() );
-
-			const notes = await notifications.find();
-			store.dispatch( actions.notes.addNotes( notes.map( note => note.data ) ) );
-
-			this.ready();
-		} );
-
-		notifications.on( 'update', ( id, notification ) => {
-			store.dispatch( actions.notes.addNotes( [ notification ] ) );
-
-			this.ready( true );
-		} );
-
-		notifications.on( 'remove', id => {
-			store.dispatch( actions.notes.removeNotes( [ id ] ) );
-
-			this.ready();
-		} );
-	} );
+	getInitialNotes();
 }
 
 Client.prototype.readNote = function( noteId ) {
@@ -64,7 +54,7 @@ Client.prototype.readNote = function( noteId ) {
 		return;
 	}
 
-	this.notifications.update( noteId, { ...note, read: 1 } );
+	this.announcer.postMessage( [ 'read-note', noteId, { ...note, read: 1 } ] );
 };
 
 /**
