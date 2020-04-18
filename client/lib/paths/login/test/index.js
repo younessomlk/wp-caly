@@ -74,10 +74,10 @@ describe( 'index', () => {
 			expect( url ).toEqual( '/log-in/jetpack' );
 		} );
 
-		test( 'should return the login url with WooCommerce from handler', () => {
-			const url = login( { isNative: true, isJetpack: true, isWoo: true } );
+		test( 'should return the login url preserving the "form" parameter', () => {
+			const url = login( { isNative: true, isJetpack: true, from: 'potato' } );
 
-			expect( url ).toEqual( '/log-in/jetpack?from=woocommerce-onboarding' );
+			expect( url ).toEqual( '/log-in/jetpack?from=potato' );
 		} );
 
 		test( 'should return the login url with WooCommerce.com handler', () => {
