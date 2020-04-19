@@ -95,7 +95,7 @@ export class AuthFormHeader extends Component {
 				case 'logged-out':
 					return translate( 'Create a WCPAY account' );
 				default:
-					return translate( 'Connecting WCPAY' );
+					return translate( 'WooCommerce Payments' );
 			}
 		}
 
@@ -130,7 +130,7 @@ export class AuthFormHeader extends Component {
 				case 'logged-out':
 					return translate( 'Your account will enable you to start using WCPAY.' );
 				default:
-					return translate( "Once connected we'll continue setting up WCPAY" );
+					return translate( 'Approve your connection' );
 			}
 		}
 
