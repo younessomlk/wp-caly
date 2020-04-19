@@ -54,7 +54,8 @@ export class JetpackConnectMainWrapper extends PureComponent {
 				<div className="jetpack-connect__main-logo">
 					<JetpackHeader
 						partnerSlug={ partnerSlug }
-						isWoo={ isWoo || isWCPay }
+						isWoo={ isWoo }
+						isWCPay={ isWCPay }
 						width={ width }
 						darkColorScheme={ darkColorScheme }
 					/>
