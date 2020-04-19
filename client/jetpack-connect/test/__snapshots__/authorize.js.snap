@@ -2,6 +2,7 @@
 
 exports[`JetpackAuthorize renders as expected 1`] = `
 <Connect(Localized(JetpackConnectMainWrapper))
+  isWCPay={false}
   isWoo={false}
 >
   <div
@@ -36,6 +37,7 @@ exports[`JetpackAuthorize renders as expected 1`] = `
             "userEmail": "email@an.example.site",
           }
         }
+        isWCPay={false}
         isWoo={false}
       />
       <Card

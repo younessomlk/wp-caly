@@ -88,6 +88,11 @@ export class JetpackSignup extends Component {
 		return 'woocommerce-onboarding' === authQuery.from;
 	}
 
+	isWCPay() {
+		const { authQuery } = this.props;
+		return 'woocommerce-payments' === authQuery.from;
+	}
+
 	getLoginRoute() {
 		const emailAddress = this.props.authQuery.userEmail;
 		return login( {
@@ -214,10 +219,14 @@ export class JetpackSignup extends Component {
 	render() {
 		const { isCreatingAccount } = this.state;
 		return (
-			<MainWrapper isWoo={ this.isWoo() }>
+			<MainWrapper isWoo={ this.isWoo() } isWCPay={ this.isWCPay() }>
 				<div className="jetpack-connect__authorize-form">
 					{ this.renderLocaleSuggestions() }
-					<AuthFormHeader authQuery={ this.props.authQuery } isWoo={ this.isWoo() } />
+					<AuthFormHeader
+						authQuery={ this.props.authQuery }
+						isWoo={ this.isWoo() }
+						isWCPay={ this.isWCPay() }
+					/>
 					<SignupForm
 						disabled={ isCreatingAccount }
 						email={ this.props.authQuery.userEmail }

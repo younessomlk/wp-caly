@@ -149,11 +149,12 @@ $image-height: 47px;
 	}
 }
 
-.layout.is-jetpack-login:not( .is-jetpack-woocommerce-flow ):not( .is-wccom-oauth-flow ) {
+.layout.is-jetpack-login:not( .is-jetpack-woocommerce-flow ):not( .is-jetpack-wcpay-flow ):not( .is-wccom-oauth-flow ) {
 	@include jetpack-connect-colors();
 }
 
 .layout.is-jetpack-woocommerce-flow,
+.layout.is-jetpack-wcpay-flow,
 .layout.is-wccom-oauth-flow {
 	@include woocommerce-colors();
 }
@@ -221,6 +222,7 @@ $image-height: 47px;
 }
 
 .layout.is-jetpack-woocommerce-flow,
+.layout.is-jetpack-wcpay-flow,
 .layout.is-wccom-oauth-flow {
 	background-color: var( --color-woocommerce-onboarding-background );
 

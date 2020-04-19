@@ -79,6 +79,11 @@ class Document extends React.Component {
 			'jetpack-connect' === sectionName &&
 			'woocommerce-onboarding' === requestFrom;
 
+		const isJetpackWCPayFlow =
+			config.isEnabled( 'jetpack/connect/wcpay' ) &&
+			'jetpack-connect' === sectionName &&
+			'woocommerce-payments' === requestFrom;
+
 		const theme = config( 'theme' );
 
 		const LoadingLogo = config.isEnabled( 'jetpack-cloud' ) ? JetpackLogo : WordPressLogo;
@@ -130,6 +135,7 @@ class Document extends React.Component {
 									[ 'is-group-' + sectionGroup ]: sectionGroup,
 									[ 'is-section-' + sectionName ]: sectionName,
 									'is-jetpack-woocommerce-flow': isJetpackWooCommerceFlow,
+									'is-jetpack-wcpay-flow': isJetpackWCPayFlow,
 									'is-wccom-oauth-flow': isWCComConnect,
 								} ) }
 							>

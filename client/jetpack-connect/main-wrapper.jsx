@@ -21,6 +21,7 @@ export class JetpackConnectMainWrapper extends PureComponent {
 	static propTypes = {
 		isWide: PropTypes.bool,
 		isWoo: PropTypes.bool,
+		isWCPay: PropTypes.bool,
 		partnerSlug: PropTypes.string,
 		translate: PropTypes.func.isRequired,
 	};
@@ -28,21 +29,24 @@ export class JetpackConnectMainWrapper extends PureComponent {
 	static defaultProps = {
 		isWide: false,
 		isWoo: false,
+		isWCPay: false,
 	};
 
 	render() {
 		const { isWide, className, children, partnerSlug, translate } = this.props;
 
 		const isWoo = config.isEnabled( 'jetpack/connect/woocommerce' ) && this.props.isWoo;
+		const isWCPay = config.isEnabled( 'jetpack/connect/wcpay' ) && this.props.isWCPay;
 
 		const wrapperClassName = classNames( 'jetpack-connect__main', {
 			'is-wide': isWide,
 			'is-woocommerce': isWoo,
+			'is-wcpay': isWCPay,
 			'is-mobile-app-flow': !! retrieveMobileRedirect(),
 		} );
 
-		const width = isWoo ? 200 : undefined;
-		const darkColorScheme = isWoo ? false : true;
+		const width = isWoo || isWCPay ? 200 : undefined;
+		const darkColorScheme = isWoo || isWCPay ? false : true;
 
 		return (
 			<Main className={ classNames( className, wrapperClassName ) }>
@@ -50,7 +54,7 @@ export class JetpackConnectMainWrapper extends PureComponent {
 				<div className="jetpack-connect__main-logo">
 					<JetpackHeader
 						partnerSlug={ partnerSlug }
-						isWoo={ isWoo }
+						isWoo={ isWoo || isWCPay }
 						width={ width }
 						darkColorScheme={ darkColorScheme }
 					/>

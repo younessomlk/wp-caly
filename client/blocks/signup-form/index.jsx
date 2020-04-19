@@ -914,6 +914,7 @@ class SignupForm extends Component {
 		if (
 			( config.isEnabled( 'jetpack/connect/woocommerce' ) &&
 				this.props.isJetpackWooCommerceFlow ) ||
+			( config.isEnabled( 'jetpack/connect/wcpay' ) && this.props.isJetpackWCPayFlow ) ||
 			( config.isEnabled( 'woocommerce/onboarding-oauth' ) &&
 				isWooOAuth2Client( this.props.oauth2Client ) &&
 				this.props.wccomFrom )
@@ -1040,6 +1041,7 @@ export default connect(
 		sectionName: getSectionName( state ),
 		isJetpackWooCommerceFlow:
 			'woocommerce-onboarding' === get( getCurrentQueryArguments( state ), 'from' ),
+		isJetpackWCPayFlow: 'woocommerce-payments' === get( getCurrentQueryArguments( state ), 'from' ),
 		from: get( getCurrentQueryArguments( state ), 'from' ),
 		wccomFrom: get( getCurrentQueryArguments( state ), 'wccom-from' ),
 	} ),

@@ -420,6 +420,7 @@ export class LoginForm extends Component {
 			requestError,
 			socialAccountIsLinking: linkingSocialUser,
 			isJetpackWooCommerceFlow,
+			isJetpackWCPayFlow,
 			wccomFrom,
 			currentRoute,
 			currentQuery,
@@ -467,6 +468,10 @@ export class LoginForm extends Component {
 		}
 
 		if ( config.isEnabled( 'jetpack/connect/woocommerce' ) && isJetpackWooCommerceFlow ) {
+			return this.renderWooCommerce();
+		}
+
+		if ( config.isEnabled( 'jetpack/connect/wcpay' ) && isJetpackWCPayFlow ) {
 			return this.renderWooCommerce();
 		}
 
@@ -657,6 +662,8 @@ export default connect(
 			oauth2Client: getCurrentOAuth2Client( state ),
 			isJetpackWooCommerceFlow:
 				'woocommerce-onboarding' === get( getCurrentQueryArguments( state ), 'from' ),
+			isJetpackWCPayFlow:
+				'woocommerce-payments' === get( getCurrentQueryArguments( state ), 'from' ),
 			redirectTo: getRedirectToOriginal( state ),
 			requestError: getRequestError( state ),
 			socialAccountIsLinking: getSocialAccountIsLinking( state ),

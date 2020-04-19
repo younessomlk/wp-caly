@@ -1,4 +1,4 @@
-.layout:not( .is-jetpack-woocommerce-flow ):not( .is-wccom-oauth-flow ) {
+.layout:not( .is-jetpack-woocommerce-flow ):not( .is-jetpack-wcpay-flow ):not( .is-wccom-oauth-flow ) {
 	.login.is-jetpack {
 		.button.is-primary {
 			background-color: var( --studio-jetpack-green-50 );
@@ -31,6 +31,7 @@
 }
 
 .layout.is-jetpack-woocommerce-flow,
+.layout.is-jetpack-wcpay-flow,
 .layout.is-wccom-oauth-flow {
 	.login__jetpack-logo,
 	.login__woocommerce-logo {

@@ -182,6 +182,9 @@ export class LoginLinks extends React.Component {
 		) {
 			return null;
 		}
+		if ( config.isEnabled( 'jetpack/connect/wcpay' ) && this.props.isJetpackWCPayFlow ) {
+			return null;
+		}
 
 		// The email address from the URL (if present) is added to the login
 		// parameters in this.handleMagicLoginLinkClick(). But it's left out
@@ -314,6 +317,7 @@ export default connect(
 		query: getCurrentQueryArguments( state ),
 		isJetpackWooCommerceFlow:
 			'woocommerce-onboarding' === get( getCurrentQueryArguments( state ), 'from' ),
+		isJetpackWCPayFlow: 'woocommerce-payments' === get( getCurrentQueryArguments( state ), 'from' ),
 		wccomFrom: get( getCurrentQueryArguments( state ), 'wccom-from' ),
 	} ),
 	{

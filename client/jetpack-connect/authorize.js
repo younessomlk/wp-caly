@@ -269,6 +269,7 @@ export class JetpackAuthorize extends Component {
 				'woocommerce-services-auto-authorize',
 				'woocommerce-setup-wizard',
 				'woocommerce-onboarding',
+				'woocommerce-payments',
 			],
 			from
 		);
@@ -277,6 +278,11 @@ export class JetpackAuthorize extends Component {
 	isWooOnboarding( props = this.props ) {
 		const { from } = props.authQuery;
 		return 'woocommerce-onboarding' === from;
+	}
+
+	isWCPay( props = this.props ) {
+		const { from } = props.authQuery;
+		return 'woocommerce-payments' === from;
 	}
 
 	shouldRedirectJetpackStart( props = this.props ) {
@@ -685,14 +691,18 @@ export class JetpackAuthorize extends Component {
 
 	render() {
 		return (
-			<MainWrapper isWoo={ this.isWooOnboarding() }>
+			<MainWrapper isWoo={ this.isWooOnboarding() } isWCPay={ this.isWCPay() }>
 				<div className="jetpack-connect__authorize-form">
 					<div className="jetpack-connect__logged-in-form">
 						<QueryUserConnection
 							siteId={ this.props.authQuery.clientId }
 							siteIsOnSitesList={ this.props.isAlreadyOnSitesList }
 						/>
-						<AuthFormHeader authQuery={ this.props.authQuery } isWoo={ this.isWooOnboarding() } />
+						<AuthFormHeader
+							authQuery={ this.props.authQuery }
+							isWoo={ this.isWooOnboarding() }
+							isWCPay={ this.isWCPay() }
+						/>
 						<Card className="jetpack-connect__logged-in-card">
 							<Gravatar user={ this.props.user } size={ 64 } />
 							<p className="jetpack-connect__logged-in-form-user-text">{ this.getUserText() }</p>

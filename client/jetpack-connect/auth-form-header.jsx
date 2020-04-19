@@ -25,6 +25,7 @@ export class AuthFormHeader extends Component {
 	static propTypes = {
 		authQuery: authQueryPropTypes.isRequired,
 		isWoo: PropTypes.bool,
+		isWCPay: PropTypes.bool,
 
 		// Connected props
 		translate: PropTypes.func.isRequired,
@@ -50,7 +51,7 @@ export class AuthFormHeader extends Component {
 	}
 
 	getHeaderText() {
-		const { translate, partnerSlug, isWoo } = this.props;
+		const { translate, partnerSlug, isWoo, isWCPay } = this.props;
 
 		let host = '';
 		switch ( partnerSlug ) {
@@ -89,6 +90,15 @@ export class AuthFormHeader extends Component {
 			}
 		}
 
+		if ( config.isEnabled( 'jetpack/connect/wcpay' ) && isWCPay ) {
+			switch ( currentState ) {
+				case 'logged-out':
+					return translate( 'Create a WCPAY account' );
+				default:
+					return translate( 'Connecting WCPAY' );
+			}
+		}
+
 		switch ( currentState ) {
 			case 'logged-out':
 				return translate( 'Create an account to set up Jetpack' );
@@ -101,7 +111,7 @@ export class AuthFormHeader extends Component {
 	}
 
 	getSubHeaderText() {
-		const { translate, isWoo } = this.props;
+		const { translate, isWoo, isWCPay } = this.props;
 		const currentState = this.getState();
 
 		if ( config.isEnabled( 'jetpack/connect/woocommerce' ) && isWoo ) {
@@ -112,6 +122,15 @@ export class AuthFormHeader extends Component {
 					);
 				default:
 					return translate( "Once connected we'll continue setting up your store" );
+			}
+		}
+
+		if ( config.isEnabled( 'jetpack/connect/wcpay' ) && isWCPay ) {
+			switch ( currentState ) {
+				case 'logged-out':
+					return translate( 'Your account will enable you to start using WCPAY.' );
+				default:
+					return translate( "Once connected we'll continue setting up WCPAY" );
 			}
 		}
 

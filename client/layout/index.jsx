@@ -162,6 +162,8 @@ class Layout extends Component {
 				'is-jetpack-mobile-flow': this.props.isJetpackMobileFlow,
 				'is-jetpack-woocommerce-flow':
 					config.isEnabled( 'jetpack/connect/woocommerce' ) && this.props.isJetpackWooCommerceFlow,
+				'is-jetpack-wcpay-flow':
+					config.isEnabled( 'jetpack/connect/wcpay' ) && this.props.isJetpackWCPayFlow,
 				'is-wccom-oauth-flow':
 					config.isEnabled( 'woocommerce/onboarding-oauth' ) &&
 					isWooOAuth2Client( this.props.oauth2Client ) &&
@@ -260,6 +262,9 @@ export default connect( state => {
 	const isJetpackWooCommerceFlow =
 		( 'jetpack-connect' === sectionName || 'login' === sectionName ) &&
 		'woocommerce-onboarding' === get( getCurrentQueryArguments( state ), 'from' );
+	const isJetpackWCPayFlow =
+		( 'jetpack-connect' === sectionName || 'login' === sectionName ) &&
+		'woocommerce-payments' === get( getCurrentQueryArguments( state ), 'from' );
 	const oauth2Client = getCurrentOAuth2Client( state );
 	const wccomFrom = get( getCurrentQueryArguments( state ), 'wccom-from' );
 	const isEligibleForJITM = [ 'stats', 'plans', 'themes', 'plugins' ].indexOf( sectionName ) >= 0;
@@ -271,6 +276,7 @@ export default connect( state => {
 		isJetpack,
 		isJetpackLogin,
 		isJetpackWooCommerceFlow,
+		isJetpackWCPayFlow,
 		isJetpackMobileFlow,
 		isEligibleForJITM,
 		oauth2Client,

@@ -43,6 +43,7 @@ const LayoutLoggedOut = ( {
 	isJetpackLogin,
 	isPopup,
 	isJetpackWooCommerceFlow,
+	isJetpackWCPayFlow,
 	wccomFrom,
 	masterbarIsHidden,
 	oauth2Client,
@@ -66,6 +67,7 @@ const LayoutLoggedOut = ( {
 		'is-popup': isPopup,
 		'is-jetpack-woocommerce-flow':
 			config.isEnabled( 'jetpack/connect/woocommerce' ) && isJetpackWooCommerceFlow,
+		'is-jetpack-wcpay-flow': config.isEnabled( 'jetpack/connect/wcpay' ) && isJetpackWCPayFlow,
 		'is-wccom-oauth-flow':
 			config.isEnabled( 'woocommerce/onboarding-oauth' ) &&
 			isWooOAuth2Client( oauth2Client ) &&
@@ -142,6 +144,8 @@ export default connect( state => {
 	const noMasterbarForSection = 'signup' === section.name || 'jetpack-connect' === section.name;
 	const isJetpackWooCommerceFlow =
 		'woocommerce-onboarding' === get( getCurrentQueryArguments( state ), 'from' );
+	const isJetpackWCPayFlow =
+		'woocommerce-payments' === get( getCurrentQueryArguments( state ), 'from' );
 	const wccomFrom = get( getCurrentQueryArguments( state ), 'wccom-from' );
 
 	return {
@@ -149,6 +153,7 @@ export default connect( state => {
 		isJetpackLogin,
 		isPopup,
 		isJetpackWooCommerceFlow,
+		isJetpackWCPayFlow,
 		wccomFrom,
 		masterbarIsHidden:
 			! masterbarIsVisible( state ) || noMasterbarForSection || noMasterbarForRoute,
