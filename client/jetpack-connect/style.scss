@@ -1045,6 +1045,10 @@ $colophon-height: 50px; // wpcomColophon element at the bottom
 			text-decoration: underline;
 		}
 
+		.logged-out-form__links {
+			max-width: 400px;
+		}
+
 		.logged-out-form__link-item {
 			text-align: center;
 			text-decoration: underline;

@@ -621,6 +621,10 @@ export class JetpackAuthorize extends Component {
 			return null;
 		}
 
+		if ( this.isWCPay() ) {
+			return this.renderWCPayFooterLinks();
+		}
+
 		return (
 			<LoggedOutFormLinks>
 				{ this.renderBackToWpAdminLink() }
@@ -641,6 +645,27 @@ export class JetpackAuthorize extends Component {
 				<JetpackConnectHappychatButton eventName="calypso_jpc_authorize_chat_initiated">
 					<HelpButton />
 				</JetpackConnectHappychatButton>
+			</LoggedOutFormLinks>
+		);
+	}
+
+	renderWCPayFooterLinks() {
+		const { translate } = this.props;
+		const helpButtonLabel = translate( 'Get help setting up WooCommerce Payments' );
+		const helpURL = 'https://docs.woocommerce.com/document/payments/'; // TODO: Write a WCPay-specific page for Jetpack connection troubles
+
+		return (
+			<LoggedOutFormLinks>
+				<LoggedOutFormLinkItem onClick={ this.handleSignOut }>
+					{ translate( 'Create a new account or connect as a different user' ) }
+				</LoggedOutFormLinkItem>
+				<JetpackConnectHappychatButton
+					eventName="calypso_jpc_authorize_chat_initiated"
+					label={ helpButtonLabel }
+				>
+					<HelpButton label={ helpButtonLabel } url={ helpURL } />
+				</JetpackConnectHappychatButton>
+				{ this.renderBackToWpAdminLink() }
 			</LoggedOutFormLinks>
 		);
 	}
