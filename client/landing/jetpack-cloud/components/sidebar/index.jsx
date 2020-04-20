@@ -10,8 +10,9 @@ import { memoize } from 'lodash';
 /**
  * Internal dependencies
  */
-import { getSelectedSiteSlug } from 'state/ui/selectors';
 import config from 'config';
+import { getSelectedSiteId, getSelectedSiteSlug } from 'state/ui/selectors';
+import getSiteScanThreats from 'state/selectors/get-site-scan-threats';
 import CurrentSite from 'my-sites/current-site';
 import ExpandableSidebarMenu from 'layout/sidebar/expandable';
 import { itemLinkMatches } from 'my-sites/sidebar/utils';
@@ -26,6 +27,7 @@ import {
 	expandMySitesSidebarSection as expandSection,
 	toggleMySitesSidebarSection as toggleSection,
 } from 'state/my-sites/sidebar/actions';
+import { backupMainPath, backupActivityPath } from 'landing/jetpack-cloud/sections/backups/paths';
 
 // Lowercase because these are used as keys for sidebar state.
 export const SIDEBAR_SECTION_SCAN = 'scan';
@@ -35,6 +37,10 @@ export const SIDEBAR_SECTION_BACKUP = 'backup';
  * Style dependencies
  */
 import './style.scss';
+// We import these styles from here because this is the only section that gets always
+// loaded when a user visits Jetpack Cloud. We might have to find a better place for
+// this in the future.
+import 'landing/jetpack-cloud/style.scss';
 
 class JetpackCloudSidebar extends Component {
 	static propTypes = {
@@ -86,18 +92,21 @@ class JetpackCloudSidebar extends Component {
 									label={ translate( 'Status', {
 										comment: 'Jetpack Cloud / Backup status sidebar navigation item',
 									} ) }
-									link={ selectedSiteSlug ? `/backups/${ selectedSiteSlug }` : '/backups' }
+									link={ backupMainPath( selectedSiteSlug ) }
 									onNavigate={ this.onNavigate }
-									selected={ itemLinkMatches( '/backups', this.props.path ) }
+									selected={
+										itemLinkMatches( backupMainPath(), this.props.path ) &&
+										! itemLinkMatches( backupActivityPath(), this.props.path )
+									}
 								/>
 								<SidebarItem
 									expandSection={ this.expandBackupSection }
 									label={ translate( 'Activity Log', {
 										comment: 'Jetpack Cloud / Activity Log status sidebar navigation item',
 									} ) }
-									link={ selectedSiteSlug ? `/activity/${ selectedSiteSlug }` : '/activity' }
+									link={ backupActivityPath( selectedSiteSlug ) }
 									onNavigate={ this.onNavigate }
-									selected={ itemLinkMatches( '/activity', this.props.path ) }
+									selected={ itemLinkMatches( backupActivityPath(), this.props.path ) }
 								/>
 							</ul>
 						</ExpandableSidebarMenu>
@@ -180,7 +189,11 @@ class JetpackCloudSidebar extends Component {
 							label={ translate( 'Manage site', {
 								comment: 'Jetpack Cloud sidebar navigation item',
 							} ) }
-							link="https://wordpress.com/stats" // @todo: Confirm a correct link is used here
+							link={
+								selectedSiteSlug
+									? `https://wordpress.com/home/${ selectedSiteSlug }`
+									: 'https://wordpress.com/stats'
+							}
 							materialIcon="arrow_back"
 							materialIconStyle="filled"
 						/>
@@ -191,17 +204,12 @@ class JetpackCloudSidebar extends Component {
 	}
 }
 
-// This has to be replaced for a real selector once we load the
-// threats information into our Redux store.
-const getSiteThreats = () => {
-	return [ {}, {} ];
-};
-
 export default connect(
 	state => {
+		const siteId = getSelectedSiteId( state );
 		const isBackupSectionOpen = isSidebarSectionOpen( state, SIDEBAR_SECTION_BACKUP );
 		const isScanSectionOpen = isSidebarSectionOpen( state, SIDEBAR_SECTION_SCAN );
-		const threats = getSiteThreats( state );
+		const threats = getSiteScanThreats( state, siteId );
 
 		return {
 			isBackupSectionOpen,

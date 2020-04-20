@@ -6,6 +6,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { useTranslate } from 'i18n-calypso';
 import { flowRight } from 'lodash';
+import config from 'config';
 
 /**
  * Internal dependencies
@@ -33,6 +34,7 @@ import Notices from 'my-sites/customer-home/locations/notices';
 import Upsells from 'my-sites/customer-home/locations/upsells';
 import Primary from 'my-sites/customer-home/locations/primary';
 import Secondary from 'my-sites/customer-home/locations/secondary';
+import Tertiary from 'my-sites/customer-home/locations/tertiary';
 
 /**
  * Style dependencies
@@ -43,6 +45,8 @@ const Home = ( {
 	canUserUseCustomerHome,
 	checklistMode,
 	hasChecklistData,
+	displayChecklist,
+	layout,
 	site,
 	siteId,
 	siteIsUnlaunched,
@@ -71,7 +75,7 @@ const Home = ( {
 				<FormattedHeader
 					headerText={ translate( 'My Home' ) }
 					subHeaderText={ translate(
-						'Your home base for all the posting, editing, and growing of your site'
+						'Your home base for posting, editing, and growing your site.'
 					) }
 					align="left"
 				/>
@@ -83,17 +87,37 @@ const Home = ( {
 					</div>
 				) }
 			</div>
-			<Notices checklistMode={ checklistMode } />
-			<Upsells />
-			{ hasChecklistData ? (
-				<div className="customer-home__layout">
-					<div className="customer-home__layout-col customer-home__layout-col-left">
-						<Primary checklistMode={ checklistMode } />
-					</div>
-					<div className="customer-home__layout-col customer-home__layout-col-right">
-						<Secondary />
-					</div>
-				</div>
+			{ layout ? (
+				<>
+					<Notices
+						cards={ layout.notices }
+						checklistMode={ checklistMode }
+						displayChecklist={ displayChecklist }
+					/>
+					{ config.isEnabled( 'home/experimental-layout' ) ? (
+						<Primary cards={ layout.primary } checklistMode={ checklistMode } />
+					) : (
+						<Upsells cards={ layout.upsells } />
+					) }
+					{ hasChecklistData && (
+						<div className="customer-home__layout">
+							<div className="customer-home__layout-col customer-home__layout-col-left">
+								{ config.isEnabled( 'home/experimental-layout' ) ? (
+									<Secondary cards={ layout.secondary } />
+								) : (
+									<Primary cards={ layout.primary } checklistMode={ checklistMode } />
+								) }
+							</div>
+							<div className="customer-home__layout-col customer-home__layout-col-right">
+								{ config.isEnabled( 'home/experimental-layout' ) ? (
+									<Tertiary cards={ layout.tertiary } />
+								) : (
+									<Secondary cards={ layout.secondary } />
+								) }
+							</div>
+						</div>
+					) }
+				</>
 			) : (
 				<div className="customer-home__loading-placeholder"></div>
 			) }
@@ -103,6 +127,7 @@ const Home = ( {
 
 Home.propTypes = {
 	checklistMode: PropTypes.string,
+	layout: PropTypes.object,
 	site: PropTypes.object.isRequired,
 	siteId: PropTypes.number.isRequired,
 	siteSlug: PropTypes.string.isRequired,
@@ -118,6 +143,7 @@ const mapStateToProps = state => {
 	const hasChecklistData = null !== siteChecklist && Array.isArray( siteChecklist.tasks );
 	const user = getCurrentUser( state );
 	const isClassicEditor = getSelectedEditor( state, siteId ) === 'classic';
+	const layout = getHomeLayout( state, siteId );
 
 	return {
 		site: getSelectedSite( state ),
@@ -127,9 +153,10 @@ const mapStateToProps = state => {
 		hasChecklistData,
 		isStaticHomePage:
 			! isClassicEditor && 'page' === getSiteOption( state, siteId, 'show_on_front' ),
+		displayChecklist: layout?.primary?.includes( 'home-primary-checklist-site-setup' ),
 		siteIsUnlaunched: isUnlaunchedSite( state, siteId ),
 		user,
-		cards: getHomeLayout( state, siteId ),
+		layout,
 	};
 };
 

@@ -38,7 +38,7 @@ export const buildSearchUrl = ( { uri, search, queryKey = 's' } ) => {
 		delete parsedUrl.query[ queryKey ];
 	}
 
-	return url.format( parsedUrl ).replace( /\%20/g, '+' );
+	return url.format( parsedUrl ).replace( /%20/g, '+' );
 };
 
 const UrlSearch = Component =>
@@ -79,7 +79,7 @@ const UrlSearch = Component =>
 		};
 
 		getSearchOpen = () => {
-			return this.state.searchOpen !== false || this.props.search;
+			return this.state.searchOpen !== false || !! this.props.search;
 		};
 
 		render() {

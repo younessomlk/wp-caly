@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import { localize } from 'i18n-calypso';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import page from 'page';
 
 /**
  * Internal dependencies
@@ -22,28 +23,31 @@ import './style.scss';
 class DatePicker extends Component {
 	static propTypes = {
 		siteId: PropTypes.number.isRequired,
-		selectedDate: PropTypes.instanceOf( Date ).isRequired,
+		selectedDate: PropTypes.object.isRequired,
 		onDateChange: PropTypes.func.isRequired,
-		oldestDateAvailable: PropTypes.instanceOf( Date ),
+		oldestDateAvailable: PropTypes.object.isRequired,
 	};
 
 	getDisplayDate = ( date, showTodayYesterday = true ) => {
-		const { moment, translate } = this.props;
+		const { today, moment, translate } = this.props;
 
-		const daysDiff = moment().diff( date, 'days' );
-		const yearToday = moment().format( 'YYYY' );
+		if ( showTodayYesterday ) {
+			const isToday = today.isSame( date, 'day' );
+			const isYesterday = moment( today )
+				.add( -1, 'day' )
+				.isSame( date, 'day' );
+
+			if ( isToday ) {
+				return translate( 'Today' );
+			}
+			if ( isYesterday ) {
+				return translate( 'Yesterday' );
+			}
+		}
+		const yearToday = moment( today ).format( 'YYYY' );
 		const yearDate = moment( date ).format( 'YYYY' );
 
 		const dateFormat = yearToday === yearDate ? 'MMM D' : 'MMM D, YYYY';
-
-		if ( showTodayYesterday ) {
-			switch ( daysDiff ) {
-				case 0:
-					return translate( 'Today' );
-				case 1:
-					return translate( 'Yesterday' );
-			}
-		}
 
 		return moment( date ).format( dateFormat );
 	};
@@ -56,7 +60,7 @@ class DatePicker extends Component {
 
 		const newSelectedDate = moment( selectedDate ).subtract( 1, 'days' );
 
-		onDateChange( newSelectedDate.toDate() );
+		onDateChange( newSelectedDate );
 	};
 
 	goToNextDay = () => {
@@ -67,7 +71,7 @@ class DatePicker extends Component {
 
 		const newSelectedDate = moment( selectedDate ).add( 1, 'days' );
 
-		onDateChange( newSelectedDate.toDate() );
+		onDateChange( newSelectedDate );
 	};
 
 	canGoToPreviousDay = () => {
@@ -77,9 +81,21 @@ class DatePicker extends Component {
 	};
 
 	canGoToNextDay = () => {
-		const { moment, selectedDate } = this.props;
+		const { today, moment, selectedDate } = this.props;
 
-		return ! moment( selectedDate ).isSame( moment(), 'day' );
+		return ! moment( selectedDate ).isSame( moment( today ), 'day' );
+	};
+
+	goToActivityLog = () => {
+		page.redirect( `/activity/${ this.props.siteSlug }` );
+	};
+
+	onSpace = ( evt, fn ) => {
+		if ( evt.key === ' ' ) {
+			return fn;
+		}
+
+		return () => {};
 	};
 
 	render() {
@@ -93,29 +109,62 @@ class DatePicker extends Component {
 
 		return (
 			<div className="date-picker">
-				<Button compact borderless onClick={ this.goToPreviousDay }>
-					<Gridicon icon="chevron-left" className={ ! this.canGoToPreviousDay() && 'disabled' } />
-				</Button>
+				<div className="date-picker__select-date">
+					<div
+						className="date-picker__select-date--previous"
+						role="button"
+						tabIndex={ 0 }
+						onClick={ this.goToPreviousDay }
+						onKeyDown={ this.onSpace( this.goToPreviousDay ) }
+					>
+						<Button compact borderless className="date-picker__button--previous">
+							<Gridicon
+								icon="chevron-left"
+								className={ ! this.canGoToPreviousDay() && 'disabled' }
+							/>
+						</Button>
 
-				<div className="date-picker__display-date">{ previousDisplayDate }</div>
+						<span
+							className={ classNames( 'date-picker__display-date', {
+								disabled: ! this.canGoToPreviousDay(),
+							} ) }
+						>
+							{ previousDisplayDate }
+						</span>
+					</div>
 
-				<DateRangeSelector
-					siteId={ siteId }
-					enabled={ true }
-					customLabel={ <Gridicon icon="calendar" /> }
-				/>
+					<DateRangeSelector
+						siteId={ siteId }
+						enabled={ true }
+						customLabel={ <Gridicon icon="calendar" /> }
+					/>
 
-				<div
-					className={ classNames( 'date-picker__display-date', {
-						disabled: ! this.canGoToNextDay(),
-					} ) }
-				>
-					{ nextDisplayDate }
+					<div
+						className="date-picker__select-date--next"
+						role="button"
+						tabIndex={ 0 }
+						onClick={ this.goToNextDay }
+						onKeyDown={ this.onSpace( this.goToNextDay ) }
+					>
+						<span
+							className={ classNames( 'date-picker__display-date', {
+								disabled: ! this.canGoToNextDay(),
+							} ) }
+						>
+							{ nextDisplayDate }
+						</span>
+
+						<Button compact borderless className="date-picker__button--next">
+							<Gridicon icon="chevron-right" className={ ! this.canGoToNextDay() && 'disabled' } />
+						</Button>
+					</div>
 				</div>
 
-				<Button compact borderless onClick={ this.goToNextDay }>
-					<Gridicon icon="chevron-right" className={ ! this.canGoToNextDay() && 'disabled' } />
-				</Button>
+				<Gridicon
+					icon="search"
+					className="date-picker__search-icon"
+					onClick={ this.goToActivityLog }
+				/>
 			</div>
 		);
 	}

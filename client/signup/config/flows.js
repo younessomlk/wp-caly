@@ -19,6 +19,7 @@ function getCheckoutUrl( dependencies ) {
 		{
 			signup: 1,
 			...( dependencies.isPreLaunch && { preLaunch: 1 } ),
+			...( dependencies.isGutenboardingCreate && { isGutenboardingCreate: 1 } ),
 		},
 		`/checkout/${ dependencies.siteSlug }`
 	);
@@ -55,11 +56,11 @@ function getRedirectDestination( dependencies ) {
 }
 
 function getSignupDestination( dependencies ) {
-	return `/checklist/${ dependencies.siteSlug }`;
+	return `/home/${ dependencies.siteSlug }`;
 }
 
 function getLaunchDestination( dependencies ) {
-	return `/checklist/${ dependencies.siteSlug }?d=launched`;
+	return `/home/${ dependencies.siteSlug }?d=launched`;
 }
 
 function getThankYouNoSiteDestination() {
@@ -67,11 +68,15 @@ function getThankYouNoSiteDestination() {
 }
 
 function getChecklistThemeDestination( dependencies ) {
-	return `/checklist/${ dependencies.siteSlug }?d=theme`;
+	return `/home/${ dependencies.siteSlug }?d=theme`;
 }
 
 function getEditorDestination( dependencies ) {
 	return `/block-editor/page/${ dependencies.siteSlug }/home`;
+}
+
+function getPreLaunchEditorDestination( dependencies ) {
+	return `/block-editor/page/${ dependencies.siteSlug }/home?is-gutenboarding`;
 }
 
 const flows = generateFlows( {
@@ -82,6 +87,7 @@ const flows = generateFlows( {
 	getThankYouNoSiteDestination,
 	getChecklistThemeDestination,
 	getEditorDestination,
+	getPreLaunchEditorDestination,
 } );
 
 function removeUserStepFromFlow( flow ) {

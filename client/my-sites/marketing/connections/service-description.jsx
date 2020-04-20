@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { identity } from 'lodash';
 import { localize } from 'i18n-calypso';
+import { localizeUrl } from 'lib/i18n-utils';
 
 class SharingServiceDescription extends Component {
 	static propTypes = {
@@ -19,8 +20,8 @@ class SharingServiceDescription extends Component {
 			facebook: function() {
 				if ( this.props.numberOfConnections > 0 ) {
 					return this.props.translate(
-						'Sharing posts to your news feed.',
-						'Sharing posts to your news feeds.',
+						'Sharing posts to your Facebook page.',
+						'Sharing posts to your Facebook pages.',
 						{
 							count: this.props.numberOfConnections,
 							comment: 'Description for Facebook Publicize when one or more accounts are connected',
@@ -28,7 +29,7 @@ class SharingServiceDescription extends Component {
 					);
 				}
 
-				return this.props.translate( 'Share posts to your news feed.', {
+				return this.props.translate( 'Share posts to your Facebook page.', {
 					comment: 'Description for Facebook Publicize when no accounts are connected',
 				} );
 			},
@@ -104,7 +105,7 @@ class SharingServiceDescription extends Component {
 					comment: 'Description for Tumblr Publicize when no accounts are connected',
 				} );
 			},
-			instagram: function() {
+			instagram_basic_display: function() {
 				if ( this.props.numberOfConnections > 0 ) {
 					return this.props.translate( 'Connected to your Instagram account.', {
 						comment: 'Description for Instagram when one or more accounts are connected',
@@ -154,7 +155,7 @@ class SharingServiceDescription extends Component {
 					components: {
 						a: (
 							<a
-								href="https://en.support.wordpress.com/publicize/#facebook-pages"
+								href={ localizeUrl( 'https://wordpress.com/support/publicize/#facebook-pages' ) }
 								target="_blank"
 								rel="noopener noreferrer"
 							/>
@@ -172,8 +173,12 @@ class SharingServiceDescription extends Component {
 				args: { service: this.props.service.label },
 				context: 'Sharing: Publicize',
 			} );
-		} else if ( 'function' === typeof this.props.descriptions[ this.props.service.ID ] ) {
-			description = this.props.descriptions[ this.props.service.ID ].call( this );
+		} else if (
+			'function' === typeof this.props.descriptions[ this.props.service.ID.replace( /-/g, '_' ) ]
+		) {
+			description = this.props.descriptions[ this.props.service.ID.replace( /-/g, '_' ) ].call(
+				this
+			);
 		}
 
 		/**

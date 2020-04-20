@@ -9,6 +9,7 @@ import classNames from 'classnames';
 import { noop, size } from 'lodash';
 import Gridicon from 'components/gridicon';
 import JetpackLogo from 'components/jetpack-logo';
+import config from 'config';
 
 /**
  * Internal dependencies
@@ -26,10 +27,11 @@ import { addQueryArgs } from 'lib/url';
 import { recordTracksEvent } from 'state/analytics/actions';
 import { getSelectedSiteId, getSelectedSiteSlug } from 'state/ui/selectors';
 import canCurrentUser from 'state/selectors/can-current-user';
-import { Button, Card, ProductIcon } from '@automattic/components';
+import { Button, Card } from '@automattic/components';
 import DismissibleCard from 'blocks/dismissible-card';
 import PlanPrice from 'my-sites/plan-price';
 import TrackComponentView from 'lib/analytics/track-component-view';
+import isSiteWPForTeams from 'state/selectors/is-site-wpforteams';
 
 /**
  * Style dependencies
@@ -68,6 +70,7 @@ export class Banner extends Component {
 		tracksClickProperties: PropTypes.object,
 		tracksDismissProperties: PropTypes.object,
 		customerType: PropTypes.string,
+		isSiteWPForTeams: PropTypes.bool,
 	};
 
 	static defaultProps = {
@@ -83,6 +86,7 @@ export class Banner extends Component {
 		tracksImpressionName: 'calypso_banner_cta_impression',
 		tracksClickName: 'calypso_banner_cta_click',
 		tracksDismissName: 'calypso_banner_dismiss',
+		isSiteWPForTeams: false,
 	};
 
 	getHref() {
@@ -137,15 +141,7 @@ export class Banner extends Component {
 	};
 
 	getIcon() {
-		const { icon, jetpack, showIcon, plan } = this.props;
-
-		if ( plan && ! icon ) {
-			return (
-				<div className="banner__icon-plan">
-					<ProductIcon slug={ plan } />
-				</div>
-			);
-		}
+		const { icon, jetpack, showIcon } = this.props;
 
 		if ( ! showIcon ) {
 			return;
@@ -162,10 +158,10 @@ export class Banner extends Component {
 		return (
 			<div className="banner__icons">
 				<div className="banner__icon">
-					<Gridicon icon={ icon || 'info-outline' } size={ 18 } />
+					<Gridicon icon={ icon || 'star' } size={ 18 } />
 				</div>
 				<div className="banner__icon-circle">
-					<Gridicon icon={ icon || 'info-outline' } size={ 18 } />
+					<Gridicon icon={ icon || 'star' } size={ 18 } />
 				</div>
 			</div>
 		);
@@ -261,6 +257,11 @@ export class Banner extends Component {
 			plan,
 		} = this.props;
 
+		// No Banners for WP for Teams sites.
+		if ( config.isEnabled( 'signup/wpforteams' ) && this.props.isSiteWPForTeams ) {
+			return null;
+		}
+
 		const classes = classNames(
 			'banner',
 			className,
@@ -308,6 +309,7 @@ export class Banner extends Component {
 const mapStateToProps = ( state, ownProps ) => ( {
 	siteSlug: ownProps.disableHref ? null : getSelectedSiteSlug( state ),
 	canUserUpgrade: canCurrentUser( state, getSelectedSiteId( state ), 'manage_options' ),
+	isSiteWPForTeams: isSiteWPForTeams( state, getSelectedSiteId( state ) ),
 } );
 
 export default connect( mapStateToProps, { recordTracksEvent } )( Banner );

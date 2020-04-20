@@ -6,14 +6,15 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { get, includes, some } from 'lodash';
-import Gridicon from 'components/gridicon';
 import { localize } from 'i18n-calypso';
 import moment from 'moment';
 
 /**
  * Internal dependencies
  */
+import Gridicon from 'components/gridicon';
 import analytics from 'lib/analytics';
+import { gaRecordEvent } from 'lib/analytics/ga';
 import { Button, Card, CompactCard } from '@automattic/components';
 import Count from 'components/count';
 import NoticeAction from 'components/notice/notice-action';
@@ -32,8 +33,8 @@ import WpcomPluginInstallButton from 'my-sites/plugins/plugin-install-button-wpc
 import PluginAutomatedTransfer from 'my-sites/plugins/plugin-automated-transfer';
 import { getExtensionSettingsPath } from 'my-sites/plugins/utils';
 import { userCan } from 'lib/site/utils';
-import Banner from 'components/banner';
-import { TYPE_BUSINESS } from 'lib/plans/constants';
+import UpsellNudge from 'blocks/upsell-nudge';
+import { FEATURE_UPLOAD_PLUGINS, TYPE_BUSINESS } from 'lib/plans/constants';
 import { findFirstSimilarPlanKey } from 'lib/plans';
 import { isBusiness, isEcommerce, isEnterprise } from 'lib/products-values';
 import { addSiteFragment } from 'lib/route';
@@ -404,7 +405,7 @@ export class PluginMeta extends Component {
 					status="is-warning"
 					showDismiss={ false }
 				>
-					<NoticeAction href="https://support.wordpress.com/incompatible-plugins/">
+					<NoticeAction href="https://wordpress.com/support/incompatible-plugins/">
 						{ this.props.translate( 'More info' ) }
 					</NoticeAction>
 				</Notice>
@@ -557,7 +558,7 @@ export class PluginMeta extends Component {
 		event.preventDefault();
 		PluginsActions.updatePlugin( this.props.sites[ 0 ], this.props.sites[ 0 ].plugin );
 
-		analytics.ga.recordEvent(
+		gaRecordEvent(
 			'Plugins',
 			'Clicked Update Selected Site Plugin',
 			'Plugin Name',
@@ -590,7 +591,7 @@ export class PluginMeta extends Component {
 			}
 		} );
 
-		analytics.ga.recordEvent(
+		gaRecordEvent(
 			'Plugins',
 			'Clicked Update All Sites Plugin',
 			'Plugin Name',
@@ -613,11 +614,13 @@ export class PluginMeta extends Component {
 		/* eslint-disable wpcalypso/jsx-classname-namespace */
 		return (
 			<div className="plugin-meta__upgrade_nudge">
-				<Banner
+				<UpsellNudge
 					event="calypso_plugin_detail_page_upgrade_nudge"
 					href={ bannerURL }
+					feature={ FEATURE_UPLOAD_PLUGINS }
 					plan={ plan }
 					title={ title }
+					showIcon={ true }
 				/>
 			</div>
 		);

@@ -58,21 +58,35 @@ function ContinueAsUser( { currentUser, redirectUrlFromQuery, onChangeAccount } 
 
 	return (
 		<div className="continue-as-user">
-			<Gravatar user={ currentUser } imgSize={ 400 } size={ 200 } />
-			<div className="continue-as-user__username">{ userName }</div>
+			<a href={ validatedRedirectUrl || '/' } className="continue-as-user__gravatar-link">
+				<Gravatar
+					user={ currentUser }
+					className="continue-as-user__gravatar"
+					imgSize={ 400 }
+					size={ 110 }
+				/>
+				<div>{ userName }</div>
+			</a>
 			<Button primary href={ validatedRedirectUrl || '/' }>
 				{ translate( 'Continue' ) }
 			</Button>
-			<p>{ translate( 'or' ) }</p>
-
-			<button
-				type="button"
-				id="loginAsAnotherUser"
-				className="continue-as-user__change-user-link"
-				onClick={ onChangeAccount }
-			>
-				{ translate( 'Log in with a different account' ) }
-			</button>
+			<p>
+				{ translate( 'Not you?{{br/}}Log in with {{link}}another account{{/link}}', {
+					components: {
+						br: <br />,
+						link: (
+							<button
+								type="button"
+								id="loginAsAnotherUser"
+								className="continue-as-user__change-user-link"
+								onClick={ onChangeAccount }
+							/>
+						),
+					},
+					args: { userName },
+					comment: 'Link to continue login as different user',
+				} ) }
+			</p>
 		</div>
 	);
 }

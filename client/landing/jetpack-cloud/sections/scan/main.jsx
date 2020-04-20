@@ -10,6 +10,7 @@ import { translate } from 'i18n-calypso';
  * Internal dependencies
  */
 import DocumentHead from 'components/data/document-head';
+import QueryJetpackScan from 'components/data/query-jetpack-scan';
 import SecurityIcon from 'landing/jetpack-cloud/components/security-icon';
 import StatsFooter from 'landing/jetpack-cloud/components/stats-footer';
 import ScanThreats from 'landing/jetpack-cloud/components/scan-threats';
@@ -18,6 +19,7 @@ import Gridicon from 'components/gridicon';
 import Main from 'components/main';
 import SidebarNavigation from 'my-sites/sidebar-navigation';
 import { getSelectedSite, getSelectedSiteSlug } from 'state/ui/selectors';
+import getSiteScanState from 'state/selectors/get-site-scan-state';
 import { withLocalizedMoment } from 'components/localized-moment';
 
 /**
@@ -32,19 +34,14 @@ class ScanPage extends Component {
 		return (
 			<>
 				<SecurityIcon />
-				<h1 className="scan__header scan__header--okay">
-					{ translate( 'Don’t worry about a thing' ) }
-				</h1>
+				<h1 className="scan__header">{ translate( 'Don’t worry about a thing' ) }</h1>
 				<p>
 					The last Jetpack scan ran <strong>{ moment( lastScanTimestamp ).fromNow() }</strong> and
-					everything looked great.
+					everything looked great. <br />
+					Run a manual scan now or wait for Jetpack to scan your site later today.
 				</p>
 				{ isEnabled( 'jetpack-cloud/on-demand-scan' ) && (
-					<Button
-						primary
-						href={ `/scan/${ siteSlug }/?scan-state=scanning` }
-						className="scan__button"
-					>
+					<Button primary href={ `/scan/${ siteSlug }` } className="scan__button">
 						{ translate( 'Scan now' ) }
 					</Button>
 				) }
@@ -56,7 +53,7 @@ class ScanPage extends Component {
 		return (
 			<>
 				<SecurityIcon icon="in-progress" />
-				<h1 className="scan__header scan__header--okay">{ translate( 'Preparing to scan' ) }</h1>
+				<h1 className="scan__header">{ translate( 'Preparing to scan' ) }</h1>
 				<ProgressBar value={ 1 } total={ 100 } color="#069E08" />
 				<p>
 					Welcome to Jetpack Scan, we are taking a first look at your site now and the results will
@@ -83,8 +80,9 @@ class ScanPage extends Component {
 				<SecurityIcon icon="scan-error" />
 				<h1 className="scan__header">{ translate( 'Something went wrong' ) }</h1>
 				<p>
-					The scan did not complete successfully. In order to complete the scan you need to contact
-					support.
+					The scan was unable to process the themes directory and did not completed successfully. In
+					order to complete the scan you will need to speak to support who can help determine what
+					went wrong.
 				</p>
 				<Button
 					primary
@@ -102,23 +100,33 @@ class ScanPage extends Component {
 	}
 
 	renderScanState() {
-		switch ( this.props.scanState ) {
-			case 'okay':
-				return this.renderScanOkay();
-			case 'scanning':
-				return this.renderScanning();
-			case 'threats':
-				return this.renderThreats();
-			case 'error':
-				return this.renderScanError();
+		if ( ! this.props.scanState ) {
+			return <div className="scan__is-loading" />;
 		}
+
+		const status = this.props.scanState.status;
+		if ( status === 'scanning' ) {
+			return this.renderScanning();
+		}
+
+		if ( status !== 'done' ) {
+			return this.renderScanError();
+		}
+
+		const threats = this.props.scanState.threats;
+		if ( threats && threats.length ) {
+			return this.renderThreats();
+		}
+
+		return this.renderScanOkay();
 	}
 
 	render() {
 		return (
-			<Main wideLayout className="scan__main">
+			<Main className="scan__main">
 				<DocumentHead title="Scanner" />
 				<SidebarNavigation />
+				<QueryJetpackScan siteId={ this.props.site.ID } />
 				<div className="scan__content">{ this.renderScanState() }</div>
 				<StatsFooter
 					header="Scan Summary"
@@ -127,8 +135,8 @@ class ScanPage extends Component {
 						{ name: 'Plugins', number: 4 },
 						{ name: 'Themes', number: 3 },
 					] }
-					noticeText="Failing to plan is planning to fail. Regular backups ensure that should the worst happen, you are prepared. Jetpack Backups has you covered."
-					noticeLink="https://jetpack/upgrade/backups"
+					noticeText="Failing to plan is planning to fail. Regular backups ensure that should the worst happen, you are prepared. Jetpack Backup has you covered."
+					noticeLink="https://jetpack.com/upgrade/backup"
 				/>
 			</Main>
 		);
@@ -138,10 +146,7 @@ class ScanPage extends Component {
 export default connect( state => {
 	const site = getSelectedSite( state );
 	const siteSlug = getSelectedSiteSlug( state );
-
-	// TODO: Get state from actual API.
-	const params = new URL( document.location ).searchParams;
-	const scanState = params.get( 'scan-state' ) || 'okay';
+	const scanState = getSiteScanState( state, site.ID );
 
 	// TODO: Get threats from actual API.
 	const threats = [

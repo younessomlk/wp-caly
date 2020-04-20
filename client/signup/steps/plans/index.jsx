@@ -17,6 +17,7 @@ import { getTld, isSubdomain } from 'lib/domains';
 import { getSiteBySlug } from 'state/sites/selectors';
 import StepWrapper from 'signup/step-wrapper';
 import PlansFeaturesMain from 'my-sites/plans-features-main';
+import GutenboardingHeader from 'my-sites/plans-features-main/gutenboarding-header';
 import QueryPlans from 'components/data/query-plans';
 import { FEATURE_UPLOAD_THEMES_PLUGINS } from '../../../lib/plans/constants';
 import { planHasFeature } from '../../../lib/plans';
@@ -71,7 +72,15 @@ export class PlansStep extends Component {
 			...additionalStepData,
 		};
 
-		this.props.submitSignupStep( step, { cartItem } );
+		this.props.submitSignupStep( step, {
+			cartItem,
+			// dependencies used only for 'plans-with-domain' step in Gutenboarding pre-launch flow
+			...( this.isGutenboarding() &&
+				! this.props.isLaunchPage && {
+					isPreLaunch: true,
+					isGutenboardingCreate: true,
+				} ),
+		} );
 		this.props.goToNextStep();
 	};
 
@@ -98,8 +107,31 @@ export class PlansStep extends Component {
 		this.onSelectPlan( null ); // onUpgradeClick expects a cart item -- null means Free Plan.
 	};
 
+	isGutenboarding = () =>
+		this.props.flowName === 'frankenflow' || this.props.flowName === 'prelaunch'; // signup flows coming from Gutenboarding
+
 	isEligibleForPlanStepTest() {
-		return ! this.props.isLaunchPage && 'variantCopyUpdates' === abtest( 'planStepCopyUpdates' );
+		return (
+			! this.props.isLaunchPage &&
+			! this.isGutenboarding() &&
+			'variantCopyUpdates' === abtest( 'planStepCopyUpdates' )
+		);
+	}
+
+	getGutenboardingHeader() {
+		if ( this.isGutenboarding() ) {
+			const { headerText, subHeaderText } = this.props;
+
+			return (
+				<GutenboardingHeader
+					headerText={ headerText }
+					subHeaderText={ subHeaderText }
+					onFreePlanSelect={ this.handleFreePlanButtonClick }
+				/>
+			);
+		}
+
+		return null;
 	}
 
 	plansFeaturesList() {
@@ -131,6 +163,7 @@ export class PlansStep extends Component {
 					plansWithScroll={ true }
 					planTypes={ planTypes }
 					flowName={ flowName }
+					customHeader={ this.getGutenboardingHeader() }
 				/>
 			</div>
 		);
@@ -187,6 +220,7 @@ export class PlansStep extends Component {
 				allowBackFirstStep={ !! selectedSite }
 				backUrl={ backUrl }
 				backLabelText={ backLabelText }
+				hideFormattedHeader={ this.isGutenboarding() }
 			/>
 		);
 	}
@@ -212,6 +246,7 @@ PlansStep.propTypes = {
 	customerType: PropTypes.string,
 	translate: PropTypes.func.isRequired,
 	planTypes: PropTypes.array,
+	flowName: PropTypes.string,
 };
 
 /**

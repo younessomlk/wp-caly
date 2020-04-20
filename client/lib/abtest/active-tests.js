@@ -115,4 +115,13 @@ export default {
 		defaultVariation: 'control',
 		allowExistingUsers: true,
 	},
+	ATPrivacy: {
+		datestamp: '20200331',
+		variations: {
+			variant: 5,
+			control: 95,
+		},
+		defaultVariation: 'control',
+		allowExistingUsers: false,
+	},
 };

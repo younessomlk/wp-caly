@@ -418,7 +418,7 @@ class ActivityLog extends Component {
 			  );
 
 		return (
-			<div>
+			<>
 				{ siteId && 'active' === rewindState.state && (
 					<QueryRewindBackupStatus siteId={ siteId } />
 				) }
@@ -432,6 +432,10 @@ class ActivityLog extends Component {
 				<FormattedHeader
 					className="activity-log__page-heading"
 					headerText={ translate( 'Activity' ) }
+					subHeaderText={ translate(
+						"Keep tabs on all your site's activity — plugin and theme updates, user logins, " +
+							'setting modifications, and more.'
+					) }
 					align="left"
 				/>
 
@@ -511,7 +515,7 @@ class ActivityLog extends Component {
 						/>
 					</div>
 				) }
-			</div>
+			</>
 		);
 	}
 

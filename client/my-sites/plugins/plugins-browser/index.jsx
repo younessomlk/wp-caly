@@ -37,9 +37,9 @@ import isVipSite from 'state/selectors/is-vip-site';
 import NoPermissionsError from 'my-sites/plugins/no-permissions-error';
 import { Button } from '@automattic/components';
 import { isBusiness, isEcommerce, isEnterprise, isPremium } from 'lib/products-values';
-import { TYPE_BUSINESS } from 'lib/plans/constants';
+import { FEATURE_UPLOAD_PLUGINS, TYPE_BUSINESS } from 'lib/plans/constants';
 import { findFirstSimilarPlanKey } from 'lib/plans';
-import Banner from 'components/banner';
+import UpsellNudge from 'blocks/upsell-nudge';
 import { isEnabled } from 'config';
 import wpcomFeaturesAsPlugins from './wpcom-features-as-plugins';
 import QuerySiteRecommendedPlugins from 'components/data/query-site-recommended-plugins';
@@ -522,9 +522,11 @@ export class PluginsBrowser extends Component {
 		const title = translate( 'Upgrade to the Business plan to install plugins.' );
 
 		return (
-			<Banner
+			<UpsellNudge
 				event="calypso_plugins_browser_upgrade_nudge"
+				showIcon={ true }
 				href={ bannerURL }
+				feature={ FEATURE_UPLOAD_PLUGINS }
 				plan={ plan }
 				title={ title }
 			/>

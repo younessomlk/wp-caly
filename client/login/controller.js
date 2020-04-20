@@ -16,10 +16,11 @@ import MagicLogin from './magic-login';
 import WPLogin from './wp-login';
 import { fetchOAuth2ClientData } from 'state/oauth2-clients/actions';
 import { getCurrentUser, getCurrentUserLocale } from 'state/current-user/selectors';
+import GUTENBOARDING_BASE_NAME from 'landing/gutenboarding/basename.json';
 
 const enhanceContextWithLogin = context => {
 	const {
-		params: { flow, isJetpack, socialService, twoFactorAuthType },
+		params: { flow, isJetpack, isGutenboarding, socialService, twoFactorAuthType },
 		path,
 		query,
 	} = context;
@@ -33,6 +34,7 @@ const enhanceContextWithLogin = context => {
 	context.primary = (
 		<WPLogin
 			isJetpack={ isJetpack === 'jetpack' }
+			isGutenboarding={ isGutenboarding === GUTENBOARDING_BASE_NAME }
 			path={ path }
 			twoFactorAuthType={ twoFactorAuthType }
 			socialService={ socialService }
@@ -41,6 +43,7 @@ const enhanceContextWithLogin = context => {
 			privateSite={ flow === 'private-site' }
 			domain={ ( query && query.domain ) || null }
 			fromSite={ ( query && query.site ) || null }
+			signupUrl={ ( query && query.signup_url ) || null }
 		/>
 	);
 };

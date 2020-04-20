@@ -33,15 +33,26 @@ import NonPrimaryDomainPlanUpsell from '../../components/domain/non-primary-doma
 import RenewButton from 'my-sites/domains/domain-management/edit/card/renew-button';
 import AutoRenewToggle from 'me/purchases/manage-purchase/auto-renew-toggle';
 import QuerySitePurchases from 'components/data/query-site-purchases';
-import { isExpired, shouldRenderExpiringCreditCard, isRechargeable } from 'lib/purchases';
+import { shouldRenderExpiringCreditCard } from 'lib/purchases';
 import ExpiringCreditCard from '../card/notices/expiring-credit-card';
 import ExpiringSoon from '../card/notices/expiring-soon';
 import DomainManagementNavigation from '../navigation';
+import DomainManagementNavigationEnhanced from '../navigation/enhanced';
+import { WrapDomainStatusButtons } from './helpers';
+import OutboundTransferConfirmation from '../../components/outbound-transfer-confirmation';
 
 class RegisteredDomainType extends React.Component {
 	resolveStatus() {
 		const { domain, translate, purchase, moment } = this.props;
 		const { registrationDate, expiry } = domain;
+
+		if ( domain.pendingTransfer ) {
+			return {
+				statusText: translate( 'Outbound transfer initiated' ),
+				statusClass: 'status-error',
+				icon: 'cached',
+			};
+		}
 
 		if ( purchase && shouldRenderExpiringCreditCard( purchase ) ) {
 			return {
@@ -108,7 +119,7 @@ class RegisteredDomainType extends React.Component {
 		const { domain, purchase, translate, moment } = this.props;
 		const domainsLink = link => <a href={ link } target="_blank" rel="noopener noreferrer" />;
 
-		if ( ! domain.expired ) {
+		if ( ! domain.expired || domain.pendingTransfer ) {
 			return null;
 		}
 
@@ -201,7 +212,7 @@ class RegisteredDomainType extends React.Component {
 
 		const recentlyRegistered = isRecentlyRegistered( registrationDate );
 
-		if ( ! recentlyRegistered ) {
+		if ( ! recentlyRegistered || domain.pendingTransfer ) {
 			return null;
 		}
 
@@ -221,6 +232,11 @@ class RegisteredDomainType extends React.Component {
 				) }
 			</div>
 		);
+	}
+
+	renderOutboundTransferInProgress() {
+		const { domain, selectedSite } = this.props;
+		return <OutboundTransferConfirmation domain={ domain } siteId={ selectedSite.ID } />;
 	}
 
 	renderDefaultRenewButton() {
@@ -254,19 +270,18 @@ class RegisteredDomainType extends React.Component {
 			return null;
 		}
 
-		if ( ! isRechargeable( purchase ) || isExpired( purchase ) ) {
-			return null;
-		}
-
-		return (
+		const content = (
 			<AutoRenewToggle
 				planName={ selectedSite.plan.product_name_short }
 				siteDomain={ selectedSite.domain }
 				purchase={ purchase }
 				compact={ true }
 				withTextStatus={ true }
+				toggleSource="registered-domain-status"
 			/>
 		);
+
+		return content && <WrapDomainStatusButtons>{ content }</WrapDomainStatusButtons>;
 	}
 
 	renderAutoRenew() {
@@ -274,13 +289,13 @@ class RegisteredDomainType extends React.Component {
 
 		if ( isLoadingPurchase ) {
 			return (
-				<div className="domain-types__auto-renew-placeholder">
+				<WrapDomainStatusButtons className="domain-types__auto-renew-placeholder">
 					<p />
-				</div>
+				</WrapDomainStatusButtons>
 			);
 		}
 
-		return <div>{ this.renderAutoRenewToggle() }</div>;
+		return this.renderAutoRenewToggle();
 	}
 
 	planUpsellForNonPrimaryDomain() {
@@ -303,7 +318,6 @@ class RegisteredDomainType extends React.Component {
 				selectedSite={ this.props.selectedSite }
 				ruleWhiteList={ [
 					'pendingGSuiteTosAcceptanceDomains',
-					'pendingTransfer',
 					'newTransfersWrongNS',
 					'pendingConsent',
 				] }
@@ -322,6 +336,9 @@ class RegisteredDomainType extends React.Component {
 		const { statusText, statusClass, icon } = this.resolveStatus();
 
 		const newStatusDesignAutoRenew = config.isEnabled( 'domains/new-status-design/auto-renew' );
+		const newDomainManagementNavigation = config.isEnabled(
+			'domains/new-status-design/new-options'
+		);
 
 		return (
 			<div className="domain-types__container">
@@ -350,6 +367,7 @@ class RegisteredDomainType extends React.Component {
 					<ExpiringSoon selectedSite={ selectedSite } purchase={ purchase } domain={ domain } />
 					{ this.renderExpired() }
 					{ this.renderRecentlyRegistered() }
+					{ this.renderOutboundTransferInProgress() }
 				</DomainStatus>
 				<Card compact={ true } className="domain-types__expiration-row">
 					<div>
@@ -367,7 +385,7 @@ class RegisteredDomainType extends React.Component {
 					</div>
 					{ this.renderDefaultRenewButton() }
 					{ ! newStatusDesignAutoRenew && domain.currentUserCanManage && (
-						<div>
+						<WrapDomainStatusButtons>
 							<SubscriptionSettings
 								type={ domain.type }
 								compact={ true }
@@ -375,16 +393,25 @@ class RegisteredDomainType extends React.Component {
 								siteSlug={ this.props.selectedSite.slug }
 								onClick={ this.handlePaymentSettingsClick }
 							/>
-						</div>
+						</WrapDomainStatusButtons>
 					) }
 					{ newStatusDesignAutoRenew && domain.currentUserCanManage && this.renderAutoRenew() }
 				</Card>
-				<DomainManagementNavigation
-					domain={ domain }
-					selectedSite={ this.props.selectedSite }
-					purchase={ purchase }
-					isLoadingPurchase={ isLoadingPurchase }
-				/>
+				{ newDomainManagementNavigation ? (
+					<DomainManagementNavigationEnhanced
+						domain={ domain }
+						selectedSite={ this.props.selectedSite }
+						purchase={ purchase }
+						isLoadingPurchase={ isLoadingPurchase }
+					/>
+				) : (
+					<DomainManagementNavigation
+						domain={ domain }
+						selectedSite={ this.props.selectedSite }
+						purchase={ purchase }
+						isLoadingPurchase={ isLoadingPurchase }
+					/>
+				) }
 			</div>
 		);
 	}

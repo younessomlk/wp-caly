@@ -27,6 +27,7 @@ import { login } from 'lib/paths';
 import { recordTracksEventWithClientId as recordTracksEvent } from 'state/analytics/actions';
 import { resetMagicLoginRequestForm } from 'state/login/magic-login/actions';
 import { isDomainConnectAuthorizePath } from 'lib/domains/utils';
+import GUTENBOARDING_BASE_NAME from 'landing/gutenboarding/basename.json';
 
 export class LoginLinks extends React.Component {
 	static propTypes = {
@@ -39,6 +40,7 @@ export class LoginLinks extends React.Component {
 		resetMagicLoginRequestForm: PropTypes.func.isRequired,
 		translate: PropTypes.func.isRequired,
 		twoFactorAuthType: PropTypes.string,
+		isGutenboarding: PropTypes.bool.isRequired,
 	};
 
 	recordBackToWpcomLinkClick = () => {
@@ -54,7 +56,13 @@ export class LoginLinks extends React.Component {
 
 		this.props.recordTracksEvent( 'calypso_login_lost_phone_link_click' );
 
-		page( login( { isNative: true, twoFactorAuthType: 'backup' } ) );
+		page(
+			login( {
+				isNative: true,
+				twoFactorAuthType: 'backup',
+				isGutenboarding: this.props.isGutenboarding,
+			} )
+		);
 	};
 
 	handleMagicLoginLinkClick = event => {
@@ -66,12 +74,19 @@ export class LoginLinks extends React.Component {
 		const loginParameters = {
 			isNative: true,
 			locale: this.props.locale,
-			twoFactorAuthType: this.props.currentRoute === '/log-in/jetpack' ? 'jetpack/link' : 'link',
+			twoFactorAuthType: 'link',
 		};
 		const emailAddress = get( this.props, [ 'query', 'email_address' ] );
 		if ( emailAddress ) {
 			loginParameters.emailAddress = emailAddress;
 		}
+
+		if ( this.props.currentRoute === '/log-in/jetpack' ) {
+			loginParameters.twoFactorAuthType = 'jetpack/link';
+		} else if ( this.props.isGutenboarding ) {
+			loginParameters.twoFactorAuthType = `${ GUTENBOARDING_BASE_NAME }/link`;
+		}
+
 		page( login( loginParameters ) );
 	};
 
@@ -104,7 +119,8 @@ export class LoginLinks extends React.Component {
 
 				const { hostname } = parseUrl( redirectToQuery.site_url );
 				const linkText = hostname
-					? this.props.translate( 'Back to %(hostname)s', { args: { hostname } } )
+					? // translators: hostname is a the hostname part of the URL. eg "google.com"
+					  this.props.translate( 'Back to %(hostname)s', { args: { hostname } } )
 					: this.props.translate( 'Back' );
 
 				return (
@@ -136,7 +152,7 @@ export class LoginLinks extends React.Component {
 				icon={ true }
 				onClick={ this.recordHelpLinkClick }
 				target="_blank"
-				href="https://en.support.wordpress.com/security/two-step-authentication/"
+				href="https://wordpress.com/support/security/two-step-authentication/"
 			>
 				{ this.props.translate( 'Get help' ) }
 			</ExternalLink>
@@ -193,8 +209,14 @@ export class LoginLinks extends React.Component {
 		const loginParameters = {
 			isNative: true,
 			locale: this.props.locale,
-			twoFactorAuthType: this.props.currentRoute === '/log-in/jetpack' ? 'jetpack/link' : 'link',
+			twoFactorAuthType: 'link',
 		};
+
+		if ( this.props.currentRoute === '/log-in/jetpack' ) {
+			loginParameters.twoFactorAuthType = 'jetpack/link';
+		} else if ( this.props.isGutenboarding ) {
+			loginParameters.twoFactorAuthType = `${ GUTENBOARDING_BASE_NAME }/link`;
+		}
 
 		return (
 			<a
@@ -227,7 +249,16 @@ export class LoginLinks extends React.Component {
 
 	renderSignUpLink() {
 		// Taken from client/layout/masterbar/logged-out.jsx
-		const { currentQuery, currentRoute, oauth2Client, pathname, translate, wccomFrom } = this.props;
+		const {
+			currentQuery,
+			currentRoute,
+			oauth2Client,
+			pathname,
+			translate,
+			wccomFrom,
+			isGutenboarding,
+			locale,
+		} = this.props;
 
 		let signupUrl = config( 'signup_url' );
 		const signupFlow = get( currentQuery, 'signup_flow' );
@@ -282,6 +313,11 @@ export class LoginLinks extends React.Component {
 			signupUrl = `${ signupUrl }/wpcc?${ stringify( oauth2Params ) }`;
 		}
 
+		if ( isGutenboarding ) {
+			const langFragment = locale && locale !== 'en' ? `/${ locale }` : '';
+			signupUrl = this.props.signupUrl || `/${ GUTENBOARDING_BASE_NAME }` + langFragment;
+		}
+
 		return (
 			<a
 				href={ signupUrl }
@@ -302,7 +338,9 @@ export class LoginLinks extends React.Component {
 				{ this.renderHelpLink() }
 				{ this.renderMagicLoginLink() }
 				{ this.renderResetPasswordLink() }
-				{ ! isCrowdsignalOAuth2Client( this.props.oauth2Client ) && this.renderBackLink() }
+				{ ! isCrowdsignalOAuth2Client( this.props.oauth2Client ) &&
+					! this.props.isGutenboarding &&
+					this.renderBackLink() }
 			</div>
 		);
 	}

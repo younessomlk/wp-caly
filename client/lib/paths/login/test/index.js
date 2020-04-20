@@ -76,8 +76,12 @@ describe( 'index', () => {
 
 		test( 'should return the login url preserving the "form" parameter', () => {
 			const url = login( { isNative: true, isJetpack: true, from: 'potato' } );
-
 			expect( url ).toEqual( '/log-in/jetpack?from=potato' );
+		} );
+
+		test( 'should return the login url for Gutenboarding specific login', () => {
+			const url = login( { isNative: true, isGutenboarding: true } );
+			expect( url ).toMatchSnapshot();
 		} );
 
 		test( 'should return the login url with WooCommerce.com handler', () => {

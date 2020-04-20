@@ -4,8 +4,6 @@
 import * as React from 'react';
 import { addQueryArgs } from '@wordpress/url';
 import { useSelect } from '@wordpress/data';
-import { ValuesType } from 'utility-types';
-import classNames from 'classnames';
 
 /**
  * Internal dependencies
@@ -13,41 +11,48 @@ import classNames from 'classnames';
 import { STORE_KEY } from '../../stores/onboard';
 import * as T from './types';
 import { useLangRouteParam } from '../../path';
+import { isEnabled } from 'config';
 
 type Design = import('../../stores/onboard/types').Design;
+type Font = import('../../constants').Font;
 type SiteVertical = import('../../stores/onboard/types').SiteVertical;
 
 interface Props {
 	viewport: T.Viewport;
-	fonts: ValuesType< typeof import('../../constants').fontPairings >;
 }
-
-const Preview: React.FunctionComponent< Props > = ( { fonts, viewport } ) => {
+const Preview: React.FunctionComponent< Props > = ( { viewport } ) => {
 	const [ previewHtml, setPreviewHtml ] = React.useState< string >();
-	const [ requestedFonts, setRequestedFonts ] = React.useState< Set< string > >( new Set() );
+	const [ requestedFonts, setRequestedFonts ] = React.useState< Set< Font > >( new Set() );
 
-	// Cast reason: Our flow should ensure these are not `undefined`. Cast to defined types.
-	const { selectedDesign, siteVertical, siteTitle } = useSelect( select =>
+	const { selectedDesign, selectedFonts, siteVertical, siteTitle } = useSelect( select =>
 		select( STORE_KEY ).getState()
-	) as { selectedDesign: Design; siteVertical: SiteVertical; siteTitle: string };
+	);
 
 	const iframe = React.useRef< HTMLIFrameElement >( null );
 	const language = useLangRouteParam();
 
 	React.useEffect(
 		() => {
+			if ( ! selectedDesign ) {
+				return;
+			}
 			const eff = async () => {
-				const [ { fontFamily: fontHeadings }, { fontFamily: fontBase } ] = fonts;
 				const templateUrl = `https://public-api.wordpress.com/rest/v1/template/demo/${ encodeURIComponent(
 					selectedDesign.theme
 				) }/${ encodeURIComponent( selectedDesign.template ) }/`;
-				const url = addQueryArgs( templateUrl, {
+				let url = addQueryArgs( templateUrl, {
 					language: language,
-					vertical: siteVertical.label,
-					font_headings: fontHeadings,
-					font_base: fontBase,
 					site_title: siteTitle,
+					...( selectedFonts && {
+						font_headings: selectedFonts.headings,
+						font_base: selectedFonts.base,
+					} ),
 				} );
+				if ( isEnabled( 'gutenboarding/style-preview-verticals' ) ) {
+					url = addQueryArgs( url, {
+						vertical: siteVertical?.label,
+					} );
+				}
 				let resp;
 
 				try {
@@ -67,7 +72,9 @@ const Preview: React.FunctionComponent< Props > = ( { fonts, viewport } ) => {
 				}
 				const html = await resp.text();
 				setPreviewHtml( html );
-				setRequestedFonts( new Set( [ fontHeadings, fontBase ] ) );
+				setRequestedFonts(
+					new Set( selectedFonts ? [ selectedFonts.headings, selectedFonts.base ] : undefined )
+				);
 			};
 			eff();
 		},
@@ -90,56 +97,56 @@ const Preview: React.FunctionComponent< Props > = ( { fonts, viewport } ) => {
 		const iframeWindow = iframe.current?.contentWindow;
 		if ( iframeWindow?.document.body ) {
 			const iframeDocument = iframeWindow.document;
-			const [ { fontFamily: headings }, { fontFamily: base } ] = fonts;
+			if ( selectedFonts ) {
+				const { headings, base } = selectedFonts;
 
-			const baseURL = 'https://fonts.googleapis.com/css2';
+				const baseURL = 'https://fonts.googleapis.com/css2';
 
-			// matrix: regular,bold * regular,italic
-			const axis = 'ital,wght@0,400;0,700;1,400;1,700';
-			const query = [];
+				// matrix: regular,bold * regular,italic
+				const axis = 'ital,wght@0,400;0,700;1,400;1,700';
+				const query = [];
 
-			// To replace state
-			const nextFonts = new Set( requestedFonts );
+				// To replace state
+				const nextFonts = new Set( requestedFonts );
 
-			if ( ! requestedFonts.has( headings ) ) {
-				query.push( `family=${ encodeURI( headings ) }:${ axis }` );
-				nextFonts.add( headings );
+				if ( ! requestedFonts.has( headings ) ) {
+					query.push( `family=${ encodeURI( headings ) }:${ axis }` );
+					nextFonts.add( headings );
+				}
+				if ( ! requestedFonts.has( base ) ) {
+					query.push( `family=${ encodeURI( base ) }:${ axis }` );
+					nextFonts.add( base );
+				}
+
+				if ( query.length ) {
+					const l = iframeDocument.createElement( 'link' );
+					l.rel = 'stylesheet';
+					l.type = 'text/css';
+					l.href = `${ baseURL }?${ query.join( '&' ) }&display=swap`;
+					iframeDocument.head.appendChild( l );
+					setRequestedFonts( nextFonts );
+				}
+				iframeDocument.body.style.setProperty( '--font-headings', headings );
+				iframeDocument.body.style.setProperty( '--font-base', base );
+			} else {
+				iframeDocument.body.style.removeProperty( '--font-headings' );
+				iframeDocument.body.style.removeProperty( '--font-base' );
 			}
-			if ( ! requestedFonts.has( base ) ) {
-				query.push( `family=${ encodeURI( base ) }:${ axis }` );
-				nextFonts.add( base );
-			}
-
-			if ( query.length ) {
-				const l = iframeDocument.createElement( 'link' );
-				l.rel = 'stylesheet';
-				l.type = 'text/css';
-				l.href = `${ baseURL }?${ query.join( '&' ) }&display=swap`;
-				iframeDocument.head.appendChild( l );
-				setRequestedFonts( nextFonts );
-			}
-			iframeDocument.body.style.setProperty( '--font-headings', `${ headings }` );
-			iframeDocument.body.style.setProperty( '--font-base', `${ headings }` );
 		}
-	}, [ fonts, previewHtml, requestedFonts ] );
+	}, [ previewHtml, requestedFonts, selectedFonts ] );
 
 	return (
 		<div className={ `style-preview__preview is-viewport-${ viewport }` }>
-			{ viewport === 'desktop' && (
-				<div role="presentation" className="style-preview__preview-bar">
-					<div role="presentation" className="style-preview__preview-bar-dot" />
-					<div role="presentation" className="style-preview__preview-bar-dot" />
-					<div role="presentation" className="style-preview__preview-bar-dot" />
-				</div>
-			) }
-			<iframe
-				ref={ iframe }
-				className={ classNames( {
-					'style-preview__iframe': true,
-					hideScroll: viewport !== 'desktop',
-				} ) }
-				title="preview"
-			/>
+			<div className="style-preview__preview-wrapper">
+				{ viewport === 'desktop' && (
+					<div role="presentation" className="style-preview__preview-bar">
+						<div role="presentation" className="style-preview__preview-bar-dot" />
+						<div role="presentation" className="style-preview__preview-bar-dot" />
+						<div role="presentation" className="style-preview__preview-bar-dot" />
+					</div>
+				) }
+				<iframe ref={ iframe } className="style-preview__iframe" title="preview" />
+			</div>
 		</div>
 	);
 };

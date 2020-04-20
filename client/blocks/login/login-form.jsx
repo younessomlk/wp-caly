@@ -52,6 +52,7 @@ import SocialLoginForm from './social';
 import { localizeUrl } from 'lib/i18n-utils';
 import TextControl from 'extensions/woocommerce/components/text-control';
 import { sendEmailLogin } from 'state/auth/actions';
+import GUTENBOARDING_BASE_NAME from 'landing/gutenboarding/basename.json';
 
 export class LoginForm extends Component {
 	static propTypes = {
@@ -78,6 +79,8 @@ export class LoginForm extends Component {
 		translate: PropTypes.func.isRequired,
 		userEmail: PropTypes.string,
 		isJetpack: PropTypes.bool,
+		isGutenboarding: PropTypes.bool,
+		locale: PropTypes.string,
 	};
 
 	state = {
@@ -111,7 +114,7 @@ export class LoginForm extends Component {
 	}
 
 	UNSAFE_componentWillReceiveProps( nextProps ) {
-		const { disableAutoFocus, isJetpack } = this.props;
+		const { disableAutoFocus, isJetpack, isGutenboarding } = this.props;
 
 		if (
 			this.props.socialAccountIsLinking !== nextProps.socialAccountIsLinking &&
@@ -137,7 +140,7 @@ export class LoginForm extends Component {
 				loginFormFlow: true,
 			} );
 
-			page( login( { isNative: true, twoFactorAuthType: 'link', isJetpack } ) );
+			page( login( { isNative: true, twoFactorAuthType: 'link', isJetpack, isGutenboarding } ) );
 		}
 	}
 
@@ -421,13 +424,17 @@ export class LoginForm extends Component {
 			socialAccountIsLinking: linkingSocialUser,
 			isJetpackWooCommerceFlow,
 			isJetpackWCPayFlow,
+			isGutenboarding,
 			wccomFrom,
 			currentRoute,
 			currentQuery,
 			pathname,
+			locale,
 		} = this.props;
 		const isOauthLogin = !! oauth2Client;
 		const isPasswordHidden = this.isUsernameOrEmailView();
+
+		const langFragment = locale && locale !== 'en' ? `/${ locale }` : '';
 
 		let signupUrl = config( 'signup_url' );
 		const signupFlow = get( currentQuery, 'signup_flow' );
@@ -465,6 +472,10 @@ export class LoginForm extends Component {
 			};
 
 			signupUrl = `/start/${ oauth2Flow }?${ stringify( oauth2Params ) }`;
+		}
+
+		if ( isGutenboarding ) {
+			signupUrl = `/${ GUTENBOARDING_BASE_NAME }` + langFragment;
 		}
 
 		if ( config.isEnabled( 'jetpack/connect/woocommerce' ) && isJetpackWooCommerceFlow ) {

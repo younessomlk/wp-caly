@@ -14,7 +14,6 @@ import classnames from 'classnames';
 import AsyncLoad from 'components/async-load';
 import MasterbarLoggedIn from 'layout/masterbar/logged-in';
 import JetpackCloudMasterbar from 'landing/jetpack-cloud/components/masterbar';
-import GlobalNotices from 'components/global-notices';
 import HtmlIsIframeClassname from 'layout/html-is-iframe-classname';
 import notices from 'notices';
 import config from 'config';
@@ -193,9 +192,15 @@ class Layout extends Component {
 				<QuerySites primaryAndRecent />
 				{ this.props.shouldQueryAllSites && <QuerySites allSites /> }
 				<QueryPreferences />
-				<QuerySiteSelectedEditor siteId={ this.props.siteId } />
-				<AsyncLoad require="layout/guided-tours" placeholder={ null } />
-				{ ! isE2ETest() && <AsyncLoad require="layout/nps-survey-notice" placeholder={ null } /> }
+				{ config.isEnabled( 'layout/query-selected-editor' ) && (
+					<QuerySiteSelectedEditor siteId={ this.props.siteId } />
+				) }
+				{ config.isEnabled( 'layout/guided-tours' ) && (
+					<AsyncLoad require="layout/guided-tours" placeholder={ null } />
+				) }
+				{ config.isEnabled( 'layout/nps-survey-notice' ) && ! isE2ETest() && (
+					<AsyncLoad require="layout/nps-survey-notice" placeholder={ null } />
+				) }
 				{ config.isEnabled( 'keyboard-shortcuts' ) ? <KeyboardShortcutsMenu /> : null }
 				{ this.renderMasterbar() }
 				{ config.isEnabled( 'support-user' ) && <SupportUser /> }
@@ -209,7 +214,12 @@ class Layout extends Component {
 							sectionName={ this.props.sectionName }
 						/>
 					) }
-					<GlobalNotices id="notices" notices={ notices.list } />
+					<AsyncLoad
+						require="components/global-notices"
+						placeholder={ null }
+						id="notices"
+						notices={ notices.list }
+					/>
 					<div id="secondary" className="layout__secondary" role="navigation">
 						{ this.props.secondary }
 					</div>
@@ -232,8 +242,12 @@ class Layout extends Component {
 				{ this.shouldLoadInlineHelp() && (
 					<AsyncLoad require="blocks/inline-help" placeholder={ null } />
 				) }
-				<AsyncLoad require="blocks/support-article-dialog" placeholder={ null } />
-				<AsyncLoad require="blocks/app-banner" placeholder={ null } />
+				{ config.isEnabled( 'layout/support-article-dialog' ) && (
+					<AsyncLoad require="blocks/support-article-dialog" placeholder={ null } />
+				) }
+				{ config.isEnabled( 'layout/app-banner' ) && (
+					<AsyncLoad require="blocks/app-banner" placeholder={ null } />
+				) }
 				{ config.isEnabled( 'gdpr-banner' ) && (
 					<AsyncLoad require="blocks/gdpr-banner" placeholder={ null } />
 				) }
@@ -268,7 +282,9 @@ export default connect( state => {
 	const oauth2Client = getCurrentOAuth2Client( state );
 	const wccomFrom = get( getCurrentQueryArguments( state ), 'wccom-from' );
 	const isEligibleForJITM = [ 'stats', 'plans', 'themes', 'plugins' ].indexOf( sectionName ) >= 0;
-	const isFrankenflow = startsWith( currentRoute, '/start/frankenflow' );
+	const isFrankenflow =
+		startsWith( currentRoute, '/start/frankenflow' ) ||
+		startsWith( currentRoute, '/start/prelaunch' );
 
 	return {
 		masterbarIsHidden:

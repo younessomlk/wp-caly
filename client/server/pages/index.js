@@ -55,6 +55,7 @@ import { logSectionResponse } from './analytics';
 import analytics from 'server/lib/analytics';
 import { getLanguage, filterLanguageRevisions } from 'lib/i18n-utils';
 import { isWooOAuth2Client } from 'lib/oauth2-clients';
+import GUTENBOARDING_BASE_NAME from 'landing/gutenboarding/basename.json';
 import { GUTENBOARDING_SECTION_DEFINITION } from 'landing/gutenboarding/section';
 
 const debug = debugFactory( 'calypso:pages' );
@@ -105,14 +106,24 @@ function isUAInBrowserslist( userAgentString, environment = 'defaults' ) {
 }
 
 function getBuildTargetFromRequest( request ) {
-	const isDesktop = calypsoEnv === 'desktop' || calypsoEnv === 'desktop-development';
-	const isEvergreen = ! isDesktop && isUAInBrowserslist( request.useragent.source, 'evergreen' );
-	const isForcedFallback = request.query.forceFallback;
-	// Development is always evergreen, except desktop
 	const isDevelopment = process.env.NODE_ENV === 'development';
-	return ( isDevelopment && ! isDesktop ) || ( isEvergreen && ! isForcedFallback )
+	const isDesktop = calypsoEnv === 'desktop' || calypsoEnv === 'desktop-development';
+
+	const devTarget = process.env.DEV_TARGET || 'evergreen';
+	const uaTarget = isUAInBrowserslist( request.useragent.source, 'evergreen' )
 		? 'evergreen'
-		: null;
+		: 'fallback';
+
+	// Did the user force fallback, via query parameter?
+	const prodTarget = request.query.forceFallback ? 'fallback' : uaTarget;
+
+	let target = isDevelopment ? devTarget : prodTarget;
+
+	if ( isDesktop ) {
+		target = 'fallback';
+	}
+
+	return target === 'fallback' ? null : target;
 }
 
 const ASSETS_PATH = path.join( __dirname, '../', 'bundler' );
@@ -298,6 +309,7 @@ function getDefaultContext( request, entrypoint = 'entry-main' ) {
 	const reduxStore = createReduxStore( initialServerState );
 	setStore( reduxStore );
 
+	const flags = ( request.query.flags || '' ).split( ',' );
 	const context = Object.assign( {}, request.context, {
 		commitSha: process.env.hasOwnProperty( 'COMMIT_SHA' ) ? process.env.COMMIT_SHA : '(unknown)',
 		compileDebug: process.env.NODE_ENV === 'development',
@@ -319,6 +331,8 @@ function getDefaultContext( request, entrypoint = 'entry-main' ) {
 		bodyClasses,
 		addEvergreenCheck: target === 'evergreen' && calypsoEnv !== 'development',
 		target: target || 'fallback',
+		useTranslationChunks:
+			config.isEnabled( 'use-translation-chunks' ) || flags.includes( 'use-translation-chunks' ),
 	} );
 
 	context.app = {
@@ -391,23 +405,51 @@ function setUpLoggedInRoute( req, res, next ) {
 		'X-Frame-Options': 'SAMEORIGIN',
 	} );
 
-	const LANG_REVISION_FILE_URL = 'https://widgets.wp.com/languages/calypso/lang-revisions.json';
-	const langPromise = superagent
-		.get( LANG_REVISION_FILE_URL )
-		.then( response => {
-			const languageRevisions = filterLanguageRevisions( response.body );
+	const setupRequests = [];
 
-			req.context.languageRevisions = languageRevisions;
+	if ( config.isEnabled( 'use-translation-chunks' ) ) {
+		const target = getBuildTargetFromRequest( req );
+		const rootPath = path.join( __dirname, '..', '..', '..' );
+		const langRevisionsPath = path.join(
+			rootPath,
+			'public',
+			target,
+			'languages',
+			'lang-revisions.json'
+		);
+		const langPromise = fs.promises
+			.readFile( langRevisionsPath, 'utf8' )
+			.then( languageRevisions => {
+				req.context.languageRevisions = languageRevisions;
 
-			return languageRevisions;
-		} )
-		.catch( error => {
-			console.error( 'Failed to fetch the language revision files.', error );
+				return languageRevisions;
+			} )
+			.catch( error => {
+				console.error( 'Failed to read the language revision files.', error );
 
-			throw error;
-		} );
+				throw error;
+			} );
 
-	const setupRequests = [ langPromise ];
+		setupRequests.push( langPromise );
+	} else {
+		const LANG_REVISION_FILE_URL = 'https://widgets.wp.com/languages/calypso/lang-revisions.json';
+		const langPromise = superagent
+			.get( LANG_REVISION_FILE_URL )
+			.then( response => {
+				const languageRevisions = filterLanguageRevisions( response.body );
+
+				req.context.languageRevisions = languageRevisions;
+
+				return languageRevisions;
+			} )
+			.catch( error => {
+				console.error( 'Failed to fetch the language revision files.', error );
+
+				throw error;
+			} );
+
+		setupRequests.push( langPromise );
+	}
 
 	if ( config.isEnabled( 'wpcom-user-bootstrap' ) ) {
 		const protocol = req.get( 'X-Forwarded-Proto' ) === 'https' ? 'https' : 'http';
@@ -720,15 +762,6 @@ module.exports = function() {
 			}
 		} );
 
-		// redirect logged-out tag pages to en.wordpress.com
-		app.get( '/tag/:tag_slug', function( req, res, next ) {
-			if ( ! req.context.isLoggedIn ) {
-				res.redirect( 'https://en.wordpress.com/tag/' + encodeURIComponent( req.params.tag_slug ) );
-			} else {
-				next();
-			}
-		} );
-
 		// redirect logged-out searches to en.search.wordpress.com
 		app.get( '/read/search', function( req, res, next ) {
 			if ( ! req.context.isLoggedIn ) {
@@ -841,7 +874,15 @@ module.exports = function() {
 	handleSectionPath( LOGIN_SECTION_DEFINITION, '/log-in', 'entry-login' );
 	loginRouter( serverRouter( app, setUpRoute, null ) );
 
-	handleSectionPath( GUTENBOARDING_SECTION_DEFINITION, '/gutenboarding', 'entry-gutenboarding' );
+	handleSectionPath(
+		GUTENBOARDING_SECTION_DEFINITION,
+		`/${ GUTENBOARDING_BASE_NAME }`,
+		'entry-gutenboarding'
+	);
+
+	// Handle redirection from development basename
+	// TODO: Remove after a few months
+	handleSectionPath( GUTENBOARDING_SECTION_DEFINITION, `/gutenboarding`, 'entry-gutenboarding' );
 
 	// This is used to log to tracks Content Security Policy violation reports sent by browsers
 	app.post(

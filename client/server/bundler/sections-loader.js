@@ -4,7 +4,7 @@
 const { getOptions } = require( 'loader-utils' ); // eslint-disable-line import/no-extraneous-dependencies
 
 /**
- * Internal dependecies
+ * Internal dependencies
  */
 const config = require( '../config' );
 
@@ -55,12 +55,29 @@ function printSectionsAndPaths( sections ) {
 	}
 }
 
+function filterSectionsInDevelopment( sections ) {
+	const bundleEnv = config( 'env' );
+	if ( 'development' !== bundleEnv ) {
+		return sections;
+	}
+
+	const activeSections = config( 'sections' );
+	const byDefaultEnableSection = config( 'enable_all_sections' );
+
+	return sections.filter( section => {
+		if ( activeSections && typeof activeSections[ section.name ] !== 'undefined' ) {
+			return activeSections[ section.name ];
+		}
+		return byDefaultEnableSection;
+	} );
+}
+
 const loader = function() {
 	const options = getOptions( this ) || {};
 	const { forceRequire, onlyIsomorphic } = options;
 	let { include } = options;
 
-	let sections = require( this.resourcePath );
+	let sections = filterSectionsInDevelopment( require( this.resourcePath ) );
 
 	if ( include ) {
 		if ( ! Array.isArray( include ) ) {

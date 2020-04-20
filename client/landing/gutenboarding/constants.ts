@@ -1,4 +1,15 @@
 /**
+ * External dependencies
+ */
+import { ValuesType } from 'utility-types';
+
+/**
+ * An ID that identifies the onboarding flow to analytics and other services.
+ *
+ */
+export const FLOW_ID = 'gutenboarding';
+
+/**
  * Debounce our input + HTTP dependent select changes
  *
  * Rapidly changing input generates excessive HTTP requests.
@@ -8,25 +19,46 @@
  */
 export const selectorDebounce = 300;
 
+const fontTitles: Partial< Record< Font, string > > = {
+	'Playfair Display': 'Playfair',
+};
+
+export const PAID_DOMAINS_TO_SHOW = 5;
+
+export function getFontTitle( fontFamily: string ): string {
+	return fontTitles[ fontFamily as Font ] ?? fontFamily;
+}
+
+/**
+ * Pairings of fontFamilies
+ *
+ * To get the name of the font for display, use `getFontTitle( fontName )`.
+ */
 export const fontPairings = [
-	[
-		{ title: 'Cabin', fontFamily: 'Cabin' },
-		{ title: 'Raleway', fontFamily: 'Raleway' },
-	],
-	[
-		{ title: 'Chivo', fontFamily: 'Chivo' },
-		{ title: 'Open Sans', fontFamily: 'Open Sans' },
-	],
-	[
-		{ title: 'Playfair', fontFamily: 'Playfair Display' },
-		{ title: 'Fira Sans', fontFamily: 'Fira Sans' },
-	],
-	[
-		{ title: 'Arvo', fontFamily: 'Arvo' },
-		{ title: 'Montserrat', fontFamily: 'Montserrat' },
-	],
-	[
-		{ title: 'Space Mono', fontFamily: 'Space Mono' },
-		{ title: 'Roboto', fontFamily: 'Roboto' },
-	],
+	{
+		headings: 'Cabin',
+		base: 'Raleway',
+	},
+	{
+		headings: 'Chivo',
+		base: 'Open Sans',
+	},
+	{
+		headings: 'Playfair Display',
+		base: 'Fira Sans',
+	},
+	{
+		headings: 'Arvo',
+		base: 'Montserrat',
+	},
+	{
+		headings: 'Space Mono',
+		base: 'Roboto',
+	},
 ] as const;
+
+export type Font = ValuesType< ValuesType< typeof fontPairings > >;
+export interface FontPair {
+	headings: Font;
+	base: Font;
+}

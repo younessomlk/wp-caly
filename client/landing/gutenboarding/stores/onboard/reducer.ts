@@ -9,6 +9,7 @@ import { combineReducers } from '@wordpress/data';
  */
 import { SiteVertical, Design } from './types';
 import { OnboardAction } from './actions';
+import { FontPair } from 'landing/gutenboarding/constants';
 
 const domain: Reducer<
 	import('@automattic/data-stores').DomainSuggestions.DomainSuggestion | undefined,
@@ -19,6 +20,19 @@ const domain: Reducer<
 	}
 	if ( action.type === 'RESET_ONBOARD_STORE' ) {
 		return undefined;
+	}
+	return state;
+};
+
+const domainSearch: Reducer< string, OnboardAction > = ( state = '', action ) => {
+	if ( action.type === 'SET_DOMAIN_SEARCH_TERM' ) {
+		return action.domainSearch;
+	}
+	if ( action.type === 'SET_SITE_TITLE' ) {
+		return action.siteTitle;
+	}
+	if ( action.type === 'RESET_ONBOARD_STORE' ) {
+		return '';
 	}
 	return state;
 };
@@ -67,29 +81,41 @@ const pageLayouts: Reducer< string[], OnboardAction > = ( state = [], action ) =
 	return state;
 };
 
-const siteWasCreatedForDomainPurchase: Reducer< boolean, OnboardAction > = (
-	state = false,
+const selectedSite: Reducer< number | undefined, OnboardAction > = (
+	state = undefined,
 	action
 ) => {
-	switch ( action.type ) {
-		case 'SET_SITE_WAS_CREATED_FOR_DOMAIN_PURCHASE':
-			return action.siteWasCreatedForDomainPurchase;
-
-		case 'RESET_ONBOARD_STORE':
-			return false;
-
-		default:
-			return state;
+	if ( action.type === 'SET_SELECTED_SITE' ) {
+		return action.selectedSite;
 	}
+	if ( action.type === 'RESET_ONBOARD_STORE' ) {
+		return undefined;
+	}
+	return state;
+};
+
+const selectedFonts: Reducer< FontPair | undefined, OnboardAction > = (
+	state = undefined,
+	action
+) => {
+	if ( action.type === 'SET_FONTS' ) {
+		return action.fonts;
+	}
+	if ( action.type === 'RESET_FONTS' || action.type === 'RESET_ONBOARD_STORE' ) {
+		return undefined;
+	}
+	return state;
 };
 
 const reducer = combineReducers( {
 	domain,
+	domainSearch,
+	selectedFonts,
 	selectedDesign,
 	siteTitle,
 	siteVertical,
 	pageLayouts,
-	siteWasCreatedForDomainPurchase,
+	selectedSite,
 } );
 
 export type State = ReturnType< typeof reducer >;

@@ -2,8 +2,9 @@
  * External dependencies
  */
 import { sprintf } from '@wordpress/i18n';
+import { useViewportMatch } from '@wordpress/compose';
 import { useI18n } from '@automattic/react-i18n';
-import { Button, Icon } from '@wordpress/components';
+import { Icon } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import React, { FunctionComponent, useEffect, useCallback, useState } from 'react';
 import classnames from 'classnames';
@@ -18,9 +19,17 @@ import { SITE_STORE } from '../../stores/site';
 import './style.scss';
 import DomainPickerButton from '../domain-picker-button';
 import SignupForm from '../../components/signup-form';
-import { useFreeDomainSuggestion } from '../../hooks/use-free-domain-suggestion';
-
+import { useDomainSuggestions } from '../../hooks/use-domain-suggestions';
+import {
+	getFreeDomainSuggestions,
+	getPaidDomainSuggestions,
+	getRecommendedDomainSuggestion,
+} from '../../utils/domain-suggestions';
+import { PAID_DOMAINS_TO_SHOW } from '../../constants';
+import { usePath, useCurrentStep, Step } from '../../path';
 import wp from '../../../../lib/wp';
+import { recordOnboardingComplete } from '../../lib/analytics';
+
 const wpcom = wp.undocumented();
 
 interface Cart {
@@ -55,29 +64,27 @@ interface Cart {
 }
 
 const Header: FunctionComponent = () => {
-	const { __: NO__ } = useI18n();
+	const { __, i18nLocale } = useI18n();
 
-	const currentUser = useSelect( select => select( USER_STORE ).getCurrentUser() );
+	const currentStep = useCurrentStep();
+
 	const newUser = useSelect( select => select( USER_STORE ).getNewUser() );
 
 	const newSite = useSelect( select => select( SITE_STORE ).getNewSite() );
 
-	const {
-		domain,
-		selectedDesign,
-		siteTitle,
-		siteVertical,
-		siteWasCreatedForDomainPurchase,
-	} = useSelect( select => select( ONBOARD_STORE ).getState() );
-	const hasSelectedDesign = !! selectedDesign;
-	const {
-		createSite,
-		setDomain,
-		resetOnboardStore,
-		setSiteWasCreatedForDomainPurchase,
-	} = useDispatch( ONBOARD_STORE );
+	const { domain, siteTitle } = useSelect( select => select( ONBOARD_STORE ).getState() );
 
-	const freeDomainSuggestion = useFreeDomainSuggestion();
+	const makePath = usePath();
+
+	const { createSite, setDomain, resetOnboardStore } = useDispatch( ONBOARD_STORE );
+
+	const allSuggestions = useDomainSuggestions( { searchOverride: siteTitle, locale: i18nLocale } );
+	const paidSuggestions = getPaidDomainSuggestions( allSuggestions )?.slice(
+		0,
+		PAID_DOMAINS_TO_SHOW
+	);
+	const freeDomainSuggestion = getFreeDomainSuggestions( allSuggestions )?.[ 0 ];
+	const recommendedDomainSuggestion = getRecommendedDomainSuggestion( paidSuggestions );
 
 	useEffect( () => {
 		if ( ! siteTitle ) {
@@ -86,38 +93,51 @@ const Header: FunctionComponent = () => {
 	}, [ siteTitle, setDomain ] );
 
 	const [ showSignupDialog, setShowSignupDialog ] = useState( false );
+	const [ isRedirecting, setIsRedirecting ] = useState( false );
 
 	const {
-		location: { pathname },
+		location: { pathname, search },
+		push,
 	} = useHistory();
+
 	useEffect( () => {
-		// Dialogs usually close naturally when the user clicks the browser's
-		// back/forward buttons because their parent is unmounted. However
-		// this header isn't unmounted on route changes so we need to
-		// explicitly hide the dialog.
-		setShowSignupDialog( false );
+		// This handles opening the signup modal when there is a ?signup query parameter
+		// then removes the parameter.
+		// The use case is a user clicking "Create account" from login
+		// TODO: We can remove this condition when we've converted signup into it's own page
+		if ( ! showSignupDialog && new URLSearchParams( search ).has( 'signup' ) ) {
+			setShowSignupDialog( true );
+			push( makePath( Step[ currentStep ] ) );
+		} else {
+			// Dialogs usually close naturally when the user clicks the browser's
+			// back/forward buttons because their parent is unmounted. However
+			// this header isn't unmounted on route changes so we need to
+			// explicitly hide the dialog.
+			setShowSignupDialog( false );
+		}
 	}, [ pathname, setShowSignupDialog ] );
 
-	const currentDomain = domain ?? freeDomainSuggestion;
+	const isMobile = useViewportMatch( 'mobile', '<' );
 
 	/* eslint-disable wpcalypso/jsx-classname-namespace */
-	const siteTitleElement = (
-		<span className="gutenboarding__site-title">
-			{ siteTitle ? siteTitle : NO__( 'Start your website' ) }
+	const domainElement = domain ? (
+		domain.domain_name
+	) : (
+		<span
+			className={ classnames( 'gutenboarding__header-domain-picker-button-domain', {
+				placeholder: ! recommendedDomainSuggestion,
+			} ) }
+		>
+			{ isMobile && __( 'Domain available' ) }
+			{ ! isMobile &&
+				( recommendedDomainSuggestion
+					? /* translators: domain name is available, eg: "yourname.com is available" */
+					  sprintf( __( '%s is available' ), recommendedDomainSuggestion.domain_name )
+					: 'example.wordpress.com' ) }
 		</span>
 	);
 
-	const domainElement = (
-		<span
-			className={ classnames( 'gutenboarding__header-domain-picker-button-domain', {
-				placeholder: ! currentDomain,
-			} ) }
-		>
-			{ currentDomain
-				? sprintf( NO__( '%s is available' ), currentDomain.domain_name )
-				: 'example.wordpress.com' }
-		</span>
-	);
+	const currentDomain = domain ?? freeDomainSuggestion;
 
 	const handleCreateSite = useCallback(
 		( username: string, bearerToken?: string ) => {
@@ -126,22 +146,8 @@ const Header: FunctionComponent = () => {
 		[ createSite, freeDomainSuggestion ]
 	);
 
-	const handleCreateSiteForDomains: typeof handleCreateSite = ( ...args ) => {
-		setSiteWasCreatedForDomainPurchase( true );
-		handleCreateSite( ...args );
-	};
-
-	const handleSignup = () => {
-		setShowSignupDialog( true );
-	};
-
 	const closeAuthDialog = () => {
 		setShowSignupDialog( false );
-	};
-
-	const handleSignupForDomains = () => {
-		setShowSignupDialog( true );
-		setSiteWasCreatedForDomainPurchase( true );
 	};
 
 	useEffect( () => {
@@ -151,8 +157,9 @@ const Header: FunctionComponent = () => {
 	}, [ newUser, handleCreateSite ] );
 
 	useEffect( () => {
-		if ( newSite ) {
-			if ( siteWasCreatedForDomainPurchase ) {
+		// isRedirecting check this is needed to make sure we don't overwrite the first window.location.replace() call
+		if ( newSite && ! isRedirecting ) {
+			if ( domain && ! domain.is_free ) {
 				// I'd rather not make my own product, but this works.
 				// lib/cart-items helpers did not perform well.
 				const domainProduct = {
@@ -171,72 +178,63 @@ const Header: FunctionComponent = () => {
 						...cart,
 						products: [ ...cart.products, domainProduct ],
 					} );
-
+					setIsRedirecting( true );
 					resetOnboardStore();
-					window.location.replace(
-						`/checkout/${ newSite.site_slug }?redirect_to=%2Fgutenboarding%2Fdesign`
-					);
+					window.location.replace( `/start/prelaunch?siteSlug=${ newSite.blogid }` );
 				};
 				go();
 				return;
 			}
+
+			recordOnboardingComplete( {
+				isNewSite: !! newSite,
+				isNewUser: !! newUser,
+			} );
+
+			setIsRedirecting( true );
 			resetOnboardStore();
+
 			window.location.replace( `/block-editor/page/${ newSite.site_slug }/home?is-gutenboarding` );
 		}
-	}, [ domain, siteWasCreatedForDomainPurchase, newSite, resetOnboardStore ] );
+	}, [ domain, newSite, newUser, resetOnboardStore, isRedirecting ] );
 
 	return (
 		<div
 			className="gutenboarding__header"
 			role="region"
-			aria-label={ NO__( 'Top bar' ) }
+			aria-label={ __( 'Top bar' ) }
 			tabIndex={ -1 }
 		>
 			<section className="gutenboarding__header-section">
-				<div className="gutenboarding__header-section-item gutenboarding__header-wp-logo">
-					<Icon icon="wordpress-alt" size={ 24 } />
-				</div>
-				<div className="gutenboarding__header-section-item">{ siteTitleElement }</div>
 				<div className="gutenboarding__header-section-item">
-					{ siteTitle && (
+					<div className="gutenboarding__header-wp-logo">
+						<Icon icon="wordpress-alt" size={ 24 } />
+					</div>
+				</div>
+				<div className="gutenboarding__header-section-item">
+					<div className="gutenboarding__header-site-title">
+						{ siteTitle ? siteTitle : __( 'Start your website' ) }
+					</div>
+				</div>
+				<div className="gutenboarding__header-section-item">
+					{ // We display the DomainPickerButton as soon as we have a domain suggestion,
+					//   unless we're still at the IntentGathering step. In that case, we only
+					//   show it comes from a site title (but hide it if it comes from a vertical).
+					currentDomain && ( siteTitle || currentStep !== 'IntentGathering' ) && (
 						<DomainPickerButton
 							className="gutenboarding__header-domain-picker-button"
-							defaultQuery={ siteTitle }
 							disabled={ ! currentDomain }
 							currentDomain={ currentDomain }
 							onDomainSelect={ setDomain }
-							onDomainPurchase={ () =>
-								currentUser
-									? handleCreateSiteForDomains( currentUser.username )
-									: handleSignupForDomains()
-							}
-							queryParameters={ { vertical: siteVertical?.id } }
 						>
 							{ domainElement }
 						</DomainPickerButton>
 					) }
 				</div>
 			</section>
-			<section className="gutenboarding__header-section">
-				<div className="gutenboarding__header-section-item">
-					{ hasSelectedDesign && (
-						<Button
-							className="gutenboarding__header-next-button"
-							isPrimary
-							isLarge
-							onClick={ () =>
-								currentUser ? handleCreateSite( currentUser.username ) : handleSignup()
-							}
-						>
-							{ NO__( 'Create my site' ) }
-						</Button>
-					) }
-				</div>
-			</section>
 			{ showSignupDialog && <SignupForm onRequestClose={ closeAuthDialog } /> }
 		</div>
 	);
-	/* eslint-enable wpcalypso/jsx-classname-namespace */
 };
 
 export default Header;

@@ -14,7 +14,6 @@ import formatCurrency, { getCurrencyObject } from '@automattic/format-currency';
 /**
  * Internal dependencies
  */
-import config from 'config';
 import FoldableCard from 'components/foldable-card';
 import InlineSupportLink from 'components/inline-support-link';
 import Notice from 'components/notice';
@@ -271,7 +270,7 @@ export class PlanFeatures extends Component {
 				<p>{ translate( 'Upgrading to this plan makes your site visible to the public.' ) }</p>
 				<InlineSupportLink
 					showIcon={ false }
-					supportLink="https://support.wordpress.com/settings/privacy-settings/"
+					supportLink="https://wordpress.com/support/settings/privacy-settings/"
 					supportPostId={ 1507 }
 				/>
 			</Dialog>
@@ -624,7 +623,7 @@ export class PlanFeatures extends Component {
 				// Let signup do its thing
 				return;
 			}
-			if ( config.isEnabled( 'coming-soon' ) ) {
+			if ( 'variant' === abtest( 'ATPrivacy' ) ) {
 				// When coming soon feature is enabled, we don't want to show any warnings
 				page( checkoutUrlWithArgs );
 				return;

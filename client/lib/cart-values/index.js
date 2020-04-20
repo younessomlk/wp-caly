@@ -32,6 +32,7 @@ const PAYMENT_METHODS = {
 	ebanx: 'WPCOM_Billing_Ebanx',
 	eps: 'WPCOM_Billing_Stripe_Source_Eps',
 	giropay: 'WPCOM_Billing_Stripe_Source_Giropay',
+	id_wallet: 'WPCOM_Billing_Dlocal_Redirect_Indonesia_Wallet',
 	ideal: 'WPCOM_Billing_Stripe_Source_Ideal',
 	netbanking: 'WPCOM_Billing_Dlocal_Redirect_India_Netbanking',
 	paypal: 'WPCOM_Billing_PayPal_Express',
@@ -277,7 +278,7 @@ export function fillInSingleCartItemAttributes( cartItem, products ) {
  * in the shopping cart. See the support documentation for more details on
  * these policies:
  *
- * https://en.support.wordpress.com/refunds/
+ * https://wordpress.com/support/refunds/
  *
  * @param {object} cart - cart as `CartValue` object
  * @returns {string} the refund policy type
@@ -345,6 +346,7 @@ export function paymentMethodName( method ) {
 		'credit-card': translate( 'Credit or debit card' ),
 		eps: 'EPS',
 		giropay: 'Giropay',
+		id_wallet: 'OVO',
 		ideal: 'iDEAL',
 		netbanking: 'Net Banking',
 		paypal: 'PayPal',

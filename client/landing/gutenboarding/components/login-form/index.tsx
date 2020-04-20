@@ -4,7 +4,7 @@
 import React, { useEffect } from 'react';
 import { Button, ExternalLink, Modal, Notice } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
-import { __experimentalCreateInterpolateElement } from '@wordpress/element';
+import { createInterpolateElement } from '@wordpress/element';
 import { useI18n } from '@automattic/react-i18n';
 
 /**
@@ -15,15 +15,6 @@ import EnterUsernameOrEmailForm from './enter-username-or-email';
 import EnterPasswordForm from './enter-password';
 import './style.scss';
 
-// TODO: deploy this change to @types/wordpress__element
-declare module '@wordpress/element' {
-	// eslint-disable-next-line no-shadow
-	export function __experimentalCreateInterpolateElement(
-		interpolatedString: string,
-		conversionMap: Record< string, ReactElement >
-	): ReactNode;
-}
-
 interface Props {
 	onRequestClose: () => void;
 	onOpenSignup: () => void;
@@ -31,7 +22,7 @@ interface Props {
 }
 
 const LoginForm = ( { onRequestClose, onOpenSignup, onLogin }: Props ) => {
-	const { __: NO__ } = useI18n();
+	const { __ } = useI18n();
 	const loginFlowState = useSelect( select => select( AUTH_STORE ).getLoginFlowState() );
 	const errors = useSelect( select => select( AUTH_STORE ).getErrors() );
 	const { reset } = useDispatch( AUTH_STORE );
@@ -60,8 +51,8 @@ const LoginForm = ( { onRequestClose, onOpenSignup, onLogin }: Props ) => {
 
 	const tos = (
 		<p className="login-form__terms-of-service-link">
-			{ __experimentalCreateInterpolateElement(
-				NO__( 'By continuing you agree to our <link_to_tos>Terms of Service</link_to_tos>.' ),
+			{ createInterpolateElement(
+				__( 'By continuing you agree to our <link_to_tos>Terms of Service</link_to_tos>.' ),
 				{
 					link_to_tos: <ExternalLink href="https://wordpress.com/tos/" />,
 				}
@@ -87,7 +78,7 @@ const LoginForm = ( { onRequestClose, onOpenSignup, onLogin }: Props ) => {
 			isDismissible={ true }
 			// set to false so that 1password's autofill doesn't automatically close the modal
 			shouldCloseOnClickOutside={ false }
-			title={ NO__( 'Log in to save your changes' ) }
+			title={ __( 'Log in to save your changes' ) }
 			onRequestClose={ closeModal }
 		>
 			{ loginFlowState === 'ENTER_USERNAME_OR_EMAIL' && (
@@ -99,7 +90,7 @@ const LoginForm = ( { onRequestClose, onOpenSignup, onLogin }: Props ) => {
 
 			<div className="login-form__signup-links">
 				<Button isLink={ true } onClick={ openSignup }>
-					{ NO__( 'Create account.' ) }
+					{ __( 'Create account.' ) }
 				</Button>
 			</div>
 		</Modal>

@@ -2,7 +2,7 @@
  * External dependencies
  */
 import debugFactory from 'debug';
-import { camelCase, isPlainObject, omit, pick, reject, snakeCase } from 'lodash';
+import { camelCase, isPlainObject, omit, pick, reject, snakeCase, set } from 'lodash';
 import { stringify } from 'qs';
 
 /**
@@ -671,11 +671,13 @@ function mapKeysRecursively( object, fn ) {
  * @param {object} contactInformation - user's contact information
  * @param {string[]} domainNames - list of domain names
  * @param {Function} fn The callback function
+ * @param {object} query Query object for the call to wpcom.req.post
  */
 Undocumented.prototype.validateDomainContactInformation = function(
 	contactInformation,
 	domainNames,
-	fn
+	fn,
+	query
 ) {
 	let data = {
 		contactInformation: contactInformation,
@@ -685,20 +687,30 @@ Undocumented.prototype.validateDomainContactInformation = function(
 	debug( '/me/domain-contact-information/validate query' );
 	data = mapKeysRecursively( data, snakeCase );
 
-	return this.wpcom.req.post( { path: '/me/domain-contact-information/validate' }, data, function(
-		error,
-		successData
-	) {
-		if ( error ) {
-			return fn( error );
+	return this.wpcom.req.post(
+		{ path: '/me/domain-contact-information/validate' },
+		query,
+		data,
+		function( error, successData ) {
+			if ( error ) {
+				return fn( error );
+			}
+
+			// Reshape the error messages to a nested object
+			if ( successData.messages && query?.apiVersion === '1.2' ) {
+				successData.messages = Object.keys( successData.messages ).reduce( ( obj, key ) => {
+					set( obj, key, successData.messages[ key ] );
+					return obj;
+				}, {} );
+			}
+
+			const newData = mapKeysRecursively( successData, function( key ) {
+				return key === '_headers' ? key : camelCase( key );
+			} );
+
+			fn( null, newData );
 		}
-
-		const newData = mapKeysRecursively( successData, function( key ) {
-			return key === '_headers' ? key : camelCase( key );
-		} );
-
-		fn( null, newData );
-	} );
+	);
 };
 
 /**
@@ -2489,44 +2501,61 @@ Undocumented.prototype.startMigration = function( sourceSiteId, targetSiteId ) {
 Undocumented.prototype.getAtomicSiteMediaViaProxy = function(
 	siteIdOrSlug,
 	mediaPath,
-	{ query = '', maxSize },
-	fn
+	{ query = '', maxSize }
 ) {
+	const safeQuery = query.replace( /^\?/, '' );
 	const params = {
-		path: `/sites/${ siteIdOrSlug }/atomic-auth-proxy/file${ mediaPath }${ query }`,
+		path: `/sites/${ siteIdOrSlug }/atomic-auth-proxy/file?path=${ mediaPath }&${ safeQuery }`,
 		apiNamespace: 'wpcom/v2',
 	};
 
-	const fetchMedia = () => this.wpcom.req.get( { ...params, responseType: 'blob' }, fn );
+	return new Promise( ( resolve, _reject ) => {
+		const fetchMedia = () =>
+			this.wpcom.req.get( { ...params, responseType: 'blob' }, ( error, data ) => {
+				if ( error || ! ( data instanceof Blob ) ) {
+					_reject( error );
+				} else {
+					resolve( data );
+				}
+			} );
 
-	if ( ! maxSize ) {
-		return fetchMedia();
-	}
-
-	return this.wpcom.req.get( { ...params, method: 'HEAD' }, ( err, data, headers ) => {
-		if ( headers[ 'Content-Length' ] > maxSize ) {
-			fn( { message: 'exceeded_max_size' }, null );
-			return;
+		if ( ! maxSize ) {
+			return fetchMedia();
 		}
 
-		fetchMedia();
+		return this.wpcom.req.get( { ...params, method: 'HEAD' }, ( err, data, headers ) => {
+			if ( headers[ 'Content-Length' ] > maxSize ) {
+				_reject( { message: 'exceeded_max_size' } );
+				return;
+			}
+
+			fetchMedia();
+		} );
 	} );
 };
 
 Undocumented.prototype.getAtomicSiteMediaViaProxyRetry = function(
 	siteIdOrSlug,
 	mediaPath,
-	options,
-	fn
+	options
 ) {
-	return this.getAtomicSiteMediaViaProxy( siteIdOrSlug, mediaPath, options, ( err, data ) => {
-		if ( data instanceof Blob || ( err && err.message === 'exceeded_max_size' ) ) {
-			fn( err, data );
-			return;
-		}
+	let retries = 0;
+	const request = () =>
+		this.getAtomicSiteMediaViaProxy( siteIdOrSlug, mediaPath, options ).catch( error => {
+			// Retry three times with exponential backoff times
+			if ( retries < 3 ) {
+				return new Promise( resolve => {
+					++retries;
+					setTimeout( () => {
+						resolve( request() );
+					}, ( retries * retries * 1000 ) / 2 );
+				} );
+			}
 
-		return this.getAtomicSiteMediaViaProxy( siteIdOrSlug, mediaPath, options, fn );
-	} );
+			return Promise.reject( error );
+		} );
+
+	return request();
 };
 
 export default Undocumented;

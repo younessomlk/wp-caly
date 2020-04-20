@@ -2,14 +2,16 @@
  * External dependencies
  */
 import React, { createRef, FunctionComponent, useState } from 'react';
-import { Button, Popover, Dashicon } from '@wordpress/components';
+import { Button, Dashicon } from '@wordpress/components';
+
 import classnames from 'classnames';
 
 /**
  * Internal dependencies
  */
-import DomainPicker, { Props as DomainPickerProps } from '../domain-picker';
-import ConfirmPurchaseModal from '../confirm-purchase-modal';
+import { Props as DomainPickerProps } from '../domain-picker';
+import DomainPickerPopover from '../domain-picker-popover';
+import DomainPickerModal from '../domain-picker-modal';
 
 /**
  * Style dependencies
@@ -27,21 +29,15 @@ const DomainPickerButton: FunctionComponent< Props > = ( {
 	children,
 	className,
 	onDomainSelect,
-	onDomainPurchase,
-	defaultQuery,
-	queryParameters,
 	currentDomain,
 	...buttonProps
 } ) => {
 	const buttonRef = createRef< HTMLButtonElement >();
 
 	const [ isDomainPopoverVisible, setDomainPopoverVisibility ] = useState( false );
-	const [
-		userSelectedDomainSuggestion,
-		setUserSelectedDomainSuggestion,
-	] = useState< DomainSuggestion | null >( null );
+	const [ isDomainModalVisible, setDomainModalVisibility ] = useState( false );
 
-	const handleClose = ( e?: React.FocusEvent ) => {
+	const handlePopoverClose = ( e?: React.FocusEvent ) => {
 		// Don't collide with button toggling
 		if ( e?.relatedTarget === buttonRef.current ) {
 			return;
@@ -49,18 +45,13 @@ const DomainPickerButton: FunctionComponent< Props > = ( {
 		setDomainPopoverVisibility( false );
 	};
 
-	const handleDomainSelect: typeof onDomainSelect = selectedDomain => {
-		setDomainPopoverVisibility( false );
-		onDomainSelect( selectedDomain );
+	const handleModalClose = () => {
+		setDomainModalVisibility( false );
 	};
 
-	const handlePaidDomainSelect = ( selectedDomain: DomainSuggestion ) => {
+	const handleMoreOptions = () => {
 		setDomainPopoverVisibility( false );
-		setUserSelectedDomainSuggestion( selectedDomain );
-	};
-
-	const handlePurchaseCancel = () => {
-		setUserSelectedDomainSuggestion( null );
+		setDomainModalVisibility( true );
 	};
 
 	return (
@@ -72,36 +63,31 @@ const DomainPickerButton: FunctionComponent< Props > = ( {
 				aria-pressed={ isDomainPopoverVisible }
 				className={ classnames( 'domain-picker-button', className, {
 					'is-open': isDomainPopoverVisible,
+					'is-modal-open': isDomainModalVisible,
 				} ) }
 				onClick={ () => setDomainPopoverVisibility( s => ! s ) }
 				ref={ buttonRef }
 			>
-				<span>{ children }</span>
-				<Dashicon icon="arrow-down-alt2" />
+				<span className="domain-picker-button__label">{ children }</span>
+				<Dashicon icon="arrow-down-alt2" size={ 16 } />
 			</Button>
-			{ userSelectedDomainSuggestion && (
-				<ConfirmPurchaseModal
-					onCancel={ handlePurchaseCancel }
-					onAccept={ () => {
-						onDomainSelect( userSelectedDomainSuggestion );
-						onDomainPurchase( userSelectedDomainSuggestion );
-						setUserSelectedDomainSuggestion( null );
-					} }
-					selectedDomain={ userSelectedDomainSuggestion }
-				/>
-			) }
-			{ isDomainPopoverVisible && (
-				<Popover onClose={ handleClose } onFocusOutside={ handleClose } focusOnMount={ false }>
-					<DomainPicker
-						defaultQuery={ defaultQuery }
-						onDomainSelect={ handleDomainSelect }
-						onDomainPurchase={ handlePaidDomainSelect }
-						onClose={ handleClose }
-						queryParameters={ queryParameters }
-						currentDomain={ currentDomain }
-					/>
-				</Popover>
-			) }
+			<DomainPickerPopover
+				isOpen={ isDomainPopoverVisible }
+				showDomainConnectButton={ false }
+				showDomainCategories={ false }
+				currentDomain={ currentDomain }
+				onDomainSelect={ onDomainSelect }
+				onMoreOptions={ handleMoreOptions }
+				onClose={ handlePopoverClose }
+			/>
+			<DomainPickerModal
+				isOpen={ isDomainModalVisible }
+				showDomainConnectButton
+				showDomainCategories
+				currentDomain={ currentDomain }
+				onDomainSelect={ onDomainSelect }
+				onClose={ handleModalClose }
+			/>
 		</>
 	);
 };

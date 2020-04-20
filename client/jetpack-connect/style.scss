@@ -270,7 +270,6 @@ $colophon-height: 50px; // wpcomColophon element at the bottom
 
 .jetpack-connect__install-step-title {
 	font-size: 21px;
-	font-weight: 300;
 }
 
 .jetpack-connect__install-step-text {
@@ -475,7 +474,6 @@ $colophon-height: 50px; // wpcomColophon element at the bottom
 .jetpack-connect__sso-log-in-as {
 	font-family: $sans;
 	font-size: 21px;
-	font-weight: 300;
 	text-align: center;
 }
 
@@ -1159,7 +1157,7 @@ body.is-section-jetpack-connect .layout {
 
 // ProductSelector and ProductCard overrides
 .is-section-jetpack-connect .product-selector {
-	max-width: 520px;
+	max-width: 984px;
 	margin-left: auto;
 	margin-right: auto;
 	padding-left: 16px;

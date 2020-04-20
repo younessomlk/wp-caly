@@ -55,7 +55,7 @@ class RemovePurchase extends Component {
 		hasLoadedUserPurchasesFromServer: PropTypes.bool.isRequired,
 		hasNonPrimaryDomainsFlag: PropTypes.bool,
 		isDomainOnlySite: PropTypes.bool,
-		isPrimaryDomainRegistered: PropTypes.bool,
+		hasCustomPrimaryDomain: PropTypes.bool,
 		receiveDeletedSite: PropTypes.func.isRequired,
 		removePurchase: PropTypes.func.isRequired,
 		purchase: PropTypes.object,
@@ -174,14 +174,9 @@ class RemovePurchase extends Component {
 	};
 
 	shouldShowNonPrimaryDomainWarning() {
-		const {
-			hasNonPrimaryDomainsFlag,
-			isAtomicSite,
-			isPrimaryDomainRegistered,
-			purchase,
-		} = this.props;
+		const { hasNonPrimaryDomainsFlag, isAtomicSite, hasCustomPrimaryDomain, purchase } = this.props;
 		return (
-			hasNonPrimaryDomainsFlag && isPlan( purchase ) && ! isAtomicSite && isPrimaryDomainRegistered
+			hasNonPrimaryDomainsFlag && isPlan( purchase ) && ! isAtomicSite && hasCustomPrimaryDomain
 		);
 	}
 
@@ -255,7 +250,9 @@ class RemovePurchase extends Component {
 		return (
 			<div>
 				<p>
-					{ translate( 'Are you sure you want to remove %(productName)s from {{domain/}}?', {
+					{ /* translators: productName is a product name, like Jetpack.
+					 domain is something like example.wordpress.com */
+					translate( 'Are you sure you want to remove %(productName)s from {{domain/}}?', {
 						args: { productName },
 						components: { domain: <em>{ purchase.domain }</em> },
 						// ^ is the internal WPcom domain i.e. example.wordpress.com
@@ -365,7 +362,8 @@ class RemovePurchase extends Component {
 		const defaultContent = (
 			<>
 				<Gridicon icon="trash" />
-				{ translate( 'Remove %(productName)s', { args: { productName } } ) }
+				{ // translators: productName is a product name, like Jetpack
+				translate( 'Remove %(productName)s', { args: { productName } } ) }
 			</>
 		);
 

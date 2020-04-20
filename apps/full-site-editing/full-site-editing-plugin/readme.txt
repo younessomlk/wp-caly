@@ -3,7 +3,7 @@ Contributors: alexislloyd, allancole, automattic, bartkalisz, codebykat, copons,
 Tags: block, blocks, editor, gutenberg, page
 Requires at least: 5.0
 Tested up to: 5.3
-Stable tag: 0.26
+Stable tag: 1.0
 Requires PHP: 5.6.20
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -14,8 +14,7 @@ Enhances your page creation workflow within the Block Editor.
 == Description ==
 
 This plugin comes with a custom block to display a list of your most recent blog posts, as well as a template selector
-to give you a head start on creating new pages for your site.
-
+to give you a head start on creating new pages for your site. It also provides a way to change your font settings globally from the page editor.
 
 == Installation ==
 
@@ -41,6 +40,13 @@ This plugin is experimental, so we don't provide any support for it outside of w
 
 
 == Changelog ==
+
+= 1.0 =
+* Fix for site editor option override.
+* Hide post title in Gutenberg depending on theme mod.
+* Fix post list block sync script compatibility.
+* Remove hook for enqueueing site editor assets.
+* Move site editor item to top level menu in wp-admin.
 
 = 0.26 =
 * SPT IE bug fix.

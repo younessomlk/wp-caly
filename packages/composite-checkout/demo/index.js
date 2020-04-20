@@ -16,6 +16,7 @@ import {
 	createApplePayMethod,
 	createPayPalMethod,
 	createStripeMethod,
+	createStripePaymentMethodStore,
 	defaultRegistry,
 	getDefaultOrderReviewStep,
 	getDefaultOrderSummaryStep,
@@ -25,7 +26,6 @@ import {
 	useDispatch,
 	useMessages,
 	useFormStatus,
-	usePaymentMethod,
 } from '../src/public-api';
 import { StripeHookProvider, useStripe } from '../src/lib/stripe';
 
@@ -305,20 +305,29 @@ function MyCheckout() {
 		setTimeout( () => setIsLoading( false ), 1500 );
 	}, [ isStripeLoading, stripeLoadingError, stripe, stripeConfiguration, isApplePayLoading ] );
 
+	const stripeStore = useMemo(
+		() =>
+			createStripePaymentMethodStore( {
+				getCountry: () => select( 'demo' ).getCountry(),
+				getPostalCode: () => 90210,
+				getSubdivisionCode: () => 'CA',
+				getSiteId: () => 12345,
+				getDomainDetails: {},
+				submitTransaction: sendStripeTransaction,
+			} ),
+		[]
+	);
+
 	const stripeMethod = useMemo( () => {
 		if ( isStripeLoading || stripeLoadingError || ! stripe || ! stripeConfiguration ) {
 			return null;
 		}
 		return createStripeMethod( {
-			getCountry: () => select( 'demo' ).getCountry(),
-			getPostalCode: () => 90210,
-			getSubdivisionCode: () => 'CA',
-			registerStore,
+			store: stripeStore,
 			stripe,
 			stripeConfiguration,
-			submitTransaction: sendStripeTransaction,
 		} );
-	}, [ stripe, stripeConfiguration, isStripeLoading, stripeLoadingError ] );
+	}, [ stripeStore, stripe, stripeConfiguration, isStripeLoading, stripeLoadingError ] );
 
 	const applePayMethod = useMemo( () => {
 		if (
@@ -381,7 +390,6 @@ function MyCheckout() {
 function MyCheckoutBody() {
 	const country = useSelect( storeSelect => storeSelect( 'demo' )?.getCountry() ?? '' );
 	const { showErrorMessage: showError } = useMessages();
-	const activePaymentMethod = usePaymentMethod();
 
 	return (
 		<Checkout>
@@ -398,13 +406,11 @@ function MyCheckoutBody() {
 			/>
 			<CheckoutSteps>
 				<CheckoutStep
-					stepId="payment-method-step"
-					isCompleteCallback={ () =>
-						paymentMethodStep.isCompleteCallback( { activePaymentMethod } )
-					}
-					activeStepContent={ paymentMethodStep.activeStepContent }
-					completeStepContent={ paymentMethodStep.completeStepContent }
-					titleContent={ paymentMethodStep.titleContent }
+					stepId="review-order-step"
+					isCompleteCallback={ () => true }
+					activeStepContent={ reviewOrderStep.activeStepContent }
+					completeStepContent={ reviewOrderStep.completeStepContent }
+					titleContent={ reviewOrderStep.titleContent }
 				/>
 				<CheckoutStep
 					stepId={ contactFormStep.id }
@@ -425,11 +431,10 @@ function MyCheckoutBody() {
 					titleContent={ contactFormStep.titleContent }
 				/>
 				<CheckoutStep
-					stepId="review-order-step"
-					isCompleteCallback={ () => true }
-					activeStepContent={ reviewOrderStep.activeStepContent }
-					completeStepContent={ reviewOrderStep.completeStepContent }
-					titleContent={ reviewOrderStep.titleContent }
+					stepId="payment-method-step"
+					activeStepContent={ paymentMethodStep.activeStepContent }
+					completeStepContent={ paymentMethodStep.completeStepContent }
+					titleContent={ paymentMethodStep.titleContent }
 				/>
 			</CheckoutSteps>
 		</Checkout>

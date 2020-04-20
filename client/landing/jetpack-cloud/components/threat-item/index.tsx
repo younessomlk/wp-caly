@@ -71,8 +71,9 @@ class ThreatItem extends Component< Props > {
 				<div className="threat-item__buttons">
 					{ this.renderFixThreatButton( 'is-details' ) }
 					<Button
-						className="threat-item__ignore-button"
+						scary
 						compact
+						className="threat-item__ignore-button"
 						onClick={ onIgnoreThreat }
 						disabled={ isFixing }
 					>

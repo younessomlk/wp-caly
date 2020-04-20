@@ -2,7 +2,7 @@
  * External dependencies
  */
 import creditcards from 'creditcards';
-import { capitalize, compact, isArray, isEmpty, mergeWith, union } from 'lodash';
+import { capitalize, compact, isArray, isEmpty, mergeWith, union, isString } from 'lodash';
 import i18n from 'i18n-calypso';
 import { isValidPostalCode } from 'lib/postal-code';
 
@@ -152,6 +152,8 @@ export function paymentFieldRules( paymentDetails, paymentType ) {
 			);
 		case 'brazil-tef':
 			return tefPaymentFieldRules();
+		case 'id_wallet':
+			return countrySpecificFieldRules( 'ID' );
 		case 'netbanking':
 			return countrySpecificFieldRules( 'IN' );
 		case 'token':
@@ -268,7 +270,35 @@ validators.validIndiaPan = {
 	},
 	error: function( description ) {
 		return i18n.translate( '%(description)s is invalid', {
+			args: { description },
+		} );
+	},
+};
+
+validators.validIndonesiaNik = {
+	isValid( value ) {
+		const digitsOnly = isString( value ) ? value.replace( /[^0-9]/g, '' ) : '';
+		return digitsOnly.length === 16;
+	},
+	error: function( description ) {
+		return i18n.translate( '%(description)s is invalid', {
 			args: { description: capitalize( description ) },
+		} );
+	},
+};
+
+validators.validIndiaGstin = {
+	isValid( value ) {
+		const gstinRegex = /^([0-2][0-9]|[3][0-7])[A-Z]{3}[ABCFGHLJPTK][A-Z]\d{4}[A-Z][A-Z0-9][Z][A-Z0-9]$/i;
+
+		if ( ! value ) {
+			return true;
+		}
+		return gstinRegex.test( value );
+	},
+	error: function( description ) {
+		return i18n.translate( '%(description)s is invalid', {
+			args: { description },
 		} );
 	},
 };

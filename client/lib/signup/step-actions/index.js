@@ -10,15 +10,14 @@ import { parse as parseURL } from 'url';
  */
 
 // Libraries
-import config from 'config';
 import wpcom from 'lib/wp';
 import guessTimezone from 'lib/i18n-utils/guess-timezone';
 
 /* eslint-enable no-restricted-imports */
 import userFactory from 'lib/user';
-import { getSavedVariations } from 'lib/abtest';
+import { abtest, getSavedVariations } from 'lib/abtest';
 import analytics from 'lib/analytics';
-import { recordRegistration, recordSocialRegistration } from 'lib/analytics/signup';
+import { recordRegistration } from 'lib/analytics/signup';
 import {
 	updatePrivacyForDomain,
 	supportsPrivacyProtectionPurchase,
@@ -186,7 +185,7 @@ export function createSiteWithCart( callback, dependencies, stepData, reduxStore
 		validate: false,
 	};
 
-	if ( config.isEnabled( 'coming-soon' ) ) {
+	if ( 'variant' === abtest( 'ATPrivacy' ) ) {
 		newSiteParams.options.wpcom_coming_soon = getNewSiteComingSoonSetting( state );
 	}
 
@@ -415,7 +414,29 @@ export function createAccount(
 					);
 				}
 
-				recordSocialRegistration();
+				debug( 'Social Signup: response: ', response );
+				debug( 'Social Signup: userData: ', userData );
+
+				const userId =
+					( response && response.signup_sandbox_user_id ) ||
+					( response && response.user_id ) ||
+					userData.ID;
+
+				const username =
+					( response && response.signup_sandbox_username ) ||
+					( response && response.username ) ||
+					userData.username;
+
+				const email = ( response && response.email ) || ( userData && userData.user_email );
+
+				const registrationUserData = {
+					ID: userId,
+					username: username,
+					email,
+				};
+
+				// Fire after a new user registers.
+				recordRegistration( { userData: registrationUserData, flow: flowName, type: 'social' } );
 
 				callback( undefined, pick( response, [ 'username', 'bearer_token' ] ) );
 			}
@@ -480,9 +501,14 @@ export function createAccount(
 					( response && response.user_id ) ||
 					userData.ID;
 
+				const registrationUserData = {
+					ID: userId,
+					username,
+					email: userData.email,
+				};
+
 				// Fire after a new user registers.
-				recordRegistration( flowName );
-				analytics.identifyUser( { ID: userId, username, email: userData.email } );
+				recordRegistration( { userData: registrationUserData, flow: flowName, type: 'default' } );
 
 				const providedDependencies = assign( { username }, bearerToken );
 
@@ -512,9 +538,46 @@ export function createSite( callback, dependencies, stepData, reduxStore ) {
 		validate: false,
 	};
 
-	if ( config.isEnabled( 'coming-soon' ) ) {
+	if ( 'variant' === abtest( 'ATPrivacy' ) ) {
 		data.options.wpcom_coming_soon = getNewSiteComingSoonSetting( state );
 	}
+
+	wpcom.undocumented().sitesNew( data, function( errors, response ) {
+		let providedDependencies, siteSlug;
+
+		if ( response && response.blog_details ) {
+			const parsedBlogURL = parseURL( response.blog_details.url );
+			siteSlug = parsedBlogURL.hostname;
+
+			providedDependencies = { siteSlug };
+		}
+
+		if ( user.get() && isEmpty( errors ) ) {
+			fetchSitesAndUser( siteSlug, () => callback( undefined, providedDependencies ), reduxStore );
+		} else {
+			callback( isEmpty( errors ) ? undefined : [ errors ], providedDependencies );
+		}
+	} );
+}
+
+export function createWpForTeamsSite( callback, dependencies, stepData, reduxStore ) {
+	const { site, siteTitle } = stepData;
+
+	// The new p2 theme for WP for Teams project.
+	// More info: https://wp.me/p9lV3a-1dM-p2
+	const themeSlugWithRepo = 'pub/p2020';
+
+	const data = {
+		blog_name: site,
+		blog_title: siteTitle,
+		public: -1, // wp for teams sites are not supposed to be public
+		options: {
+			theme: themeSlugWithRepo,
+			timezone_string: guessTimezone(),
+			is_wpforteams_site: true,
+		},
+		validate: false,
+	};
 
 	wpcom.undocumented().sitesNew( data, function( errors, response ) {
 		let providedDependencies, siteSlug;

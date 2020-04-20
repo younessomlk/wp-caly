@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import React from 'react';
 import { noop } from 'lodash';
 import i18n from 'i18n-calypso';
 
@@ -24,6 +25,7 @@ export function generateSteps( {
 	addPlanToCart = noop,
 	createAccount = noop,
 	createSite = noop,
+	createWpForTeamsSite = noop,
 	createSiteOrDomain = noop,
 	createSiteWithCart = noop,
 	currentPage = noop,
@@ -254,6 +256,25 @@ export function generateSteps( {
 			apiRequestFunction: addPlanToCart,
 			dependencies: [ 'siteSlug', 'domainItem' ],
 			providesDependencies: [ 'cartItem' ],
+		},
+
+		'plans-with-domain': {
+			stepName: 'plans-with-domain',
+			apiRequestFunction: addPlanToCart,
+			fulfilledStepCallback: isPlanFulfilled,
+			dependencies: [ 'siteSlug' ],
+			providesDependencies: [ 'cartItem', 'isPreLaunch', 'isGutenboardingCreate' ],
+			props: {
+				headerText: i18n.translate( 'Choose a plan' ),
+				subHeaderText: i18n.translate(
+					'Pick a plan that’s right for you. Switch plans as your needs change. {{br/}} There’s no risk, you can cancel for a full refund within 30 days.',
+					{
+						components: { br: <br /> },
+						comment:
+							'Subheader of the plans page where users land from onboarding after they picked a paid domain',
+					}
+				),
+			},
 		},
 
 		domains: {
@@ -589,6 +610,12 @@ export function generateSteps( {
 			providesToken: true,
 			providesDependencies: [ 'bearer_token', 'email', 'username' ],
 			unstorableDependencies: [ 'bearer_token' ],
+		},
+
+		'team-site': {
+			stepName: 'team-site',
+			apiRequestFunction: createWpForTeamsSite,
+			providesDependencies: [ 'siteSlug' ],
 		},
 	};
 }

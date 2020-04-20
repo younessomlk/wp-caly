@@ -24,7 +24,7 @@ import {
 	getPostsFoundForQuery,
 	getPostsLastPageForQuery,
 } from 'state/posts/selectors';
-import { getPostType } from 'state/post-types/selectors';
+import { getPostType, getPostTypeLabel } from 'state/post-types/selectors';
 import { getEditorUrl } from 'state/selectors/get-editor-url';
 import ListEnd from 'components/list-end';
 import PostItem from 'blocks/post-item';
@@ -32,8 +32,13 @@ import PostTypeListEmptyContent from './empty-content';
 import PostTypeListMaxPagesNotice from './max-pages-notice';
 import SectionHeader from 'components/section-header';
 import { Button } from '@automattic/components';
-import UpgradeNudge from 'blocks/upgrade-nudge';
+import UpsellNudge from 'blocks/upsell-nudge';
 import { FEATURE_NO_ADS } from 'lib/plans/constants';
+
+/**
+ * Style dependencies
+ */
+import './style.scss';
 
 /**
  * Constants
@@ -191,29 +196,16 @@ class PostTypeList extends Component {
 	}
 
 	renderSectionHeader() {
-		const { editorUrl, postLabels, localeSlug } = this.props;
+		const { editorUrl, postLabels, addNewItemLabel } = this.props;
 
 		if ( ! postLabels ) {
 			return null;
 		}
 
-		/*
-		 * Temporary workaround to Sentence case label from core API for EN langs
-		 * @TODO: Remove when https://core.trac.wordpress.org/ticket/49616 is merged
-		 */
-
-		let addNewLabel = postLabels.add_new_item;
-
-		if ( 'en' === localeSlug || 'en-gb' === localeSlug ) {
-			addNewLabel =
-				postLabels.add_new_item[ 0 ].toUpperCase() +
-				postLabels.add_new_item.slice( 1 ).toLowerCase();
-		}
-
 		return (
 			<SectionHeader label={ postLabels.name }>
 				<Button primary compact className="post-type-list__add-post" href={ editorUrl }>
-					{ addNewLabel }
+					{ addNewItemLabel }
 				</Button>
 			</SectionHeader>
 		);
@@ -267,6 +259,9 @@ class PostTypeList extends Component {
 		const classes = classnames( 'post-type-list', {
 			'is-empty': isLoadedAndEmpty,
 		} );
+
+		const isSingleSite = !! siteId;
+
 		const showUpgradeNudge =
 			siteId &&
 			posts.length > 10 &&
@@ -282,16 +277,20 @@ class PostTypeList extends Component {
 					range( 1, maxRequestedPage + 1 ).map( page => (
 						<QueryPosts key={ `query-${ page }` } siteId={ siteId } query={ { ...query, page } } />
 					) ) }
-				{ recentViewIds.length > 0 && (
+				{ /* Disable Querying recent views in all-sites mode as it doesn't work without sideId. */ }
+				{ isSingleSite && recentViewIds.length > 0 && (
 					<QueryRecentPostViews siteId={ siteId } postIds={ recentViewIds } num={ 30 } />
 				) }
 				{ posts.slice( 0, 10 ).map( this.renderPost ) }
 				{ showUpgradeNudge && (
-					<UpgradeNudge
+					<UpsellNudge
 						title={ translate( 'No Ads with WordPress.com Premium' ) }
-						message={ translate( 'Prevent ads from showing on your site.' ) }
+						description={ translate( 'Prevent ads from showing on your site.' ) }
 						feature={ FEATURE_NO_ADS }
 						event="published_posts_no_ads"
+						tracksImpressionName="calypso_upgrade_nudge_impression"
+						tracksClickName="calypso_upgrade_nudge_cta_click"
+						showIcon={ true }
 					/>
 				) }
 				{ posts.slice( 10 ).map( this.renderPost ) }
@@ -312,7 +311,7 @@ export default connect( ( state, ownProps ) => {
 	const totalPageCount = getPostsLastPageForQuery( state, siteId, ownProps.query );
 	const lastPageToRequest =
 		siteId === null ? Math.min( MAX_ALL_SITES_PAGES, totalPageCount ) : totalPageCount;
-
+	const localeSlug = getLocaleSlug( state );
 	return {
 		siteId,
 		posts: getPostsForQueryIgnoringPage( state, siteId, ownProps.query ),
@@ -323,6 +322,12 @@ export default connect( ( state, ownProps ) => {
 		lastPageToRequest,
 		editorUrl: getEditorUrl( state, siteId, null, ownProps.query.type ),
 		postLabels: get( getPostType( state, siteId, ownProps.query.type ), 'labels' ),
-		localeSlug: getLocaleSlug( state ),
+		addNewItemLabel: getPostTypeLabel(
+			state,
+			siteId,
+			ownProps.query.type,
+			'add_new_item',
+			localeSlug
+		),
 	};
 } )( localize( PostTypeList ) );

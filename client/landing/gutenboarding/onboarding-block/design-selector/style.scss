@@ -1,15 +1,25 @@
 @import 'assets/stylesheets/gutenberg-base-styles';
 @import '~@wordpress/base-styles/colors';
 @import '../../mixins';
+@import '../../variables.scss';
 
 .design-selector {
 	background-color: var( --contrastColor );
 	color: var( --mainColor );
 
 	.design-selector__header {
-		display: flex;
-		align-items: center;
-		margin-top: 53px;
+		display: block;
+		@include onboarding-heading-padding;
+
+		@include break-large {
+			display: flex;
+			align-items: center;
+		}
+
+		@include onboarding-break-gigantic {
+			display: flex;
+			align-items: center;
+		}
 	}
 
 	.design-selector__heading {
@@ -19,24 +29,80 @@
 	.design-selector__start-over-button {
 		&.is-link {
 			color: var( --color-text-subtle );
+			padding-top: 1em;
+
+			@include break-large {
+				padding-top: 0;
+			}
+
+			@include onboarding-break-gigantic {
+				padding-top: 0;
+			}
 		}
 	}
 
 	.design-selector__grid {
-		display: grid;
-		grid-template-columns: 1fr 1fr;
-		column-gap: 4em;
-		row-gap: 5em;
-		margin-top: 30px;
+		margin: 0 -32px 30px;
+	}
+
+	.design-selector__design-option {
+		cursor: pointer;
+		float: left;
+		width: 100%;
+		margin: 0;
+
+		&:hover,
+		&:focus {
+			.design-selector__image-frame {
+				border-color: var( --highlightColor );
+			}
+		}
+		@include break-large {
+			width: calc( 33.33% - 64px );
+		}
+
+		@include onboarding-break-gigantic {
+			width: calc( 25% - 64px );
+		}
+	}
+
+	@supports ( display: grid ) {
+		.design-selector__grid {
+			display: grid;
+			grid-template-columns: 1fr;
+			column-gap: 64px;
+			row-gap: 48px;
+			margin: 0 0 30px;
+
+			@include break-large {
+				grid-template-columns: 1fr 1fr 1fr;
+			}
+
+			@include onboarding-break-gigantic {
+				grid-template-columns: 1fr 1fr 1fr 1fr;
+			}
+		}
+
+		.design-selector__design-option {
+			width: auto;
+			margin: 0;
+
+			@include break-large {
+				width: auto;
+			}
+
+			@include onboarding-break-gigantic {
+				width: auto;
+			}
+		}
 	}
 
 	.design-selector__image-frame {
 		display: block;
 		width: 100%;
 		height: 0;
-		padding-top: 360px / 480px * 100%;
-		border: 1px solid var( --studio-gray-5 );
-		border-radius: 4px;
+		padding-top: 360px / 480px * 200%;
+		border: 2px solid var( --studio-gray-5 );
 		position: relative;
 		overflow: hidden;
 
@@ -52,11 +118,11 @@
 	}
 
 	.design-selector__option-name {
-		margin-top: 16px;
+		color: var( --studio-gray-40 );
 		display: block;
+		margin: 16px 0;
 		text-align: center;
 		width: 100%;
-		font-size: 24px;
-		@include onboarding-font-recoleta;
+		@include onboarding-medium-text;
 	}
 }

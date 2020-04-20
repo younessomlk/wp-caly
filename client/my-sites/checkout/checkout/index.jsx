@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { connect } from 'react-redux';
-import { flatten, find, get, includes, isEmpty, isEqual, reduce, startsWith } from 'lodash';
+import { flatten, find, get, isEmpty, isEqual, reduce, startsWith } from 'lodash';
 import { localize } from 'i18n-calypso';
 import page from 'page';
 import PropTypes from 'prop-types';
@@ -38,7 +38,7 @@ import {
 	hasTransferProduct,
 	jetpackProductItem,
 } from 'lib/cart-values/cart-items';
-import { JETPACK_BACKUP_PRODUCTS, JETPACK_SEARCH_PRODUCTS } from 'lib/products-values/constants';
+import { isJetpackProductSlug } from 'lib/products-values';
 import PendingPaymentBlocker from './pending-payment-blocker';
 import { clearSitePlans } from 'state/sites/plans/actions';
 import { clearPurchases } from 'state/purchases/actions';
@@ -387,15 +387,11 @@ export class Checkout extends React.Component {
 
 		const isCartEmpty = isEmpty( getAllCartItems( cart ) );
 		const isReceiptEmpty = ':receiptId' === pendingOrReceiptId;
-
 		// We will show the Thank You page if there's a site slug and either one of the following is true:
 		// - has a receipt number
 		// - does not have a receipt number but has an item in cart(as in the case of paying with a redirect payment type)
 		if ( selectedSiteSlug && ( ! isReceiptEmpty || ! isCartEmpty ) ) {
-			const isJetpackProduct =
-				product &&
-				( includes( JETPACK_BACKUP_PRODUCTS, product ) ||
-					includes( JETPACK_SEARCH_PRODUCTS, product ) );
+			const isJetpackProduct = product && isJetpackProductSlug( product );
 			// If we just purchased a Jetpack product, redirect to the my plans page.
 			if ( isJetpackNotAtomic && isJetpackProduct ) {
 				return `/plans/my-plan/${ selectedSiteSlug }?thank-you&product=${ product }`;
@@ -480,9 +476,11 @@ export class Checkout extends React.Component {
 		// Especially around the Concierge / Checklist logic.
 
 		let renewalItem,
+			signupDestination,
 			displayModeParam = {};
 		const {
 			cart,
+			product,
 			redirectTo,
 			selectedSite,
 			selectedSiteSlug,
@@ -533,8 +531,20 @@ export class Checkout extends React.Component {
 
 		this.setDestinationIfEcommPlan( pendingOrReceiptId );
 
-		const signupDestination =
-			retrieveSignupDestination() || this.getFallbackDestination( pendingOrReceiptId );
+		// if it is one of the Jetpack products, use product info as a parameter.
+		// We want to be product-specific, as the same path will likely be used for
+		// WP.com sites purchasing Search.
+		if (
+			product === 'jetpack_search' ||
+			product === 'jetpack_scan' ||
+			product === 'jetpack_backup_daily' ||
+			product === 'jetpack_backup_monthly'
+		) {
+			signupDestination = this.getFallbackDestination( pendingOrReceiptId );
+		} else {
+			signupDestination =
+				retrieveSignupDestination() || this.getFallbackDestination( pendingOrReceiptId );
+		}
 
 		if ( hasRenewalItem( cart ) ) {
 			renewalItem = getRenewalItems( cart )[ 0 ];
@@ -841,6 +851,7 @@ export class Checkout extends React.Component {
 
 	render() {
 		const { plan, product, purchaseId, selectedFeature, selectedSiteSlug } = this.props;
+
 		let analyticsPath = '';
 		let analyticsProps = {};
 		if ( purchaseId && product ) {

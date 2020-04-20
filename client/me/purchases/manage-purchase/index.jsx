@@ -7,7 +7,6 @@ import { localize } from 'i18n-calypso';
 import page from 'page';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { find } from 'lodash';
 
 /**
  * Internal Dependencies
@@ -54,12 +53,11 @@ import {
 	isDomainMapping,
 	isDomainTransfer,
 	isTheme,
-	isJetpackBackup,
 	isJetpackProduct,
 	isConciergeSession,
 } from 'lib/products-values';
 import { getSite, isRequestingSites } from 'state/sites/selectors';
-import { JETPACK_BACKUP_PRODUCTS } from 'lib/products-values/constants';
+import { JETPACK_PRODUCTS_LIST } from 'lib/products-values/constants';
 import { JETPACK_PLANS } from 'lib/plans/constants';
 import Main from 'components/main';
 import PlanPrice from 'my-sites/plan-price';
@@ -82,8 +80,7 @@ import { currentUserHasFlag, getCurrentUser, getCurrentUserId } from 'state/curr
 import CartStore from 'lib/cart/store';
 import { NON_PRIMARY_DOMAINS_TO_FREE_USERS } from 'state/current-user/constants';
 import { hasCustomDomain } from 'lib/site/utils';
-import { getDomainsBySiteId, hasLoadedSiteDomains } from 'state/sites/domains/selectors';
-import { getRegisteredDomains } from 'lib/domains';
+import { hasLoadedSiteDomains } from 'state/sites/domains/selectors';
 import NonPrimaryDomainDialog from 'me/purchases/non-primary-domain-dialog';
 
 /**
@@ -149,8 +146,8 @@ class ManagePurchase extends Component {
 	};
 
 	shouldShowNonPrimaryDomainWarning() {
-		const { hasNonPrimaryDomainsFlag, isPrimaryDomainRegistered, purchase } = this.props;
-		return hasNonPrimaryDomainsFlag && isPlan( purchase ) && isPrimaryDomainRegistered;
+		const { hasNonPrimaryDomainsFlag, hasCustomPrimaryDomain, purchase } = this.props;
+		return hasNonPrimaryDomainsFlag && isPlan( purchase ) && hasCustomPrimaryDomain;
 	}
 
 	renderRenewButton() {
@@ -238,7 +235,7 @@ class ManagePurchase extends Component {
 				hasLoadedSites={ this.props.hasLoadedSites }
 				hasLoadedUserPurchasesFromServer={ this.props.hasLoadedUserPurchasesFromServer }
 				hasNonPrimaryDomainsFlag={ this.props.hasNonPrimaryDomainsFlag }
-				isPrimaryDomainRegistered={ this.props.isPrimaryDomainRegistered }
+				hasCustomPrimaryDomain={ this.props.hasCustomPrimaryDomain }
 				site={ this.props.site }
 				purchase={ this.props.purchase }
 			/>
@@ -344,7 +341,7 @@ class ManagePurchase extends Component {
 
 	renderPlanIcon() {
 		const { purchase } = this.props;
-		if ( isPlan( purchase ) || isJetpackBackup( purchase ) ) {
+		if ( isPlan( purchase ) || isJetpackProduct( purchase ) ) {
 			return (
 				<div className="manage-purchase__plan-icon">
 					<ProductIcon slug={ purchase.productSlug } />
@@ -550,8 +547,9 @@ class ManagePurchase extends Component {
 						require="blocks/product-plan-overlap-notices"
 						placeholder={ null }
 						plans={ JETPACK_PLANS }
-						products={ JETPACK_BACKUP_PRODUCTS }
+						products={ JETPACK_PRODUCTS_LIST }
 						siteId={ siteId }
+						currentPurchase={ purchase }
 					/>
 					{ this.renderPurchaseDetail() }
 					{ site && this.renderNonPrimaryDomainWarningDialog( site, purchase ) }
@@ -568,8 +566,6 @@ export default connect( ( state, props ) => {
 	const isPurchaseTheme = purchase && isTheme( purchase );
 	const site = getSite( state, siteId );
 	const hasLoadedSites = ! isRequestingSites( state );
-	const domains = getDomainsBySiteId( state, siteId );
-	const registeredDomains = getRegisteredDomains( domains );
 	const hasLoadedDomains = hasLoadedSiteDomains( state, siteId );
 	return {
 		hasLoadedDomains,
@@ -578,8 +574,7 @@ export default connect( ( state, props ) => {
 		hasNonPrimaryDomainsFlag: getCurrentUser( state )
 			? currentUserHasFlag( state, NON_PRIMARY_DOMAINS_TO_FREE_USERS )
 			: false,
-		isPrimaryDomainRegistered:
-			hasCustomDomain( site ) && !! find( registeredDomains, [ 'name', site.domain ] ),
+		hasCustomPrimaryDomain: hasCustomDomain( site ),
 		purchase,
 		siteId,
 		site,
