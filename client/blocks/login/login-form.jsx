@@ -257,6 +257,65 @@ export class LoginForm extends Component {
 		}
 	}
 
+	getSignupUrl() {
+		const {
+			oauth2Client,
+			redirectTo,
+			isGutenboarding,
+			currentRoute,
+			currentQuery,
+			pathname,
+			locale,
+		} = this.props;
+		const isOauthLogin = !! oauth2Client;
+
+		const langFragment = locale && locale !== 'en' ? `/${ locale }` : '';
+
+		let signupUrl = config( 'signup_url' );
+		const signupFlow = get( currentQuery, 'signup_flow' );
+
+		// copied from login-links.jsx
+		if (
+			// Match locales like `/log-in/jetpack/es`
+			startsWith( currentRoute, '/log-in/jetpack' )
+		) {
+			// Basic validation that we're in a valid Jetpack Authorization flow
+			if (
+				includes( get( currentQuery, 'redirect_to' ), '/jetpack/connect/authorize' ) &&
+				includes( get( currentQuery, 'redirect_to' ), '_wp_nonce' )
+			) {
+				/**
+				 * `log-in/jetpack/:locale` is reached as part of the Jetpack connection flow. In
+				 * this case, the redirect_to will handle signups as part of the flow. Use the
+				 * `redirect_to` parameter directly for signup.
+				 */
+				signupUrl = currentQuery.redirect_to;
+			} else {
+				signupUrl = '/jetpack/new';
+			}
+		} else if ( '/jetpack-connect' === pathname ) {
+			signupUrl = '/jetpack/new';
+		} else if ( signupFlow ) {
+			signupUrl += '/' + signupFlow;
+		}
+
+		if ( isOauthLogin && config.isEnabled( 'signup/wpcc' ) ) {
+			const oauth2Flow = isCrowdsignalOAuth2Client( oauth2Client ) ? 'crowdsignal' : 'wpcc';
+			const oauth2Params = {
+				oauth2_client_id: oauth2Client.id,
+				oauth2_redirect: redirectTo,
+			};
+
+			signupUrl = `/start/${ oauth2Flow }?${ stringify( oauth2Params ) }`;
+		}
+
+		if ( isGutenboarding ) {
+			signupUrl = `/${ GUTENBOARDING_BASE_NAME }` + langFragment;
+		}
+
+		return signupUrl;
+	}
+
 	onWooCommerceSocialSuccess = ( ...args ) => {
 		this.recordWooCommerceLoginTracks( 'social' );
 		this.props.onSuccess( args );
@@ -419,64 +478,14 @@ export class LoginForm extends Component {
 
 		const {
 			oauth2Client,
-			redirectTo,
 			requestError,
 			socialAccountIsLinking: linkingSocialUser,
 			isJetpackWooCommerceFlow,
 			isJetpackWCPayFlow,
-			isGutenboarding,
 			wccomFrom,
-			currentRoute,
-			currentQuery,
-			pathname,
-			locale,
 		} = this.props;
 		const isOauthLogin = !! oauth2Client;
 		const isPasswordHidden = this.isUsernameOrEmailView();
-
-		const langFragment = locale && locale !== 'en' ? `/${ locale }` : '';
-
-		let signupUrl = config( 'signup_url' );
-		const signupFlow = get( currentQuery, 'signup_flow' );
-
-		// copied from login-links.jsx
-		if (
-			// Match locales like `/log-in/jetpack/es`
-			startsWith( currentRoute, '/log-in/jetpack' )
-		) {
-			// Basic validation that we're in a valid Jetpack Authorization flow
-			if (
-				includes( get( currentQuery, 'redirect_to' ), '/jetpack/connect/authorize' ) &&
-				includes( get( currentQuery, 'redirect_to' ), '_wp_nonce' )
-			) {
-				/**
-				 * `log-in/jetpack/:locale` is reached as part of the Jetpack connection flow. In
-				 * this case, the redirect_to will handle signups as part of the flow. Use the
-				 * `redirect_to` parameter directly for signup.
-				 */
-				signupUrl = currentQuery.redirect_to;
-			} else {
-				signupUrl = '/jetpack/new';
-			}
-		} else if ( '/jetpack-connect' === pathname ) {
-			signupUrl = '/jetpack/new';
-		} else if ( signupFlow ) {
-			signupUrl += '/' + signupFlow;
-		}
-
-		if ( isOauthLogin && config.isEnabled( 'signup/wpcc' ) ) {
-			const oauth2Flow = isCrowdsignalOAuth2Client( oauth2Client ) ? 'crowdsignal' : 'wpcc';
-			const oauth2Params = {
-				oauth2_client_id: oauth2Client.id,
-				oauth2_redirect: redirectTo,
-			};
-
-			signupUrl = `/start/${ oauth2Flow }?${ stringify( oauth2Params ) }`;
-		}
-
-		if ( isGutenboarding ) {
-			signupUrl = `/${ GUTENBOARDING_BASE_NAME }` + langFragment;
-		}
 
 		if ( config.isEnabled( 'jetpack/connect/woocommerce' ) && isJetpackWooCommerceFlow ) {
 			return this.renderWooCommerce();
@@ -561,7 +570,7 @@ export class LoginForm extends Component {
 										' Would you like to {{newAccountLink}}create a new account{{/newAccountLink}}?',
 										{
 											components: {
-												newAccountLink: <a href={ signupUrl } />,
+												newAccountLink: <a href={ this.getSignupUrl() } />,
 											},
 										}
 									) }
@@ -633,7 +642,7 @@ export class LoginForm extends Component {
 								'Not on WordPress.com? {{signupLink}}Create an Account{{/signupLink}}.',
 								{
 									components: {
-										signupLink: <a href={ signupUrl } />,
+										signupLink: <a href={ this.getSignupUrl() } />,
 									},
 								}
 							) }
