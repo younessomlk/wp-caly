@@ -58,6 +58,8 @@ import { createSocialUserFailed } from 'state/login/actions';
 import { getCurrentOAuth2Client } from 'state/ui/oauth2-clients/selectors';
 import { getSectionName } from 'state/ui/selectors';
 import TextControl from 'extensions/woocommerce/components/text-control';
+import Gridicon from 'components/gridicon';
+import { decodeEntities } from 'lib/formatting';
 
 /**
  * Style dependencies
@@ -105,6 +107,7 @@ class SignupForm extends Component {
 		suggestedUsername: PropTypes.string.isRequired,
 		translate: PropTypes.func.isRequired,
 		showRecaptchaToS: PropTypes.bool,
+		backLink: PropTypes.object,
 
 		// Connected props
 		oauth2Client: PropTypes.object,
@@ -880,6 +883,23 @@ class SignupForm extends Component {
 		return this.props.step && 'completed' === this.props.step.status;
 	}
 
+	renderBackLink() {
+		const { backLink } = this.props;
+		if ( ! backLink || ! backLink.url || ! backLink.siteName ) {
+			return null;
+		}
+
+		return (
+			<LoggedOutFormLinkItem href={ backLink.url }>
+				<Gridicon size={ 18 } icon="arrow-left" />{ ' ' }
+				{ // translators: eg: Return to The WordPress.com Blog
+				this.props.translate( 'Return to %(sitename)s', {
+					args: { sitename: decodeEntities( backLink.siteName ) },
+				} ) }
+			</LoggedOutFormLinkItem>
+		);
+	}
+
 	render() {
 		if ( this.getUserExistsError( this.props ) ) {
 			return null;
@@ -944,6 +964,7 @@ class SignupForm extends Component {
 					<LoggedOutFormLinkItem href={ logInUrl }>
 						{ this.props.translate( 'Log in with an existing WordPress.com account' ) }
 					</LoggedOutFormLinkItem>
+					{ this.renderBackLink() }
 				</div>
 			);
 		}

@@ -219,18 +219,19 @@ export class JetpackSignup extends Component {
 	}
 	render() {
 		const { isCreatingAccount } = this.state;
+		const { authQuery } = this.props;
 		return (
 			<MainWrapper isWoo={ this.isWoo() } isWCPay={ this.isWCPay() }>
 				<div className="jetpack-connect__authorize-form">
 					{ this.renderLocaleSuggestions() }
 					<AuthFormHeader
-						authQuery={ this.props.authQuery }
+						authQuery={ authQuery }
 						isWoo={ this.isWoo() }
 						isWCPay={ this.isWCPay() }
 					/>
 					<SignupForm
 						disabled={ isCreatingAccount }
-						email={ this.props.authQuery.userEmail }
+						email={ authQuery.userEmail }
 						footerLink={ this.renderFooterLink() }
 						handleSocialResponse={ this.handleSocialResponse }
 						isSocialSignupEnabled={ isEnabled( 'signup/social' ) }
@@ -243,6 +244,11 @@ export class JetpackSignup extends Component {
 						submitForm={ this.handleSubmitSignup }
 						submitting={ isCreatingAccount }
 						suggestedUsername=""
+						backLink={
+							this.isWCPay()
+								? { url: authQuery.redirectAfterAuth, siteName: authQuery.blogname }
+								: null
+						}
 					/>
 					{ this.renderLoginUser() }
 				</div>
