@@ -330,14 +330,14 @@ class Login extends Component {
 				</p>
 			);
 		} else if ( config.isEnabled( 'jetpack/connect/wcpay' ) && isJetpackWCPayFlow ) {
-			headerText = translate( 'Yo! This is WCPAY!!!' );
+			headerText = translate( 'Log in to your WordPress.com account' );
 			preHeader = (
 				<div className="login__jetpack-logo">
 					<AsyncLoad
 						require="components/jetpack-header"
 						placeholder={ null }
 						partnerSlug={ this.props.partnerSlug }
-						isWoo
+						isWCPay
 						width={ 200 }
 						lightColorScheme
 					/>
@@ -345,7 +345,9 @@ class Login extends Component {
 			);
 			postHeader = (
 				<p className="login__header-subtitle">
-					{ translate( 'Your account will enable you to start using WCPAY.' ) }
+					{ translate(
+						'Your account will enable you to start using the features and benefits offered by WooCommerce Payments'
+					) }
 				</p>
 			);
 		} else if ( isJetpack ) {
