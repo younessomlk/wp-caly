@@ -47,6 +47,10 @@ export class AuthFormHeader extends Component {
 			return 'logged-in-success';
 		}
 
+		if ( authorize.isAuthorizing ) {
+			return 'auth-in-progress';
+		}
+
 		return 'logged-in';
 	}
 
@@ -91,12 +95,7 @@ export class AuthFormHeader extends Component {
 		}
 
 		if ( config.isEnabled( 'jetpack/connect/wcpay' ) && isWCPay ) {
-			switch ( currentState ) {
-				case 'logged-out':
-					return translate( 'Create a WCPAY account' );
-				default:
-					return translate( 'WooCommerce Payments' );
-			}
+			return translate( 'WooCommerce Payments' );
 		}
 
 		switch ( currentState ) {
@@ -128,7 +127,10 @@ export class AuthFormHeader extends Component {
 		if ( config.isEnabled( 'jetpack/connect/wcpay' ) && isWCPay ) {
 			switch ( currentState ) {
 				case 'logged-out':
-					return translate( 'Your account will enable you to start using WCPAY.' );
+					return translate( 'Create an account' );
+				case 'logged-in-success':
+				case 'auth-in-progress':
+					return translate( 'Connecting your store' );
 				default:
 					return translate( 'Approve your connection' );
 			}

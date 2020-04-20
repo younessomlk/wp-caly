@@ -281,8 +281,9 @@ export class JetpackAuthorize extends Component {
 	}
 
 	isWCPay( props = this.props ) {
-		const { from } = props.authQuery;
-		return 'woocommerce-payments' === from;
+		return (
+			config.isEnabled( 'jetpack/connect/wcpay' ) && 'woocommerce-payments' === props.authQuery.from
+		);
 	}
 
 	shouldRedirectJetpackStart( props = this.props ) {
