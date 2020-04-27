@@ -21,6 +21,7 @@ import { chunkCssLinks } from './utils';
 import JetpackLogo from 'components/jetpack-logo';
 import WordPressLogo from 'components/wordpress-logo';
 import { jsonStringifyForHtml } from 'server/sanitize';
+import wooDnaConfig from 'jetpack-connect/woo-dna-config';
 
 class Document extends React.Component {
 	render() {
@@ -86,10 +87,7 @@ class Document extends React.Component {
 			'jetpack-connect' === sectionName &&
 			'woocommerce-onboarding' === requestFrom;
 
-		const isJetpackWCPayFlow =
-			config.isEnabled( 'jetpack/connect/wcpay' ) &&
-			'jetpack-connect' === sectionName &&
-			'woocommerce-payments' === requestFrom;
+		const isJetpackWooDnaFlow = 'jetpack-connect' === sectionName && wooDnaConfig[ requestFrom ];
 
 		const theme = config( 'theme' );
 
@@ -142,7 +140,7 @@ class Document extends React.Component {
 									[ 'is-group-' + sectionGroup ]: sectionGroup,
 									[ 'is-section-' + sectionName ]: sectionName,
 									'is-jetpack-woocommerce-flow': isJetpackWooCommerceFlow,
-									'is-jetpack-wcpay-flow': isJetpackWCPayFlow,
+									'is-jetpack-woo-dna-flow': isJetpackWooDnaFlow,
 									'is-wccom-oauth-flow': isWCComConnect,
 								} ) }
 							>

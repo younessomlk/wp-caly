@@ -50,6 +50,7 @@ import {
 } from 'state/login/selectors';
 import { resetAuthAccountType as resetAuthAccountTypeAction } from 'state/login/actions';
 import FormattedHeader from 'components/formatted-header';
+import wooDnaConfig from './woo-dna-config';
 
 const debug = debugFactory( 'calypso:jetpack-connect:authorize-form' );
 
@@ -69,7 +70,7 @@ export class JetpackSignup extends Component {
 		isCreatingAccount: false,
 		newUsername: null,
 		bearerToken: null,
-		showWcpayLoginForm: true,
+		showWooDnaLoginForm: true,
 	} );
 
 	state = this.constructor.initialState;
@@ -102,24 +103,24 @@ export class JetpackSignup extends Component {
 		}
 
 		if (
-			this.isWCPay() &&
+			this.getWooDnaConfig() &&
 			'usernameOrEmail' === requestError.field &&
 			'unknown_user' === requestError.code
 		) {
-			this.showWCPaySignupView();
+			this.showWooDnaSignupView();
 		}
 	}
 
-	showWCPaySignupView = () => {
+	showWooDnaSignupView = () => {
 		this.setState( {
-			showWcpayLoginForm: false,
+			showWooDnaLoginForm: false,
 		} );
 		this.props.resetAuthAccountType();
 	};
 
-	showWCPayLoginView = usernameOrEmail => {
+	showWooDnaLoginView = usernameOrEmail => {
 		this.setState( {
-			showWcpayLoginForm: true,
+			showWooDnaLoginForm: true,
 			signUpUsernameOrEmail: usernameOrEmail || null,
 		} );
 		this.props.resetAuthAccountType();
@@ -130,9 +131,9 @@ export class JetpackSignup extends Component {
 		return 'woocommerce-onboarding' === authQuery.from;
 	}
 
-	isWCPay() {
+	getWooDnaConfig() {
 		const { authQuery } = this.props;
-		return isEnabled( 'jetpack/connect/wcpay' ) && 'woocommerce-payments' === authQuery.from;
+		return wooDnaConfig[ authQuery.from ];
 	}
 
 	getLoginRoute() {
@@ -260,21 +261,28 @@ export class JetpackSignup extends Component {
 		);
 	}
 
-	renderWCPay() {
+	renderWooDna() {
 		const { authQuery, isFullLoginFormVisible, translate, usernameOrEmail } = this.props;
 		const { isCreatingAccount, signUpUsernameOrEmail } = this.state;
 		let header, subHeader, content;
 		const footerLinks = [];
 		const email = signUpUsernameOrEmail || usernameOrEmail || authQuery.userEmail;
+		const wooDna = this.getWooDnaConfig();
 
-		if ( this.state.showWcpayLoginForm ) {
+		if ( this.state.showWooDnaLoginForm ) {
 			if ( isFullLoginFormVisible ) {
 				header = translate( 'Log in to your WordPress.com account' );
+				/* translators: pluginName is the name of the Woo extension that initiated the connection flow */
 				subHeader = translate(
-					'Your account will enable you to start using the features and benefits offered by WooCommerce Payments'
+					'Your account will enable you to start using the features and benefits offered by %(pluginName)',
+					{
+						args: {
+							pluginName: wooDna.name( translate ),
+						},
+					}
 				);
 				footerLinks.push(
-					<LoggedOutFormLinkItem key="signup" onClick={ this.showWCPaySignupView }>
+					<LoggedOutFormLinkItem key="signup" onClick={ this.showWooDnaSignupView }>
 						{ this.props.translate( 'Create a new account' ) }
 					</LoggedOutFormLinkItem>
 				);
@@ -290,14 +298,14 @@ export class JetpackSignup extends Component {
 					</LoggedOutFormLinkItem>
 				);
 			} else {
-				header = translate( 'WooCommerce Payments' );
+				header = wooDna.name( translate );
 				subHeader = translate( 'Enter your email address to get started' );
 			}
 		} else {
-			header = translate( 'WooCommerce Payments' );
+			header = wooDna.name( translate );
 			subHeader = translate( 'Create an account' );
 			footerLinks.push(
-				<LoggedOutFormLinkItem key="login" onClick={ () => this.showWCPayLoginView() }>
+				<LoggedOutFormLinkItem key="login" onClick={ () => this.showWooDnaLoginView() }>
 					{ this.props.translate( 'Log in with an existing WordPress.com account' ) }
 				</LoggedOutFormLinkItem>
 			);
@@ -314,7 +322,7 @@ export class JetpackSignup extends Component {
 		);
 		const footer = <LoggedOutFormLinks>{ footerLinks }</LoggedOutFormLinks>;
 
-		if ( this.state.showWcpayLoginForm ) {
+		if ( this.state.showWooDnaLoginForm ) {
 			content = <LoginBlock locale={ this.props.locale } footer={ footer } userEmail={ email } />;
 		} else {
 			content = (
@@ -322,7 +330,7 @@ export class JetpackSignup extends Component {
 					disabled={ isCreatingAccount }
 					email={ includes( email, '@' ) ? email : '' }
 					footerLink={ footer }
-					handleLogin={ this.showWCPayLoginView }
+					handleLogin={ this.showWooDnaLoginView }
 					handleSocialResponse={ this.handleSocialResponse }
 					isSocialSignupEnabled={ isEnabled( 'signup/social' ) }
 					locale={ this.props.locale }
@@ -336,7 +344,7 @@ export class JetpackSignup extends Component {
 		}
 
 		return (
-			<MainWrapper isWCPay>
+			<MainWrapper wooDna={ wooDna }>
 				<div className="jetpack-connect__authorize-form">
 					{ this.renderLocaleSuggestions() }
 					<FormattedHeader headerText={ header } subHeaderText={ subHeader } />
@@ -348,8 +356,8 @@ export class JetpackSignup extends Component {
 	}
 
 	render() {
-		if ( this.isWCPay() ) {
-			return this.renderWCPay();
+		if ( this.getWooDnaConfig() ) {
+			return this.renderWooDna();
 		}
 		const { isCreatingAccount } = this.state;
 		const { authQuery } = this.props;
@@ -357,11 +365,7 @@ export class JetpackSignup extends Component {
 			<MainWrapper isWoo={ this.isWoo() }>
 				<div className="jetpack-connect__authorize-form">
 					{ this.renderLocaleSuggestions() }
-					<AuthFormHeader
-						authQuery={ authQuery }
-						isWoo={ this.isWoo() }
-						isWCPay={ this.isWCPay() }
-					/>
+					<AuthFormHeader authQuery={ authQuery } isWoo={ this.isWoo() } />
 					<SignupForm
 						disabled={ isCreatingAccount }
 						email={ authQuery.userEmail }

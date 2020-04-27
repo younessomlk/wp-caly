@@ -25,12 +25,12 @@ export class JetpackHeader extends PureComponent {
 		darkColorScheme: PropTypes.bool,
 		partnerSlug: PropTypes.string,
 		isWoo: PropTypes.bool,
-		isWCPay: PropTypes.bool,
+		isWooDna: PropTypes.bool,
 		width: PropTypes.number,
 	};
 
 	renderLogo() {
-		const { darkColorScheme, partnerSlug, width, isWoo, isWCPay, translate } = this.props;
+		const { darkColorScheme, partnerSlug, width, isWoo, isWooDna, translate } = this.props;
 
 		if ( isWoo ) {
 			// @todo Implement WooCommerce + partner co-branding in the future.
@@ -49,7 +49,7 @@ export class JetpackHeader extends PureComponent {
 			);
 		}
 
-		if ( isWCPay ) {
+		if ( isWooDna ) {
 			return (
 				<svg width={ width } viewBox="0 0 1270 170">
 					<title>{ translate( 'WooCommerce logo' ) }</title>

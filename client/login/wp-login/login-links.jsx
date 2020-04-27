@@ -28,6 +28,7 @@ import { recordTracksEventWithClientId as recordTracksEvent } from 'state/analyt
 import { resetMagicLoginRequestForm } from 'state/login/magic-login/actions';
 import { isDomainConnectAuthorizePath } from 'lib/domains/utils';
 import GUTENBOARDING_BASE_NAME from 'landing/gutenboarding/basename.json';
+import wooDnaConfig from 'jetpack-connect/woo-dna-config';
 
 export class LoginLinks extends React.Component {
 	static propTypes = {
@@ -198,7 +199,7 @@ export class LoginLinks extends React.Component {
 		) {
 			return null;
 		}
-		if ( config.isEnabled( 'jetpack/connect/wcpay' ) && this.props.isJetpackWCPayFlow ) {
+		if ( this.props.isJetpackWooDnaFlow ) {
 			return null;
 		}
 
@@ -355,7 +356,7 @@ export default connect(
 		query: getCurrentQueryArguments( state ),
 		isJetpackWooCommerceFlow:
 			'woocommerce-onboarding' === get( getCurrentQueryArguments( state ), 'from' ),
-		isJetpackWCPayFlow: 'woocommerce-payments' === get( getCurrentQueryArguments( state ), 'from' ),
+		isJetpackWooDnaFlow: wooDnaConfig[ get( getCurrentQueryArguments( state ), 'from' ) ],
 		wccomFrom: get( getCurrentQueryArguments( state ), 'wccom-from' ),
 	} ),
 	{

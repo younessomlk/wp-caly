@@ -53,6 +53,7 @@ import { localizeUrl } from 'lib/i18n-utils';
 import TextControl from 'extensions/woocommerce/components/text-control';
 import { sendEmailLogin } from 'state/auth/actions';
 import GUTENBOARDING_BASE_NAME from 'landing/gutenboarding/basename.json';
+import wooDnaConfig from 'jetpack-connect/woo-dna-config';
 
 export class LoginForm extends Component {
 	static propTypes = {
@@ -482,7 +483,7 @@ export class LoginForm extends Component {
 			requestError,
 			socialAccountIsLinking: linkingSocialUser,
 			isJetpackWooCommerceFlow,
-			isJetpackWCPayFlow,
+			isJetpackWooDnaFlow,
 			wccomFrom,
 		} = this.props;
 		const isOauthLogin = !! oauth2Client;
@@ -492,7 +493,7 @@ export class LoginForm extends Component {
 			return this.renderWooCommerce();
 		}
 
-		if ( config.isEnabled( 'jetpack/connect/wcpay' ) && isJetpackWCPayFlow ) {
+		if ( isJetpackWooDnaFlow ) {
 			return this.renderWooCommerce( !! accountType ); // Only show the social buttons after the user entered an email.
 		}
 
@@ -683,8 +684,7 @@ export default connect(
 			oauth2Client: getCurrentOAuth2Client( state ),
 			isJetpackWooCommerceFlow:
 				'woocommerce-onboarding' === get( getCurrentQueryArguments( state ), 'from' ),
-			isJetpackWCPayFlow:
-				'woocommerce-payments' === get( getCurrentQueryArguments( state ), 'from' ),
+			isJetpackWooDnaFlow: !! wooDnaConfig[ get( getCurrentQueryArguments( state ), 'from' ) ],
 			redirectTo: getRedirectToOriginal( state ),
 			requestError: getRequestError( state ),
 			socialAccountIsLinking: getSocialAccountIsLinking( state ),

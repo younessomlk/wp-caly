@@ -72,6 +72,7 @@ import {
 } from 'state/jetpack-connect/selectors';
 import getPartnerIdFromQuery from 'state/selectors/get-partner-id-from-query';
 import getPartnerSlugFromQuery from 'state/selectors/get-partner-slug-from-query';
+import wooDnaConfig from './woo-dna-config';
 
 /**
  * Constants
@@ -264,14 +265,15 @@ export class JetpackAuthorize extends Component {
 
 	isWooRedirect( props = this.props ) {
 		const { from } = props.authQuery;
-		return includes(
-			[
-				'woocommerce-services-auto-authorize',
-				'woocommerce-setup-wizard',
-				'woocommerce-onboarding',
-				'woocommerce-payments',
-			],
-			from
+		return (
+			includes(
+				[
+					'woocommerce-services-auto-authorize',
+					'woocommerce-setup-wizard',
+					'woocommerce-onboarding',
+				],
+				from
+			) || this.getWooDnaConfig( props )
 		);
 	}
 
@@ -280,10 +282,8 @@ export class JetpackAuthorize extends Component {
 		return 'woocommerce-onboarding' === from;
 	}
 
-	isWCPay( props = this.props ) {
-		return (
-			config.isEnabled( 'jetpack/connect/wcpay' ) && 'woocommerce-payments' === props.authQuery.from
-		);
+	getWooDnaConfig( props = this.props ) {
+		return wooDnaConfig[ props.authQuery.from ];
 	}
 
 	shouldRedirectJetpackStart( props = this.props ) {
@@ -624,8 +624,8 @@ export class JetpackAuthorize extends Component {
 			return null;
 		}
 
-		if ( this.isWCPay() ) {
-			return this.renderWCPayFooterLinks();
+		if ( this.getWooDnaConfig() ) {
+			return this.renderWooDnaFooterLinks();
 		}
 
 		return (
@@ -652,10 +652,15 @@ export class JetpackAuthorize extends Component {
 		);
 	}
 
-	renderWCPayFooterLinks() {
+	renderWooDnaFooterLinks() {
 		const { translate } = this.props;
-		const helpButtonLabel = translate( 'Get help setting up WooCommerce Payments' );
-		const helpURL = 'https://docs.woocommerce.com/document/payments/'; // TODO: Write a WCPay-specific page for Jetpack connection troubles
+		const { name, helpUrl } = this.getWooDnaConfig();
+		/* translators: pluginName is the name of the Woo extension that initiated the connection flow */
+		const helpButtonLabel = translate( 'Get help setting up %(pluginName)s', {
+			args: {
+				pluginName: name( translate ),
+			},
+		} );
 
 		return (
 			<LoggedOutFormLinks>
@@ -666,7 +671,7 @@ export class JetpackAuthorize extends Component {
 					eventName="calypso_jpc_authorize_chat_initiated"
 					label={ helpButtonLabel }
 				>
-					<HelpButton label={ helpButtonLabel } url={ helpURL } />
+					<HelpButton label={ helpButtonLabel } url={ helpUrl } />
 				</JetpackConnectHappychatButton>
 				{ this.renderBackToWpAdminLink() }
 			</LoggedOutFormLinks>
@@ -729,7 +734,7 @@ export class JetpackAuthorize extends Component {
 
 	render() {
 		return (
-			<MainWrapper isWoo={ this.isWooOnboarding() } isWCPay={ this.isWCPay() }>
+			<MainWrapper isWoo={ this.isWooOnboarding() } wooDna={ this.getWooDnaConfig() }>
 				<div className="jetpack-connect__authorize-form">
 					<div className="jetpack-connect__logged-in-form">
 						<QueryUserConnection
@@ -739,7 +744,7 @@ export class JetpackAuthorize extends Component {
 						<AuthFormHeader
 							authQuery={ this.props.authQuery }
 							isWoo={ this.isWooOnboarding() }
-							isWCPay={ this.isWCPay() }
+							wooDna={ this.getWooDnaConfig() }
 						/>
 						<Card className="jetpack-connect__logged-in-card">
 							<Gravatar user={ this.props.user } size={ 64 } />
