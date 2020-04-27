@@ -58,8 +58,6 @@ import { createSocialUserFailed } from 'state/login/actions';
 import { getCurrentOAuth2Client } from 'state/ui/oauth2-clients/selectors';
 import { getSectionName } from 'state/ui/selectors';
 import TextControl from 'extensions/woocommerce/components/text-control';
-import Gridicon from 'components/gridicon';
-import { decodeEntities } from 'lib/formatting';
 
 /**
  * Style dependencies
@@ -94,6 +92,7 @@ class SignupForm extends Component {
 		formHeader: PropTypes.node,
 		redirectToAfterLoginUrl: PropTypes.string.isRequired,
 		goToNextStep: PropTypes.func,
+		handleLogin: PropTypes.func,
 		handleSocialResponse: PropTypes.func,
 		isSocialSignupEnabled: PropTypes.bool,
 		locale: PropTypes.string,
@@ -107,7 +106,6 @@ class SignupForm extends Component {
 		suggestedUsername: PropTypes.string.isRequired,
 		translate: PropTypes.func.isRequired,
 		showRecaptchaToS: PropTypes.bool,
-		backLink: PropTypes.object,
 
 		// Connected props
 		oauth2Client: PropTypes.object,
@@ -315,6 +313,14 @@ class SignupForm extends Component {
 		this.setState( { form: state } );
 	};
 
+	handleLoginClick = ( event, fieldValue ) => {
+		this.props.trackLoginMidFlow( event );
+		if ( this.props.handleLogin ) {
+			event.preventDefault();
+			this.props.handleLogin( fieldValue );
+		}
+	};
+
 	handleFormControllerError( error ) {
 		if ( error ) {
 			throw error;
@@ -472,9 +478,8 @@ class SignupForm extends Component {
 
 		return map( messages, ( message, error_code ) => {
 			if ( error_code === 'taken' ) {
-				link +=
-					'&email_address=' +
-					encodeURIComponent( formState.getFieldValue( this.state.form, fieldName ) );
+				const fieldValue = formState.getFieldValue( this.state.form, fieldName );
+				link += '&email_address=' + encodeURIComponent( fieldValue );
 				return (
 					<span key={ error_code }>
 						<p>
@@ -482,7 +487,12 @@ class SignupForm extends Component {
 							&nbsp;
 							{ this.props.translate( 'If this is you {{a}}log in now{{/a}}.', {
 								components: {
-									a: <a href={ link } onClick={ this.props.trackLoginMidFlow } />,
+									a: (
+										<a
+											href={ link }
+											onClick={ event => this.handleLoginClick( event, fieldValue ) }
+										/>
+									),
 								},
 							} ) }
 						</p>
@@ -883,23 +893,6 @@ class SignupForm extends Component {
 		return this.props.step && 'completed' === this.props.step.status;
 	}
 
-	renderBackLink() {
-		const { backLink } = this.props;
-		if ( ! backLink || ! backLink.url || ! backLink.siteName ) {
-			return null;
-		}
-
-		return (
-			<LoggedOutFormLinkItem href={ backLink.url }>
-				<Gridicon size={ 18 } icon="arrow-left" />{ ' ' }
-				{ // translators: eg: Return to The WordPress.com Blog
-				this.props.translate( 'Return to %(sitename)s', {
-					args: { sitename: decodeEntities( backLink.siteName ) },
-				} ) }
-			</LoggedOutFormLinkItem>
-		);
-	}
-
 	render() {
 		if ( this.getUserExistsError( this.props ) ) {
 			return null;
@@ -961,10 +954,11 @@ class SignupForm extends Component {
 						) }
 					</LoggedOutForm>
 
-					<LoggedOutFormLinkItem href={ logInUrl }>
-						{ this.props.translate( 'Log in with an existing WordPress.com account' ) }
-					</LoggedOutFormLinkItem>
-					{ this.renderBackLink() }
+					{ this.props.footerLink || (
+						<LoggedOutFormLinkItem href={ logInUrl }>
+							{ this.props.translate( 'Log in with an existing WordPress.com account' ) }
+						</LoggedOutFormLinkItem>
+					) }
 				</div>
 			);
 		}

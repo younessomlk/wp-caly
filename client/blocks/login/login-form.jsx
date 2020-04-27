@@ -349,7 +349,7 @@ export class LoginForm extends Component {
 		this.loginUser();
 	};
 
-	renderWooCommerce() {
+	renderWooCommerce( showSocialLogin = true ) {
 		const isFormDisabled = this.state.isFormDisabledWhileLoading || this.props.isFormDisabled;
 		const { requestError, socialAccountIsLinking: linkingSocialUser } = this.props;
 
@@ -451,7 +451,7 @@ export class LoginForm extends Component {
 							</Button>
 						</div>
 
-						{ config.isEnabled( 'signup/social' ) && (
+						{ config.isEnabled( 'signup/social' ) && showSocialLogin && (
 							<div className="login__form-social">
 								<div className="login__form-social-divider">
 									<span>{ this.props.translate( 'or' ) }</span>
@@ -477,6 +477,7 @@ export class LoginForm extends Component {
 		const isFormDisabled = this.state.isFormDisabledWhileLoading || this.props.isFormDisabled;
 
 		const {
+			accountType,
 			oauth2Client,
 			requestError,
 			socialAccountIsLinking: linkingSocialUser,
@@ -492,7 +493,7 @@ export class LoginForm extends Component {
 		}
 
 		if ( config.isEnabled( 'jetpack/connect/wcpay' ) && isJetpackWCPayFlow ) {
-			return this.renderWooCommerce();
+			return this.renderWooCommerce( !! accountType ); // Only show the social buttons after the user entered an email.
 		}
 
 		if (
@@ -670,7 +671,7 @@ export class LoginForm extends Component {
 }
 
 export default connect(
-	state => {
+	( state, props ) => {
 		const accountType = getAuthAccountTypeSelector( state );
 
 		return {
@@ -690,6 +691,7 @@ export default connect(
 			socialAccountLinkEmail: getSocialAccountLinkEmail( state ),
 			socialAccountLinkService: getSocialAccountLinkService( state ),
 			userEmail:
+				props.userEmail ||
 				getInitialQueryArguments( state ).email_address ||
 				getCurrentQueryArguments( state ).email_address,
 			wccomFrom: get( getCurrentQueryArguments( state ), 'wccom-from' ),

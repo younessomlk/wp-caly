@@ -13,7 +13,7 @@ import debugFactory from 'debug';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { flowRight, get, noop } from 'lodash';
+import { flowRight, get, includes, noop } from 'lodash';
 import { localize } from 'i18n-calypso';
 
 /**
@@ -40,6 +40,16 @@ import {
 	createAccount as createAccountAction,
 	createSocialAccount as createSocialAccountAction,
 } from 'state/jetpack-connect/actions';
+import LoginBlock from 'blocks/login';
+import Gridicon from 'components/gridicon';
+import { decodeEntities } from 'lib/formatting';
+import {
+	getRequestError,
+	getLastCheckedUsernameOrEmail,
+	getAuthAccountType,
+} from 'state/login/selectors';
+import { resetAuthAccountType as resetAuthAccountTypeAction } from 'state/login/actions';
+import FormattedHeader from 'components/formatted-header';
 
 const debug = debugFactory( 'calypso:jetpack-connect:authorize-form' );
 
@@ -59,6 +69,7 @@ export class JetpackSignup extends Component {
 		isCreatingAccount: false,
 		newUsername: null,
 		bearerToken: null,
+		showWcpayLoginForm: true,
 	} );
 
 	state = this.constructor.initialState;
@@ -83,6 +94,37 @@ export class JetpackSignup extends Component {
 		} );
 	}
 
+	componentDidUpdate( prevProps ) {
+		const { requestError } = this.props;
+
+		if ( prevProps.requestError || ! requestError ) {
+			return;
+		}
+
+		if (
+			this.isWCPay() &&
+			'usernameOrEmail' === requestError.field &&
+			'unknown_user' === requestError.code
+		) {
+			this.showWCPaySignupView();
+		}
+	}
+
+	showWCPaySignupView = () => {
+		this.setState( {
+			showWcpayLoginForm: false,
+		} );
+		this.props.resetAuthAccountType();
+	};
+
+	showWCPayLoginView = usernameOrEmail => {
+		this.setState( {
+			showWcpayLoginForm: true,
+			signUpUsernameOrEmail: usernameOrEmail || null,
+		} );
+		this.props.resetAuthAccountType();
+	};
+
 	isWoo() {
 		const { authQuery } = this.props;
 		return 'woocommerce-onboarding' === authQuery.from;
@@ -90,7 +132,7 @@ export class JetpackSignup extends Component {
 
 	isWCPay() {
 		const { authQuery } = this.props;
-		return 'woocommerce-payments' === authQuery.from;
+		return isEnabled( 'jetpack/connect/wcpay' ) && 'woocommerce-payments' === authQuery.from;
 	}
 
 	getLoginRoute() {
@@ -217,11 +259,102 @@ export class JetpackSignup extends Component {
 			</LoggedOutFormLinks>
 		);
 	}
+
+	renderWCPay() {
+		const { authQuery, isFullLoginFormVisible, translate, usernameOrEmail } = this.props;
+		const { isCreatingAccount, signUpUsernameOrEmail } = this.state;
+		let header, subHeader, content;
+		const footerLinks = [];
+		const email = signUpUsernameOrEmail || usernameOrEmail || authQuery.userEmail;
+
+		if ( this.state.showWcpayLoginForm ) {
+			if ( isFullLoginFormVisible ) {
+				header = translate( 'Log in to your WordPress.com account' );
+				subHeader = translate(
+					'Your account will enable you to start using the features and benefits offered by WooCommerce Payments'
+				);
+				footerLinks.push(
+					<LoggedOutFormLinkItem key="signup" onClick={ this.showWCPaySignupView }>
+						{ this.props.translate( 'Create a new account' ) }
+					</LoggedOutFormLinkItem>
+				);
+				footerLinks.push(
+					<LoggedOutFormLinkItem
+						key="lostpassword"
+						href={ addQueryArgs(
+							{ action: 'lostpassword' },
+							login( { locale: this.props.locale } )
+						) }
+					>
+						{ this.props.translate( 'Lost your password?' ) }
+					</LoggedOutFormLinkItem>
+				);
+			} else {
+				header = translate( 'WooCommerce Payments' );
+				subHeader = translate( 'Enter your email address to get started' );
+			}
+		} else {
+			header = translate( 'WooCommerce Payments' );
+			subHeader = translate( 'Create an account' );
+			footerLinks.push(
+				<LoggedOutFormLinkItem key="login" onClick={ () => this.showWCPayLoginView() }>
+					{ this.props.translate( 'Log in with an existing WordPress.com account' ) }
+				</LoggedOutFormLinkItem>
+			);
+		}
+
+		footerLinks.push(
+			<LoggedOutFormLinkItem key="back" href={ authQuery.redirectAfterAuth }>
+				<Gridicon size={ 18 } icon="arrow-left" />{ ' ' }
+				{ // translators: eg: Return to The WordPress.com Blog
+				this.props.translate( 'Return to %(sitename)s', {
+					args: { sitename: decodeEntities( authQuery.blogname ) },
+				} ) }
+			</LoggedOutFormLinkItem>
+		);
+		const footer = <LoggedOutFormLinks>{ footerLinks }</LoggedOutFormLinks>;
+
+		if ( this.state.showWcpayLoginForm ) {
+			content = <LoginBlock locale={ this.props.locale } footer={ footer } userEmail={ email } />;
+		} else {
+			content = (
+				<SignupForm
+					disabled={ isCreatingAccount }
+					email={ includes( email, '@' ) ? email : '' }
+					footerLink={ footer }
+					handleLogin={ this.showWCPayLoginView }
+					handleSocialResponse={ this.handleSocialResponse }
+					isSocialSignupEnabled={ isEnabled( 'signup/social' ) }
+					locale={ this.props.locale }
+					redirectToAfterLoginUrl={ addQueryArgs( { auth_approved: true }, window.location.href ) }
+					submitButtonText={ this.props.translate( 'Create your account' ) }
+					submitForm={ this.handleSubmitSignup }
+					submitting={ isCreatingAccount }
+					suggestedUsername={ includes( email, '@' ) ? '' : email }
+				/>
+			);
+		}
+
+		return (
+			<MainWrapper isWCPay>
+				<div className="jetpack-connect__authorize-form">
+					{ this.renderLocaleSuggestions() }
+					<FormattedHeader headerText={ header } subHeaderText={ subHeader } />
+					{ content }
+					{ this.renderLoginUser() }
+				</div>
+			</MainWrapper>
+		);
+	}
+
 	render() {
+		if ( this.isWCPay() ) {
+			return this.renderWCPay();
+		}
 		const { isCreatingAccount } = this.state;
 		const { authQuery } = this.props;
 		return (
-			<MainWrapper isWoo={ this.isWoo() } isWCPay={ this.isWCPay() }>
+			<MainWrapper isWoo={ this.isWoo() }>
 				<div className="jetpack-connect__authorize-form">
 					{ this.renderLocaleSuggestions() }
 					<AuthFormHeader
@@ -244,11 +377,6 @@ export class JetpackSignup extends Component {
 						submitForm={ this.handleSubmitSignup }
 						submitting={ isCreatingAccount }
 						suggestedUsername=""
-						backLink={
-							this.isWCPay()
-								? { url: authQuery.redirectAfterAuth, siteName: authQuery.blogname }
-								: null
-						}
 					/>
 					{ this.renderLoginUser() }
 				</div>
@@ -257,12 +385,20 @@ export class JetpackSignup extends Component {
 	}
 }
 
-const connectComponent = connect( null, {
-	createAccount: createAccountAction,
-	createSocialAccount: createSocialAccountAction,
-	errorNotice: errorNoticeAction,
-	recordTracksEvent: recordTracksEventAction,
-	warningNotice: warningNoticeAction,
-} );
+const connectComponent = connect(
+	state => ( {
+		requestError: getRequestError( state ),
+		usernameOrEmail: getLastCheckedUsernameOrEmail( state ),
+		isFullLoginFormVisible: !! getAuthAccountType( state ),
+	} ),
+	{
+		createAccount: createAccountAction,
+		createSocialAccount: createSocialAccountAction,
+		errorNotice: errorNoticeAction,
+		recordTracksEvent: recordTracksEventAction,
+		warningNotice: warningNoticeAction,
+		resetAuthAccountType: resetAuthAccountTypeAction,
+	}
+);
 
 export default flowRight( connectComponent, localize )( JetpackSignup );

@@ -70,6 +70,7 @@ class Login extends Component {
 		twoFactorEnabled: PropTypes.bool,
 		twoFactorNotificationSent: PropTypes.string,
 		isSecurityKeySupported: PropTypes.bool,
+		userEmail: PropTypes.string,
 	};
 
 	state = {
@@ -422,6 +423,7 @@ class Login extends Component {
 			socialServiceResponse,
 			disableAutoFocus,
 			locale,
+			userEmail,
 		} = this.props;
 
 		if ( twoFactorEnabled ) {
@@ -464,6 +466,7 @@ class Login extends Component {
 				isJetpack={ isJetpack }
 				isGutenboarding={ isGutenboarding }
 				locale={ locale }
+				userEmail={ userEmail }
 			/>
 		);
 	}
