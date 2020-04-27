@@ -55,7 +55,6 @@ class Login extends Component {
 		isJetpack: PropTypes.bool.isRequired,
 		isGutenboarding: PropTypes.bool.isRequired,
 		isJetpackWooCommerceFlow: PropTypes.bool.isRequired,
-		isJetpackWCPayFlow: PropTypes.bool.isRequired,
 		isManualRenewalImmediateLoginAttempt: PropTypes.bool,
 		linkingSocialService: PropTypes.string,
 		oauth2Client: PropTypes.object,
@@ -81,7 +80,6 @@ class Login extends Component {
 	static defaultProps = {
 		isJetpack: false,
 		isJetpackWooCommerceFlow: false,
-		isJetpackWCPayFlow: false,
 		isGutenboarding: false,
 	};
 
@@ -107,7 +105,6 @@ class Login extends Component {
 		const {
 			isJetpack,
 			isJetpackWooCommerceFlow,
-			isJetpackWCPayFlow,
 			oauth2Client,
 			privateSite,
 			socialConnect,
@@ -123,7 +120,6 @@ class Login extends Component {
 			! privateSite &&
 			! oauth2Client &&
 			! ( config.isEnabled( 'jetpack/connect/woocommerce' ) && isJetpackWooCommerceFlow ) &&
-			! ( config.isEnabled( 'jetpack/connect/wcpay' ) && isJetpackWCPayFlow ) &&
 			! isJetpack &&
 			! fromSite &&
 			! twoFactorEnabled &&
@@ -206,7 +202,6 @@ class Login extends Component {
 			isJetpack,
 			isGutenboarding,
 			isJetpackWooCommerceFlow,
-			isJetpackWCPayFlow,
 			wccomFrom,
 			isManualRenewalImmediateLoginAttempt,
 			linkingSocialService,
@@ -327,27 +322,6 @@ class Login extends Component {
 				<p className="login__header-subtitle">
 					{ translate(
 						'Your account will enable you to start using the features and benefits offered by Jetpack & WooCommerce Services.'
-					) }
-				</p>
-			);
-		} else if ( config.isEnabled( 'jetpack/connect/wcpay' ) && isJetpackWCPayFlow ) {
-			headerText = translate( 'Log in to your WordPress.com account' );
-			preHeader = (
-				<div className="login__jetpack-logo">
-					<AsyncLoad
-						require="components/jetpack-header"
-						placeholder={ null }
-						partnerSlug={ this.props.partnerSlug }
-						isWCPay
-						width={ 200 }
-						lightColorScheme
-					/>
-				</div>
-			);
-			postHeader = (
-				<p className="login__header-subtitle">
-					{ translate(
-						'Your account will enable you to start using the features and benefits offered by WooCommerce Payments'
 					) }
 				</p>
 			);
@@ -507,7 +481,6 @@ export default connect(
 		partnerSlug: getPartnerSlugFromQuery( state ),
 		isJetpackWooCommerceFlow:
 			'woocommerce-onboarding' === get( getCurrentQueryArguments( state ), 'from' ),
-		isJetpackWCPayFlow: 'woocommerce-payments' === get( getCurrentQueryArguments( state ), 'from' ),
 		wccomFrom: get( getCurrentQueryArguments( state ), 'wccom-from' ),
 	} ),
 	{ recordTracksEvent }

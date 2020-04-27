@@ -40,8 +40,7 @@ export class JetpackConnectMainWrapper extends PureComponent {
 
 		const wrapperClassName = classNames( 'jetpack-connect__main', {
 			'is-wide': isWide,
-			'is-woocommerce': isWoo,
-			'is-wcpay': isWCPay,
+			'is-woocommerce': isWoo || isWCPay,
 			'is-mobile-app-flow': !! retrieveMobileRedirect(),
 		} );
 

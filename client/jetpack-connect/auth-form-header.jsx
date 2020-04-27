@@ -126,8 +126,6 @@ export class AuthFormHeader extends Component {
 
 		if ( config.isEnabled( 'jetpack/connect/wcpay' ) && isWCPay ) {
 			switch ( currentState ) {
-				case 'logged-out':
-					return translate( 'Create an account' );
 				case 'logged-in-success':
 				case 'auth-in-progress':
 					return translate( 'Connecting your store' );
