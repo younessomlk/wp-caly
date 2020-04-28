@@ -24,6 +24,7 @@ export class JetpackConnectMainWrapper extends PureComponent {
 		wooDna: PropTypes.object,
 		partnerSlug: PropTypes.string,
 		translate: PropTypes.func.isRequired,
+		pageTitle: PropTypes.string,
 	};
 
 	static defaultProps = {
@@ -33,7 +34,7 @@ export class JetpackConnectMainWrapper extends PureComponent {
 	};
 
 	render() {
-		const { isWide, className, children, partnerSlug, translate, wooDna } = this.props;
+		const { isWide, className, children, partnerSlug, translate, wooDna, pageTitle } = this.props;
 
 		const isWoo = config.isEnabled( 'jetpack/connect/woocommerce' ) && this.props.isWoo;
 
@@ -49,7 +50,8 @@ export class JetpackConnectMainWrapper extends PureComponent {
 		return (
 			<Main className={ classNames( className, wrapperClassName ) }>
 				<DocumentHead
-					title={ wooDna ? wooDna.name( translate ) : translate( 'Jetpack Connect' ) }
+					title={ pageTitle ? null : translate( 'Jetpack Connect' ) }
+					formattedTitle={ pageTitle }
 				/>
 				<div className="jetpack-connect__main-logo">
 					<JetpackHeader
