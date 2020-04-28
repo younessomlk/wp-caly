@@ -2,7 +2,6 @@
 
 exports[`JetpackAuthorize renders as expected 1`] = `
 <Connect(Localized(JetpackConnectMainWrapper))
-  isWooDna={false}
   isWoo={false}
 >
   <div
@@ -37,7 +36,6 @@ exports[`JetpackAuthorize renders as expected 1`] = `
             "userEmail": "email@an.example.site",
           }
         }
-        isWooDna={false}
         isWoo={false}
       />
       <Card
@@ -80,7 +78,7 @@ exports[`JetpackAuthorize renders as expected 1`] = `
             icon="arrow-left"
             size={18}
           />
-
+           
           Return to %(sitename)s
         </LoggedOutFormLinkItem>
         <LoggedOutFormLinkItem

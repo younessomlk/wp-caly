@@ -2,7 +2,6 @@
 
 exports[`JetpackSignup should render 1`] = `
 <Connect(Localized(JetpackConnectMainWrapper))
-  isWooDna={false}
   isWoo={false}
 >
   <div
@@ -29,7 +28,6 @@ exports[`JetpackSignup should render 1`] = `
           "userEmail": "email@an.example.site",
         }
       }
-      isWooDna={false}
       isWoo={false}
     />
     <Connect(Localized(SignupForm))
@@ -59,7 +57,6 @@ exports[`JetpackSignup should render 1`] = `
 
 exports[`JetpackSignup should render with locale suggestions 1`] = `
 <Connect(Localized(JetpackConnectMainWrapper))
-  isWooDna={false}
   isWoo={false}
 >
   <div
@@ -90,7 +87,6 @@ exports[`JetpackSignup should render with locale suggestions 1`] = `
           "userEmail": "email@an.example.site",
         }
       }
-      isWooDna={false}
       isWoo={false}
     />
     <Connect(Localized(SignupForm))

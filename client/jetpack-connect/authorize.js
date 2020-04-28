@@ -263,7 +263,7 @@ export class JetpackAuthorize extends Component {
 		return 'sso' === from && isSsoApproved( clientId );
 	}
 
-	isWooRedirect( props = this.props ) {
+	isWooRedirect = ( props = this.props ) => {
 		const { from } = props.authQuery;
 		return (
 			includes(
@@ -275,7 +275,7 @@ export class JetpackAuthorize extends Component {
 				from
 			) || this.getWooDnaConfig( props )
 		);
-	}
+	};
 
 	isWooOnboarding( props = this.props ) {
 		const { from } = props.authQuery;
