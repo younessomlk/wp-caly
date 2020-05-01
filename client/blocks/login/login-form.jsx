@@ -10,7 +10,6 @@ import ReactDom from 'react-dom';
 import { connect } from 'react-redux';
 import { localize } from 'i18n-calypso';
 import Gridicon from 'components/gridicon';
-import { stringify } from 'qs';
 
 /**
  * Internal dependencies
@@ -145,7 +144,7 @@ export class LoginForm extends Component {
 		}
 	}
 
-	onChangeField = event => {
+	onChangeField = ( event ) => {
 		this.props.formUpdate();
 
 		this.setState( {
@@ -171,7 +170,7 @@ export class LoginForm extends Component {
 		return ! socialAccountIsLinking && ! hasAccountTypeLoaded;
 	}
 
-	resetView = event => {
+	resetView = ( event ) => {
 		event.preventDefault();
 
 		this.props.recordTracksEvent( 'calypso_login_block_login_form_change_username_or_email' );
@@ -191,7 +190,7 @@ export class LoginForm extends Component {
 				this.props.recordTracksEvent( 'calypso_login_block_login_form_success' );
 				onSuccess( redirectTo );
 			} )
-			.catch( error => {
+			.catch( ( error ) => {
 				this.props.recordTracksEvent( 'calypso_login_block_login_form_failure', {
 					error_code: error.code,
 					error_message: error.message,
@@ -199,7 +198,7 @@ export class LoginForm extends Component {
 			} );
 	}
 
-	onSubmitForm = event => {
+	onSubmitForm = ( event ) => {
 		event.preventDefault();
 
 		if ( ! this.props.hasAccountTypeLoaded ) {
@@ -236,11 +235,11 @@ export class LoginForm extends Component {
 		return ! oauth2Client && isPopup;
 	}
 
-	savePasswordRef = input => {
+	savePasswordRef = ( input ) => {
 		this.password = input;
 	};
 
-	saveUsernameOrEmailRef = input => {
+	saveUsernameOrEmailRef = ( input ) => {
 		this.usernameOrEmail = input;
 	};
 
@@ -339,7 +338,7 @@ export class LoginForm extends Component {
 		}
 	}
 
-	handleWooCommerceSubmit = event => {
+	handleWooCommerceSubmit = ( event ) => {
 		event.preventDefault();
 		document.activeElement.blur();
 		if ( ! this.props.hasAccountTypeLoaded ) {
@@ -400,7 +399,7 @@ export class LoginForm extends Component {
 							id="usernameOrEmail"
 							name="usernameOrEmail"
 							value={ this.state.usernameOrEmail }
-							onChange={ value => {
+							onChange={ ( value ) => {
 								this.props.formUpdate();
 								this.setState( {
 									usernameOrEmail: value,
@@ -424,7 +423,7 @@ export class LoginForm extends Component {
 								name="password"
 								type="password"
 								value={ this.state.password }
-								onChange={ value => {
+								onChange={ ( value ) => {
 									this.props.formUpdate();
 									this.setState( {
 										password: value,
@@ -488,6 +487,50 @@ export class LoginForm extends Component {
 		} = this.props;
 		const isOauthLogin = !! oauth2Client;
 		const isPasswordHidden = this.isUsernameOrEmailView();
+
+		const langFragment = locale && locale !== 'en' ? `/${ locale }` : '';
+
+		let signupUrl = config( 'signup_url' );
+		const signupFlow = get( currentQuery, 'signup_flow' );
+
+		// copied from login-links.jsx
+		if (
+			// Match locales like `/log-in/jetpack/es`
+			startsWith( currentRoute, '/log-in/jetpack' )
+		) {
+			// Basic validation that we're in a valid Jetpack Authorization flow
+			if (
+				includes( get( currentQuery, 'redirect_to' ), '/jetpack/connect/authorize' ) &&
+				includes( get( currentQuery, 'redirect_to' ), '_wp_nonce' )
+			) {
+				/**
+				 * `log-in/jetpack/:locale` is reached as part of the Jetpack connection flow. In
+				 * this case, the redirect_to will handle signups as part of the flow. Use the
+				 * `redirect_to` parameter directly for signup.
+				 */
+				signupUrl = currentQuery.redirect_to;
+			} else {
+				signupUrl = '/jetpack/new';
+			}
+		} else if ( '/jetpack-connect' === pathname ) {
+			signupUrl = '/jetpack/new';
+		} else if ( signupFlow ) {
+			signupUrl += '/' + signupFlow;
+		}
+
+		if ( isOauthLogin && config.isEnabled( 'signup/wpcc' ) ) {
+			const oauth2Flow = isCrowdsignalOAuth2Client( oauth2Client ) ? 'crowdsignal' : 'wpcc';
+			const oauth2Params = new globalThis.URLSearchParams( {
+				oauth2_client_id: oauth2Client.id,
+				oauth2_redirect: redirectTo || '',
+			} );
+
+			signupUrl = `/start/${ oauth2Flow }?${ oauth2Params.toString() }`;
+		}
+
+		if ( isGutenboarding ) {
+			signupUrl = `/${ GUTENBOARDING_BASE_NAME }` + langFragment;
+		}
 
 		if ( config.isEnabled( 'jetpack/connect/woocommerce' ) && isJetpackWooCommerceFlow ) {
 			return this.renderWooCommerce();

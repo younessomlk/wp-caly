@@ -111,7 +111,7 @@ class DomainRegistrationSuggestion extends React.Component {
 		this.props.onButtonClick( suggestion );
 	};
 
-	isUnavailableDomain = domain => {
+	isUnavailableDomain = ( domain ) => {
 		return includes( this.props.unavailableDomains, domain );
 	};
 
@@ -222,7 +222,7 @@ class DomainRegistrationSuggestion extends React.Component {
 											href={ HTTPS_SSL }
 											target="_blank"
 											rel="noopener noreferrer"
-											onClick={ event => {
+											onClick={ ( event ) => {
 												event.stopPropagation();
 											} }
 										/>
@@ -346,6 +346,7 @@ class DomainRegistrationSuggestion extends React.Component {
 				onButtonClick={ this.onButtonClick }
 				{ ...this.getButtonProps() }
 				isEligibleVariantForDomainTest={ this.props.isEligibleVariantForDomainTest }
+				showFreeDomainExplainerForFreePlan={ this.props.showFreeDomainExplainerForFreePlan }
 				isFeatured={ isFeatured }
 			>
 				{ this.renderDomain() }

@@ -44,6 +44,7 @@ import PageViewTracker from 'lib/analytics/page-view-tracker';
 import ConvertToBlocksDialog from 'components/convert-to-blocks';
 import config from 'config';
 import EditorDocumentHead from 'post-editor/editor-document-head';
+import isUnlaunchedSite from 'state/selectors/is-unlaunched-site';
 
 /**
  * Types
@@ -205,9 +206,9 @@ class CalypsoifyIframe extends Component< Props & ConnectedProps & ProtectedForm
 
 			if ( value ) {
 				const ids = Array.isArray( value )
-					? value.map( item => parseInt( item, 10 ) )
+					? value.map( ( item ) => parseInt( item, 10 ) )
 					: [ parseInt( value, 10 ) ];
-				const selectedItems = ids.map( id => {
+				const selectedItems = ids.map( ( id ) => {
 					const media = MediaStore.get( siteId, id );
 					if ( ! media ) {
 						MediaActions.fetch( siteId, id );
@@ -295,13 +296,13 @@ class CalypsoifyIframe extends Component< Props & ConnectedProps & ProtectedForm
 		}
 
 		if ( EditorActions.GetGutenboardingStatus === action ) {
-			// TODO - In future iterations, replace window param with gutenboarding site info.
-			const urlParams = new URLSearchParams( window.location.search );
 			const isGutenboarding =
-				config.isEnabled( 'gutenboarding' ) && urlParams.has( 'is-gutenboarding' );
+				config.isEnabled( 'gutenboarding' ) &&
+				this.props.siteCreationFlow === 'gutenboarding' &&
+				this.props.isSiteUnlaunched;
 			ports[ 0 ].postMessage( {
 				isGutenboarding,
-				frankenflowUrl: `${ window.location.origin }/start/frankenflow?siteSlug=${ this.props.siteId }`,
+				frankenflowUrl: `${ window.location.origin }/start/new-launch?siteSlug=${ this.props.siteId }&source=editor`,
 			} );
 		}
 
@@ -369,7 +370,7 @@ class CalypsoifyIframe extends Component< Props & ConnectedProps & ProtectedForm
 	closeMediaModal = ( media: { items: Parameters< typeof mediaCalypsoToGutenberg >[] } ) => {
 		if ( ! this.state.classicBlockEditorId && media && this.mediaSelectPort ) {
 			const { multiple } = this.state;
-			const formattedMedia = map( media.items, item => mediaCalypsoToGutenberg( item ) );
+			const formattedMedia = map( media.items, ( item ) => mediaCalypsoToGutenberg( item ) );
 			const payload = multiple ? formattedMedia : formattedMedia[ 0 ];
 
 			this.mediaSelectPort.postMessage( payload );
@@ -551,14 +552,14 @@ class CalypsoifyIframe extends Component< Props & ConnectedProps & ProtectedForm
 			// Checks to see if the iFrame has loaded every 200ms. If it has
 			// loaded, then resolve the promise.
 			let pendingIsLoadedInterval;
-			const pollForLoadedFlag = new Promise( resolve => {
+			const pollForLoadedFlag = new Promise( ( resolve ) => {
 				pendingIsLoadedInterval = setInterval(
 					() => this.successfulIframeLoad && resolve( 'iframe-loaded' ),
 					200
 				);
 			} );
 
-			const fiveSeconds = new Promise( resolve => setTimeout( resolve, 5000, 'timeout' ) );
+			const fiveSeconds = new Promise( ( resolve ) => setTimeout( resolve, 5000, 'timeout' ) );
 
 			const finishCondition = await Promise.race( [ pollForLoadedFlag, fiveSeconds ] );
 			clearInterval( pendingIsLoadedInterval );
@@ -720,6 +721,8 @@ const mapStateToProps = (
 			'wp_template_part'
 		),
 		unmappedSiteUrl: getSiteOption( state, siteId, 'unmapped_url' ),
+		siteCreationFlow: getSiteOption( state, siteId, 'site_creation_flow' ),
+		isSiteUnlaunched: isUnlaunchedSite( state, siteId ),
 	};
 };
 

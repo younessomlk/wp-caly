@@ -125,7 +125,7 @@ class SiteSettingsPerformance extends Component {
 	}
 }
 
-const connectComponent = connect( state => {
+const connectComponent = connect( ( state ) => {
 	const site = getSelectedSite( state );
 	const siteId = getSelectedSiteId( state );
 	const siteIsJetpack = isJetpackSite( state, siteId );
@@ -144,6 +144,7 @@ const connectComponent = connect( state => {
 const getFormSettings = partialRight( pick, [
 	'amp_is_enabled',
 	'amp_is_supported',
+	'instant_search_enabled',
 	'jetpack_search_enabled',
 	'jetpack_search_supported',
 	'lazy-images',

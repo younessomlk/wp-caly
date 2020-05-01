@@ -9,7 +9,7 @@ import ReactDOM from 'react-dom';
 import { compact, get, findIndex, last, map, noop, reduce } from 'lodash';
 import { connect } from 'react-redux';
 import { localize } from 'i18n-calypso';
-import formatCurrency, { getCurrencyObject } from '@automattic/format-currency';
+import formatCurrency from '@automattic/format-currency';
 
 /**
  * Internal dependencies
@@ -91,7 +91,7 @@ export class PlanFeatures extends Component {
 		this.setState( defaultState );
 	};
 
-	onLaunchDialogClose = async action => {
+	onLaunchDialogClose = async ( action ) => {
 		const { currentSitePlanSlug, siteId } = this.props;
 		const { checkoutUrl, choosingPlanSlug } = this.state;
 
@@ -129,15 +129,7 @@ export class PlanFeatures extends Component {
 	}
 
 	render() {
-		const {
-			isInSignup,
-			isEligibleForPlanStepTest,
-			planProperties,
-			plans,
-			selectedPlan,
-			withScroll,
-			translate,
-		} = this.props;
+		const { isInSignup, planProperties, plans, selectedPlan, withScroll, translate } = this.props;
 		const tableClasses = classNames(
 			'plan-features__table',
 			`has-${ planProperties.length }-cols`
@@ -183,14 +175,8 @@ export class PlanFeatures extends Component {
 								<tbody>
 									<tr>{ this.renderPlanHeaders() }</tr>
 									{ ! withScroll && planDescriptions }
-									{ isEligibleForPlanStepTest && (
-										<>
-											{ withScroll && planDescriptions }
-											<tr>{ this.renderTopButtons() }</tr>
-										</>
-									) }
-									<tr>{ ! isEligibleForPlanStepTest && this.renderTopButtons() }</tr>
-									{ ! isEligibleForPlanStepTest && withScroll && planDescriptions }
+									<tr>{ this.renderTopButtons() }</tr>
+									{ withScroll && planDescriptions }
 									{ this.renderPlanFeatureRows() }
 									{ ! withScroll && ! isInSignup && bottomButtons }
 								</tbody>
@@ -384,7 +370,7 @@ export class PlanFeatures extends Component {
 
 		// move any free plan to last place in mobile view
 		let freePlanProperties;
-		const reorderedPlans = planProperties.filter( properties => {
+		const reorderedPlans = planProperties.filter( ( properties ) => {
 			if ( isFreePlan( properties.planName ) ) {
 				freePlanProperties = properties;
 				return false;
@@ -396,7 +382,7 @@ export class PlanFeatures extends Component {
 			reorderedPlans.push( freePlanProperties );
 		}
 
-		return map( reorderedPlans, properties => {
+		return map( reorderedPlans, ( properties ) => {
 			const {
 				availableForPurchase,
 				currencyCode,
@@ -475,7 +461,6 @@ export class PlanFeatures extends Component {
 			displayJetpackPlans,
 			isInSignup,
 			isJetpack,
-			isEligibleForPlanStepTest,
 			planProperties,
 			selectedPlan,
 			siteType,
@@ -483,7 +468,7 @@ export class PlanFeatures extends Component {
 			withScroll,
 		} = this.props;
 
-		return map( planProperties, properties => {
+		return map( planProperties, ( properties ) => {
 			const {
 				availableForPurchase,
 				currencyCode,
@@ -497,19 +482,11 @@ export class PlanFeatures extends Component {
 				isPlaceholder,
 				hideMonthly,
 				rawPrice,
-				rawPriceAnnual,
 			} = properties;
 			let { discountPrice } = properties;
 			const classes = classNames( 'plan-features__table-item', 'has-border-top' );
-			let audience = planConstantObj.getAudience( isEligibleForPlanStepTest );
-
-			let annualPriceText;
-			if ( rawPriceAnnual ) {
-				const annualPriceObj = getCurrencyObject( rawPriceAnnual, currencyCode );
-				annualPriceText = `${ annualPriceObj.symbol }${ annualPriceObj.integer }`;
-			}
-
-			let billingTimeFrame = planConstantObj.getBillingTimeFrame( annualPriceText );
+			let audience = planConstantObj.getAudience();
+			let billingTimeFrame = planConstantObj.getBillingTimeFrame();
 
 			if ( disableBloggerPlanWithNonBlogDomain || this.props.nonDotBlogDomains.length > 0 ) {
 				if ( planMatches( planName, { type: TYPE_BLOGGER } ) ) {
@@ -529,7 +506,7 @@ export class PlanFeatures extends Component {
 						audience = planConstantObj.getStoreAudience();
 						break;
 					default:
-						audience = planConstantObj.getAudience( isEligibleForPlanStepTest );
+						audience = planConstantObj.getAudience();
 				}
 			}
 
@@ -559,9 +536,8 @@ export class PlanFeatures extends Component {
 						relatedMonthlyPlan={ relatedMonthlyPlan }
 						selectedPlan={ selectedPlan }
 						showPlanCreditsApplied={ true === showPlanCreditsApplied && ! this.hasDiscountNotice() }
-						title={ planConstantObj.getTitle( isEligibleForPlanStepTest ) }
+						title={ planConstantObj.getTitle() }
 						plansWithScroll={ withScroll }
-						isEligibleForPlanStepTest={ isEligibleForPlanStepTest }
 					/>
 				</th>
 			);
@@ -569,9 +545,9 @@ export class PlanFeatures extends Component {
 	}
 
 	renderPlanDescriptions() {
-		const { planProperties, withScroll, isEligibleForPlanStepTest } = this.props;
+		const { planProperties, withScroll } = this.props;
 
-		return map( planProperties, properties => {
+		return map( planProperties, ( properties ) => {
 			const { planName, planConstantObj, isPlaceholder } = properties;
 
 			const classes = classNames( 'plan-features__table-item', {
@@ -581,7 +557,7 @@ export class PlanFeatures extends Component {
 
 			let description = null;
 			if ( withScroll ) {
-				description = planConstantObj.getShortDescription( isEligibleForPlanStepTest );
+				description = planConstantObj.getShortDescription( abtest );
 			} else {
 				description = planConstantObj.getDescription( abtest );
 			}
@@ -646,14 +622,13 @@ export class PlanFeatures extends Component {
 			isInSignup,
 			isLandingPage,
 			isLaunchPage,
-			isEligibleForPlanStepTest,
 			planProperties,
 			selectedPlan,
 			selectedSiteSlug,
 			translate,
 		} = this.props;
 
-		return map( planProperties, properties => {
+		return map( planProperties, ( properties ) => {
 			let { availableForPurchase } = properties;
 			const {
 				current,
@@ -696,7 +671,6 @@ export class PlanFeatures extends Component {
 						isInSignup={ isInSignup }
 						isLandingPage={ isLandingPage }
 						isLaunchPage={ isLaunchPage }
-						isEligibleForPlanStepTest={ isEligibleForPlanStepTest }
 						manageHref={ `/plans/my-plan/${ selectedSiteSlug }` }
 						onUpgradeClick={ () => this.handleUpgradeClick( properties ) }
 						planName={ planConstantObj.getTitle() }
@@ -754,7 +728,7 @@ export class PlanFeatures extends Component {
 	renderPlanFeatureColumns( rowIndex ) {
 		const { planProperties, selectedFeature, withScroll } = this.props;
 
-		return map( planProperties, properties => {
+		return map( planProperties, ( properties ) => {
 			const { features, planName } = properties;
 
 			const featureKeys = Object.keys( features ),
@@ -790,7 +764,7 @@ export class PlanFeatures extends Component {
 			selectedSiteSlug,
 		} = this.props;
 
-		return map( planProperties, properties => {
+		return map( planProperties, ( properties ) => {
 			let { availableForPurchase } = properties;
 			const {
 				current,
@@ -901,8 +875,8 @@ export const calculatePlanCredits = ( state, siteId, planProperties ) =>
 		} )
 		.reduce( ( max, credits ) => Math.max( max, credits ), 0 );
 
-const hasPlaceholders = planProperties =>
-	planProperties.filter( planProps => planProps.isPlaceholder ).length > 0;
+const hasPlaceholders = ( planProperties ) =>
+	planProperties.filter( ( planProps ) => planProps.isPlaceholder ).length > 0;
 
 /* eslint-disable wpcalypso/redux-no-bound-selectors */
 export default connect(
@@ -933,7 +907,7 @@ export default connect(
 		const canPurchase = ! isPaid || isCurrentUserCurrentPlanOwner( state, selectedSiteId );
 
 		let planProperties = compact(
-			map( plans, plan => {
+			map( plans, ( plan ) => {
 				let isPlaceholder = false;
 				const planConstantObj = applyTestFiltersToPlansList( plan, abtest );
 				const planProductId = planConstantObj.getProductId();
@@ -1003,11 +977,6 @@ export default connect(
 				}
 				const siteIsPrivateAndGoingAtomic = siteIsPrivate && isWpComEcommercePlan( plan );
 
-				const rawPriceAnnual =
-					showMonthlyPrice &&
-					ownProps.isEligibleForPlanStepTest &&
-					getPlanRawPrice( state, planProductId, false );
-
 				return {
 					availableForPurchase,
 					cartItemForPlan: getCartItemForPlan( getPlanSlug( state, planProductId ) ),
@@ -1035,7 +1004,6 @@ export default connect(
 						bestValue ||
 						plans.length === 1,
 					rawPrice: getPlanRawPrice( state, planProductId, showMonthlyPrice ),
-					rawPriceAnnual,
 					relatedMonthlyPlan,
 					siteIsPrivateAndGoingAtomic,
 				};
@@ -1045,7 +1013,7 @@ export default connect(
 		const planCredits = calculatePlanCredits( state, siteId, planProperties );
 
 		if ( Array.isArray( visiblePlans ) ) {
-			planProperties = planProperties.filter( p => visiblePlans.indexOf( p.planName ) !== -1 );
+			planProperties = planProperties.filter( ( p ) => visiblePlans.indexOf( p.planName ) !== -1 );
 		}
 
 		const isJetpackNotAtomic = isJetpack && ! isSiteAT;

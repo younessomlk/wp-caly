@@ -35,7 +35,12 @@ class DomainProductPrice extends React.Component {
 	};
 
 	renderFreeWithPlanText() {
-		const { isMappingProduct, translate } = this.props;
+		const {
+			isMappingProduct,
+			isEligibleVariantForDomainTest,
+			showFreeDomainExplainerForFreePlan,
+			translate,
+		} = this.props;
 
 		let message;
 		switch ( this.props.rule ) {
@@ -46,14 +51,30 @@ class DomainProductPrice extends React.Component {
 				}
 				break;
 			case 'INCLUDED_IN_HIGHER_PLAN':
-				if ( this.props.isEligibleVariantForDomainTest ) {
-					message = translate( 'Registration fee: {{del}}%(cost)s{{/del}} {{span}}Free{{/span}}', {
-						args: { cost: this.props.price },
-						components: {
-							del: <del />,
-							span: <span className="domain-product-price__free-price" />,
-						},
-					} );
+				if ( isEligibleVariantForDomainTest ) {
+					if ( showFreeDomainExplainerForFreePlan ) {
+						message = translate(
+							'Registration fee: {{del}}%(cost)s{{/del}} {{span}}Free with paid plan{{/span}}',
+							{
+								args: { cost: this.props.price },
+								components: {
+									del: <del />,
+									span: <span className="domain-product-price__free-price" />,
+								},
+							}
+						);
+					} else {
+						message = translate(
+							'Registration fee: {{del}}%(cost)s{{/del}} {{span}}Free{{/span}}',
+							{
+								args: { cost: this.props.price },
+								components: {
+									del: <del />,
+									span: <span className="domain-product-price__free-price" />,
+								},
+							}
+						);
+					}
 				} else {
 					message = translate( 'First year included in paid plans' );
 				}
@@ -176,7 +197,7 @@ class DomainProductPrice extends React.Component {
 	}
 }
 
-export default connect( state => ( {
+export default connect( ( state ) => ( {
 	domainsWithPlansOnly: getCurrentUser( state )
 		? currentUserHasFlag( state, DOMAINS_WITH_PLANS_ONLY )
 		: true,

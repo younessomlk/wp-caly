@@ -6,7 +6,7 @@ import config from 'config';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { concat, flowRight, get, includes } from 'lodash';
+import { concat, flowRight, get, includes, startsWith } from 'lodash';
 import { localize } from 'i18n-calypso';
 
 /**
@@ -33,6 +33,7 @@ import { isRequestingSites } from 'state/sites/selectors';
 import { persistSession, retrieveMobileRedirect } from './persistence-utils';
 import { recordTracksEvent } from 'state/analytics/actions';
 import { urlToSlug } from 'lib/url';
+
 import {
 	JPC_PATH_PLANS,
 	JPC_PATH_REMOTE_INSTALL,
@@ -43,6 +44,7 @@ import {
 	ALREADY_CONNECTED,
 	ALREADY_OWNED,
 	IS_DOT_COM,
+	IS_DOT_COM_GET_SEARCH,
 	NOT_ACTIVE_JETPACK,
 	NOT_CONNECTED_JETPACK,
 	NOT_EXISTS,
@@ -148,7 +150,7 @@ export class JetpackConnectMain extends Component {
 	goBack = () => page.back();
 
 	makeSafeRedirectionFunction( func ) {
-		return url => {
+		return ( url ) => {
 			if ( ! this.state.redirecting ) {
 				this.setState( { redirecting: true } );
 				func( url );
@@ -156,7 +158,7 @@ export class JetpackConnectMain extends Component {
 		};
 	}
 
-	goToPlans = this.makeSafeRedirectionFunction( url => {
+	goToPlans = this.makeSafeRedirectionFunction( ( url ) => {
 		this.props.recordTracksEvent( 'calypso_jpc_success_redirect', {
 			url: url,
 			type: 'plans_selection',
@@ -165,7 +167,7 @@ export class JetpackConnectMain extends Component {
 		page.redirect( `${ JPC_PATH_PLANS }/${ urlToSlug( url ) }` );
 	} );
 
-	goToRemoteAuth = this.makeSafeRedirectionFunction( url => {
+	goToRemoteAuth = this.makeSafeRedirectionFunction( ( url ) => {
 		this.props.recordTracksEvent( 'calypso_jpc_success_redirect', {
 			url: url,
 			type: 'remote_auth',
@@ -173,7 +175,7 @@ export class JetpackConnectMain extends Component {
 		externalRedirect( addCalypsoEnvQueryArg( url + REMOTE_PATH_AUTH ) );
 	} );
 
-	goToRemoteInstall = this.makeSafeRedirectionFunction( url => {
+	goToRemoteInstall = this.makeSafeRedirectionFunction( ( url ) => {
 		this.props.recordTracksEvent( 'calypso_jpc_success_redirect', {
 			url: url,
 			type: 'remote_install',
@@ -181,7 +183,7 @@ export class JetpackConnectMain extends Component {
 		page.redirect( url );
 	} );
 
-	goToInstallInstructions = this.makeSafeRedirectionFunction( url => {
+	goToInstallInstructions = this.makeSafeRedirectionFunction( ( url ) => {
 		const urlWithQuery = addQueryArgs( { url: this.state.currentUrl }, url );
 		this.props.recordTracksEvent( 'calypso_jpc_success_redirect', {
 			url: urlWithQuery,
@@ -190,7 +192,7 @@ export class JetpackConnectMain extends Component {
 		page( urlWithQuery );
 	} );
 
-	redirectToMobileApp = this.makeSafeRedirectionFunction( reason => {
+	redirectToMobileApp = this.makeSafeRedirectionFunction( ( reason ) => {
 		const url = addQueryArgs( { reason }, this.props.mobileAppRedirect );
 		debug( `Redirecting to mobile app ${ url }` );
 		externalRedirect( url );
@@ -213,7 +215,7 @@ export class JetpackConnectMain extends Component {
 		);
 	}
 
-	handleUrlChange = event => {
+	handleUrlChange = ( event ) => {
 		const url = event.target.value;
 		this.setState( {
 			currentUrl: cleanUrl( url ),
@@ -284,7 +286,13 @@ export class JetpackConnectMain extends Component {
 		) {
 			return WORDPRESS_DOT_COM;
 		}
+
 		if ( this.checkProperty( 'isWordPressDotCom' ) ) {
+			const product = window.location.href.split( '/' )[ 5 ];
+
+			if ( startsWith( product, 'jetpack_search' ) ) {
+				return IS_DOT_COM_GET_SEARCH;
+			}
 			return IS_DOT_COM;
 		}
 		if ( ! this.checkProperty( 'exists' ) ) {
@@ -391,7 +399,7 @@ export class JetpackConnectMain extends Component {
 }
 
 const connectComponent = connect(
-	state => {
+	( state ) => {
 		// Note: reading from a cookie here rather than redux state,
 		// so any change in value will not execute connect().
 		const mobileAppRedirect = retrieveMobileRedirect();
@@ -402,7 +410,7 @@ const connectComponent = connect(
 
 		return {
 			// eslint-disable-next-line wpcalypso/redux-no-bound-selectors
-			getJetpackSiteByUrl: url => getJetpackSiteByUrl( state, url ),
+			getJetpackSiteByUrl: ( url ) => getJetpackSiteByUrl( state, url ),
 			isLoggedIn: !! getCurrentUserId( state ),
 			isMobileAppFlow,
 			isRequestingSites: isRequestingSites( state ),

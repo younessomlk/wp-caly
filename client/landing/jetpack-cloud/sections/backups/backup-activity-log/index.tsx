@@ -17,6 +17,7 @@ import ActivityCardList from 'landing/jetpack-cloud/components/activity-card-lis
 import DocumentHead from 'components/data/document-head';
 import getActivityLogFilter from 'state/selectors/get-activity-log-filter';
 import Main from 'components/main';
+import PageViewTracker from 'lib/analytics/page-view-tracker';
 import SidebarNavigation from 'my-sites/sidebar-navigation';
 
 /**
@@ -28,14 +29,20 @@ interface Props {
 	after?: string;
 	before?: string;
 	group?: string;
+	page?: string;
 }
 
-const BackupActivityLogPage: FunctionComponent< Props > = ( { after, before, group } ) => {
+const BackupActivityLogPage: FunctionComponent< Props > = ( {
+	after,
+	before,
+	group,
+	page = 1,
+} ) => {
 	const translate = useTranslate();
 	const dispatch = useDispatch();
 
 	const siteId = useSelector( getSelectedSiteId );
-	const filter = useSelector( state => getActivityLogFilter( state, siteId ) );
+	const filter = useSelector( ( state ) => getActivityLogFilter( state, siteId ) );
 	const logs = useSelector( () => getHttpData( getRequestActivityLogsId( siteId, filter ) ).data );
 
 	/*
@@ -48,10 +55,22 @@ const BackupActivityLogPage: FunctionComponent< Props > = ( { after, before, gro
 		if (
 			! isEqual( filter.group, processedGroup ) ||
 			filter.after !== after ||
-			filter.before !== before
+			filter.before !== before ||
+			filter.page !== page
 		)
-			dispatch( setFilter( siteId, { page: 1, after, before, group: processedGroup } ) );
-	}, [ after, before, dispatch, filter.after, filter.before, filter.group, group, siteId ] );
+			dispatch( setFilter( siteId, { page: page, after, before, group: processedGroup } ) );
+	}, [
+		after,
+		before,
+		dispatch,
+		filter.after,
+		filter.before,
+		filter.group,
+		filter.page,
+		group,
+		page,
+		siteId,
+	] );
 
 	// when the filter changes, re-request the logs
 	useEffect( () => {
@@ -62,13 +81,16 @@ const BackupActivityLogPage: FunctionComponent< Props > = ( { after, before, gro
 		<Main className="backup-activity-log">
 			<DocumentHead title="Activity log" />
 			<SidebarNavigation />
-			<div>
-				<h3>{ translate( 'Find a backup or restore point' ) }</h3>
-				<p>
-					{ translate(
-						'This is the complete event history for your site. Filter by date range and/or activity type.'
-					) }
-				</p>
+			<PageViewTracker path="/backups/activity/:site" title="Activity log" />
+			<div className="backup-activity-log__content">
+				<div className="backup-activity-log__header">
+					<h2>{ translate( 'Find a backup or restore point' ) }</h2>
+					<p>
+						{ translate(
+							'This is the complete event history for your site. Filter by date range and/or activity type.'
+						) }
+					</p>
+				</div>
 				{ logs && <ActivityCardList logs={ logs } pageSize={ 10 } /> }
 			</div>
 		</Main>

@@ -32,8 +32,8 @@ export function createFullCreditsMethod( { registerStore, submitTransaction } ) 
 				};
 				debug( 'full credits transaction complete', response );
 			} catch ( error ) {
-				debug( 'full credits transaction had an error', error );
-				return { type: 'FULL_CREDITS_TRANSACTION_ERROR', payload: error };
+				debug( 'full credits transaction had an error', error.message );
+				return { type: 'FULL_CREDITS_TRANSACTION_ERROR', payload: error.message };
 			}
 			debug( 'full credits transaction requires is successful' );
 			return { type: 'FULL_CREDITS_TRANSACTION_END', payload: response };
@@ -86,7 +86,7 @@ export function createFullCreditsMethod( { registerStore, submitTransaction } ) 
 		label: <FullCreditsLabel />,
 		submitButton: <FullCreditsSubmitButton />,
 		inactiveContent: <FullCreditsSummary />,
-		getAriaLabel: localize => localize( 'Credits' ),
+		getAriaLabel: ( localize ) => localize( 'Credits' ),
 	};
 }
 
@@ -105,8 +105,12 @@ function FullCreditsSubmitButton( { disabled } ) {
 	const localize = useLocalize();
 	const { beginCreditsTransaction } = useDispatch( 'full-credits' );
 	const [ items, total ] = useLineItems();
-	const transactionStatus = useSelect( select => select( 'full-credits' ).getTransactionStatus() );
-	const transactionError = useSelect( select => select( 'full-credits' ).getTransactionError() );
+	const transactionStatus = useSelect( ( select ) =>
+		select( 'full-credits' ).getTransactionStatus()
+	);
+	const transactionError = useSelect( ( select ) =>
+		select( 'full-credits' ).getTransactionError()
+	);
 	const { showErrorMessage } = useMessages();
 	const { formStatus, setFormReady, setFormComplete, setFormSubmitting } = useFormStatus();
 	const onEvent = useEvents();
@@ -140,13 +144,7 @@ function FullCreditsSubmitButton( { disabled } ) {
 			items,
 		} );
 	};
-	const buttonString =
-		formStatus === 'submitting'
-			? localize( 'Processing...' )
-			: sprintf(
-					localize( 'Pay %s with WordPress.com Credits' ),
-					renderDisplayValueMarkdown( total.amount.displayValue )
-			  );
+
 	return (
 		<Button
 			disabled={ disabled }
@@ -155,9 +153,23 @@ function FullCreditsSubmitButton( { disabled } ) {
 			isBusy={ 'submitting' === formStatus }
 			fullWidth
 		>
-			{ buttonString }
+			<ButtonContents formStatus={ formStatus } total={ total } />
 		</Button>
 	);
+}
+
+function ButtonContents( { formStatus, total } ) {
+	const localize = useLocalize();
+	if ( formStatus === 'submitting' ) {
+		return localize( 'Processing…' );
+	}
+	if ( formStatus === 'ready' ) {
+		return sprintf(
+			localize( 'Pay %s with WordPress.com Credits' ),
+			renderDisplayValueMarkdown( total.amount.displayValue )
+		);
+	}
+	return localize( 'Please wait…' );
 }
 
 function FullCreditsSummary() {

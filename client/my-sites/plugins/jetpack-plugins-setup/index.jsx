@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-
 import React from 'react';
 import page from 'page';
 import { bindActionCreators } from 'redux';
@@ -21,7 +20,7 @@ import PageViewTracker from 'lib/analytics/page-view-tracker';
 import PluginIcon from 'my-sites/plugins/plugin-icon/plugin-icon';
 import JetpackManageErrorPage from 'my-sites/jetpack-manage-error-page';
 import PluginItem from 'my-sites/plugins/plugin-item/plugin-item';
-import analytics from 'lib/analytics';
+import { recordTracksEvent } from 'lib/analytics/tracks';
 import {
 	JETPACK_CONTACT_SUPPORT,
 	JETPACK_SERVICE_AKISMET,
@@ -66,7 +65,7 @@ class PlansSetup extends React.Component {
 
 	trackConfigFinished = ( eventName, options = {} ) => {
 		if ( ! this.sentTracks ) {
-			analytics.tracks.recordEvent( eventName, {
+			recordTracksEvent( eventName, {
 				location: 'jetpackPluginSetup',
 				...options,
 			} );
@@ -75,20 +74,20 @@ class PlansSetup extends React.Component {
 	};
 
 	trackManualInstall = () => {
-		analytics.tracks.recordEvent( 'calypso_plans_autoconfig_click_manual_error' );
+		recordTracksEvent( 'calypso_plans_autoconfig_click_manual_error' );
 	};
 
 	trackManagePlans = () => {
-		analytics.tracks.recordEvent( 'calypso_plans_autoconfig_click_manage_plans' );
+		recordTracksEvent( 'calypso_plans_autoconfig_click_manage_plans' );
 	};
 
 	trackContactSupport = () => {
-		analytics.tracks.recordEvent( 'calypso_plans_autoconfig_click_contact_support' );
+		recordTracksEvent( 'calypso_plans_autoconfig_click_contact_support' );
 	};
 
 	// plugins for Jetpack sites require additional data from the wporg-data store
-	addWporgDataToPlugins = plugins => {
-		return plugins.map( plugin => {
+	addWporgDataToPlugins = ( plugins ) => {
+		return plugins.map( ( plugin ) => {
 			const pluginData = getPlugin( this.props.wporg, plugin.slug );
 			if ( ! pluginData ) {
 				this.props.fetchPluginData( plugin.slug );
@@ -116,7 +115,7 @@ class PlansSetup extends React.Component {
 			} else {
 				// save off the current path just in case context changes after this call
 				const currentPath = context.canonicalPath;
-				setTimeout( function() {
+				setTimeout( function () {
 					page.replace( currentPath, null, false, false );
 				}, 0 );
 			}
@@ -141,18 +140,18 @@ class PlansSetup extends React.Component {
 		}
 	}
 
-	warnIfNotFinished = event => {
+	warnIfNotFinished = ( event ) => {
 		const site = this.props.selectedSite;
 		if ( ! site || ! site.jetpack || ! site.canUpdateFiles || this.props.isFinished ) {
 			return;
 		}
-		analytics.tracks.recordEvent( 'calypso_plans_autoconfig_user_interrupt' );
+		recordTracksEvent( 'calypso_plans_autoconfig_user_interrupt' );
 		const beforeUnloadText = this.props.translate( "We haven't finished installing your plugins." );
 		( event || window.event ).returnValue = beforeUnloadText;
 		return beforeUnloadText;
 	};
 
-	startNextPlugin = plugin => {
+	startNextPlugin = ( plugin ) => {
 		// We're already installing.
 		if ( this.props.isInstalling ) {
 			return;
@@ -164,7 +163,7 @@ class PlansSetup extends React.Component {
 		// Merge wporg info into the plugin object
 		plugin = Object.assign( {}, plugin, getPlugin( this.props.wporg, plugin.slug ) );
 
-		const getPluginFromStore = function() {
+		const getPluginFromStore = function () {
 			const sitePlugin = PluginsStore.getSitePlugin( site, plugin.slug );
 			if ( ! sitePlugin && PluginsStore.isFetchingSite( site ) ) {
 				// if the Plugins are still being fetched, we wait. We are not using flux
@@ -242,7 +241,7 @@ class PlansSetup extends React.Component {
 
 	renderPluginsPlaceholders = () => {
 		const placeholderCount = this.props.whitelist ? 1 : 2;
-		return range( placeholderCount ).map( i => <PluginItem key={ 'placeholder-' + i } /> );
+		return range( placeholderCount ).map( ( i ) => <PluginItem key={ 'placeholder-' + i } /> );
 	};
 
 	renderPlugins = ( hidden = false ) => {
@@ -283,7 +282,7 @@ class PlansSetup extends React.Component {
 		} );
 	};
 
-	renderStatus = plugin => {
+	renderStatus = ( plugin ) => {
 		if ( plugin.error ) {
 			return this.renderStatusError( plugin );
 		}
@@ -303,7 +302,7 @@ class PlansSetup extends React.Component {
 		return <Notice { ...statusProps } text={ this.getStatusText( plugin ) } />;
 	};
 
-	getStatusText = plugin => {
+	getStatusText = ( plugin ) => {
 		const { translate } = this.props;
 		switch ( plugin.status ) {
 			case 'done':
@@ -319,7 +318,7 @@ class PlansSetup extends React.Component {
 		}
 	};
 
-	renderStatusError = plugin => {
+	renderStatusError = ( plugin ) => {
 		const { translate } = this.props;
 
 		// This state isn't quite an error
@@ -397,7 +396,7 @@ class PlansSetup extends React.Component {
 		}
 	};
 
-	renderActions = plugin => {
+	renderActions = ( plugin ) => {
 		if ( plugin.status === 'wait' ) {
 			return null;
 		} else if ( plugin.error !== null ) {
@@ -415,13 +414,13 @@ class PlansSetup extends React.Component {
 		return null;
 	};
 
-	renderErrorMessage = plugins => {
+	renderErrorMessage = ( plugins ) => {
 		let noticeText;
 		const { translate } = this.props;
 		const pluginsWithErrors = this.addWporgDataToPlugins( plugins );
 
 		const tracksData = {};
-		pluginsWithErrors.map( item => {
+		pluginsWithErrors.map( ( item ) => {
 			tracksData[ item.slug ] = item.error.name + ': ' + item.error.message;
 		} );
 
@@ -470,7 +469,7 @@ class PlansSetup extends React.Component {
 			return null;
 		}
 
-		const pluginsWithErrors = filter( this.props.plugins, item => {
+		const pluginsWithErrors = filter( this.props.plugins, ( item ) => {
 			const errorCode = get( item, 'error.code', null );
 			return errorCode && errorCode !== 'already_registered';
 		} );
@@ -576,5 +575,5 @@ export default connect(
 			siteId,
 		};
 	},
-	dispatch => bindActionCreators( { requestSites, fetchPluginData, installPlugin }, dispatch )
+	( dispatch ) => bindActionCreators( { requestSites, fetchPluginData, installPlugin }, dispatch )
 )( localize( PlansSetup ) );

@@ -11,6 +11,7 @@ import {
 	getTranslationChunkFile,
 	switchWebpackCSS,
 } from '../../lib/i18n-utils/switch-locale';
+import { getUrlParts } from '../../lib/url/url-parts';
 import React from 'react';
 import ReactDom from 'react-dom';
 import { BrowserRouter, Route, Switch, Redirect } from 'react-router-dom';
@@ -47,7 +48,9 @@ function generateGetSuperProps() {
 }
 
 const DEFAULT_LOCALE_SLUG: string = config( 'i18n_default_locale_slug' );
-const USE_TRANSLATION_CHUNKS: string = config.isEnabled( 'use-translation-chunks' );
+const USE_TRANSLATION_CHUNKS: string =
+	config.isEnabled( 'use-translation-chunks' ) ||
+	getUrlParts( document.location.href ).searchParams.has( 'useTranslationChunks' );
 
 type User = import('@automattic/data-stores').User.CurrentUser;
 
@@ -183,7 +186,7 @@ async function getLocaleData( locale: string ) {
 
 function waitForCurrentUser(): Promise< User | undefined > {
 	let unsubscribe: () => void = () => undefined;
-	return new Promise< User | undefined >( resolve => {
+	return new Promise< User | undefined >( ( resolve ) => {
 		unsubscribe = subscribe( () => {
 			const currentUser = select( USER_STORE ).getCurrentUser();
 			if ( currentUser ) {
@@ -215,7 +218,7 @@ function setupTranslationChunks( localeSlug: string, translatedChunks: string[] 
 			return;
 		}
 
-		return getTranslationChunkFile( chunkId, localeSlug ).then( translations => {
+		return getTranslationChunkFile( chunkId, localeSlug ).then( ( translations ) => {
 			setLocaleData( translations );
 			loadedTranslationChunks[ chunkId ] = true;
 		} );
@@ -224,7 +227,7 @@ function setupTranslationChunks( localeSlug: string, translatedChunks: string[] 
 		( window.installedChunks || [] ).concat( window.__requireChunkCallback__.getInstalledChunks() )
 	);
 
-	installedChunks.forEach( chunkId => {
+	installedChunks.forEach( ( chunkId ) => {
 		loadTranslationForChunkIfNeeded( chunkId );
 	} );
 

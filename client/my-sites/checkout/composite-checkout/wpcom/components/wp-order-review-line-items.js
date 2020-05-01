@@ -48,7 +48,8 @@ function WPLineItem( {
 	const onEvent = useEvents();
 	const isDisabled = formStatus !== 'ready';
 
-	const shouldShowVariantSelector = item.wpcom_meta && item.wpcom_meta.extra?.context === 'signup';
+	// Show the variation picker when this is not a renewal
+	const shouldShowVariantSelector = item.wpcom_meta && ! item.wpcom_meta.extra?.purchaseId;
 
 	return (
 		<div className={ joinClasses( [ className, 'checkout-line-item' ] ) }>
@@ -57,7 +58,7 @@ function WPLineItem( {
 				<LineItemPrice lineItem={ item } />
 			</span>
 			{ hasDeleteButton && formStatus === 'ready' && (
-				<React.Fragment>
+				<>
 					<DeleteButton
 						buttonState="borderless"
 						disabled={ isDisabled }
@@ -96,7 +97,7 @@ function WPLineItem( {
 						title={ modalCopy.title }
 						copy={ modalCopy.description }
 					/>
-				</React.Fragment>
+				</>
 			) }
 
 			{ shouldShowVariantSelector && (
@@ -160,9 +161,10 @@ function LineItemDomainTitle( { item, id } ) {
 function LineItemPrice( { lineItem } ) {
 	return (
 		<LineItemPriceUI>
-			{ lineItem.amount.value < lineItem.wpcom_meta?.product_cost_integer ? (
+			{ lineItem.amount.value < lineItem.wpcom_meta?.item_original_cost_integer ? (
 				<>
-					<s>{ lineItem.wpcom_meta.product_cost_display }</s> { lineItem.amount.displayValue }
+					<s>{ lineItem.wpcom_meta?.item_original_cost_display }</s>{ ' ' }
+					{ lineItem.amount.displayValue }
 				</>
 			) : (
 				renderDisplayValueMarkdown( lineItem.amount.displayValue )
@@ -175,15 +177,14 @@ export const LineItemUI = styled( WPLineItem )`
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: space-between;
-	font-weight: ${( { theme, total } ) => ( total ? theme.weights.bold : theme.weights.normal )};
-	color: ${( { theme, total } ) => ( total ? theme.colors.textColorDark : theme.colors.textColor )};
-	font-size: ${( { total } ) => ( total ? '1.2em' : '1em' )};
+	font-weight: ${( { theme, total } ) => ( total ? theme.weights.bold : theme.weights.normal) };
+	color: ${( { theme, total } ) => ( total ? theme.colors.textColorDark : theme.colors.textColor) };
+	font-size: ${( { total } ) => ( total ? '1.2em' : '1em') };
 	padding: ${( { total, isSummaryVisible, tax, subtotal } ) =>
-		isSummaryVisible || total || subtotal || tax ? '10px 0' : '24px 0'};
+		isSummaryVisible || total || subtotal || tax ? '10px 0' : '20px 0'};
 	border-bottom: ${( { theme, total, isSummaryVisible } ) =>
 		isSummaryVisible || total ? 0 : '1px solid ' + theme.colors.borderColorLight};
 	position: relative;
-	margin-right: ${( { total, tax, subtotal } ) => ( subtotal || total || tax ? '0' : '30px' )};
 `;
 
 const LineItemTitleUI = styled.div`
@@ -196,7 +197,7 @@ const LineItemPriceUI = styled.span`
 `;
 
 const BundledDomainFreeUI = styled.div`
-	color: ${props => props.theme.colors.success};
+	color: ${( props ) => props.theme.colors.success};
 `;
 
 const ProductTitleUI = styled.div`
@@ -207,10 +208,10 @@ const DeleteButton = styled( Button )`
 	position: absolute;
 	padding: 10px;
 	right: -50px;
-	top: 10px;
+	top: 8px;
 
 	:hover rect {
-		fill: ${props => props.theme.colors.error};
+		fill: ${( props ) => props.theme.colors.error};
 	}
 `;
 
@@ -274,20 +275,22 @@ export function WPOrderReviewLineItems( {
 } ) {
 	return (
 		<WPOrderReviewList className={ joinClasses( [ className, 'order-review-line-items' ] ) }>
-			{ items.map( item => (
-				<WPOrderReviewListItems key={ item.id }>
-					<LineItemUI
-						isSummaryVisible={ isSummaryVisible }
-						item={ item }
-						hasDeleteButton={ canItemBeDeleted( item ) }
-						removeItem={ item.type === 'coupon' ? removeCoupon : removeItem }
-						variantRequestStatus={ variantRequestStatus }
-						variantSelectOverride={ variantSelectOverride }
-						getItemVariants={ getItemVariants }
-						onChangePlanLength={ onChangePlanLength }
-					/>
-				</WPOrderReviewListItems>
-			) ) }
+			{ items
+				.filter( ( item ) => item.label ) // remove items without a label
+				.map( ( item ) => (
+					<WPOrderReviewListItem key={ item.id }>
+						<LineItemUI
+							isSummaryVisible={ isSummaryVisible }
+							item={ item }
+							hasDeleteButton={ canItemBeDeleted( item ) }
+							removeItem={ item.type === 'coupon' ? removeCoupon : removeItem }
+							variantRequestStatus={ variantRequestStatus }
+							variantSelectOverride={ variantSelectOverride }
+							getItemVariants={ getItemVariants }
+							onChangePlanLength={ onChangePlanLength }
+						/>
+					</WPOrderReviewListItem>
+				) ) }
 		</WPOrderReviewList>
 	);
 }
@@ -310,23 +313,16 @@ WPOrderReviewLineItems.propTypes = {
 };
 
 const WPOrderReviewList = styled.ul`
-	margin: -10px 0 10px 0;
-	padding: 0;
+	border-top: 1px solid ${( props ) => props.theme.colors.borderColorLight};
+	box-sizing: border-box;
+	margin: 20px 30px 20px 0;
 `;
 
-const WPOrderReviewListItems = styled.li`
+const WPOrderReviewListItem = styled.li`
 	margin: 0;
 	padding: 0;
 	display: block;
 	list-style: none;
-
-	:first-of-type .checkout-line-item {
-		padding-top: 10px;
-	}
-
-	:first-of-type button {
-		top: -3px;
-	}
 `;
 
 function returnModalCopy( product, translate, hasDomainsInCart ) {

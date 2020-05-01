@@ -19,11 +19,6 @@ import { bumpStat, composeAnalytics, recordTracksEvent } from 'state/analytics/a
 import { getSelectedEditor } from 'state/selectors/get-selected-editor';
 import { getSiteOption } from 'state/sites/selectors';
 
-/**
- * Style dependencies
- */
-import './style.scss';
-
 export const GrowEarn = ( { siteSlug, expandToolsAndTrack } ) => {
 	const translate = useTranslate();
 
@@ -58,7 +53,7 @@ export const GrowEarn = ( { siteSlug, expandToolsAndTrack } ) => {
 };
 
 export default connect(
-	state => {
+	( state ) => {
 		const siteId = getSelectedSiteId( state );
 		const isClassicEditor = getSelectedEditor( state, siteId ) === 'classic';
 		const pageOnFront = 'page' === getSiteOption( state, siteId, 'show_on_front' );
@@ -67,7 +62,7 @@ export default connect(
 			isStaticHomePage: ! isClassicEditor && pageOnFront,
 		};
 	},
-	dispatch => ( {
+	( dispatch ) => ( {
 		trackAction: ( section, action, isStaticHomePage ) =>
 			dispatch(
 				composeAnalytics(

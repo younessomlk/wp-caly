@@ -10,7 +10,7 @@ import debugFactory from 'debug';
  * Internal dependencies
  */
 import Gridicon from 'components/gridicon';
-import analytics from 'lib/analytics';
+import { recordTracksEvent } from 'lib/analytics/tracks';
 import { gaRecordEvent } from 'lib/analytics/ga';
 import { getLocationOrigin, getTaxPostalCode } from 'lib/cart-values';
 import { hasRenewalItem } from 'lib/cart-values/cart-items';
@@ -39,11 +39,11 @@ export class PaypalPaymentBox extends React.Component {
 		formDisabled: false,
 	};
 
-	handlePostalCodeChange = event => {
+	handlePostalCodeChange = ( event ) => {
 		setTaxPostalCode( event.target.value );
 	};
 
-	handleChange = event => {
+	handleChange = ( event ) => {
 		this.updateLocalStateWithFieldValue( event.target.name, event.target.value );
 	};
 
@@ -53,7 +53,7 @@ export class PaypalPaymentBox extends React.Component {
 		this.setState( data );
 	};
 
-	setSubmitState = submitState => {
+	setSubmitState = ( submitState ) => {
 		if ( submitState.error ) {
 			notices.error( submitState.error );
 		}
@@ -66,7 +66,7 @@ export class PaypalPaymentBox extends React.Component {
 		} );
 	};
 
-	redirectToPayPal = event => {
+	redirectToPayPal = ( event ) => {
 		const { cart, transaction } = this.props;
 		const origin = getLocationOrigin( window.location );
 		event.preventDefault();
@@ -96,7 +96,7 @@ export class PaypalPaymentBox extends React.Component {
 		debug( 'submitting paypalExpress request', dataForApi );
 		wpcom.paypalExpressUrl(
 			dataForApi,
-			function( error, paypalExpressURL ) {
+			function ( error, paypalExpressURL ) {
 				debug( 'paypalExpress request complete' );
 				if ( error ) {
 					debug( 'paypalExpress request had an error', error );
@@ -127,7 +127,7 @@ export class PaypalPaymentBox extends React.Component {
 					disabled: true,
 				} );
 				gaRecordEvent( 'Upgrades', 'Clicked Checkout With Paypal Button' );
-				analytics.tracks.recordEvent( 'calypso_checkout_with_paypal' );
+				recordTracksEvent( 'calypso_checkout_with_paypal' );
 				window.location = paypalExpressURL;
 			}.bind( this )
 		);

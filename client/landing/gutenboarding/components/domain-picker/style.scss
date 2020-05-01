@@ -19,6 +19,7 @@ $domain-picker__suggestion-item-height: 24px;
 	.components-panel__row {
 		flex-direction: column;
 		align-items: stretch;
+		justify-content: flex-start;
 		margin: 0;
 
 		label {
@@ -32,7 +33,6 @@ $domain-picker__suggestion-item-height: 24px;
 }
 
 .domain-picker__panel-row-main {
-	overflow-y: auto;
 	flex-grow: 1;
 	padding: 36px;
 }
@@ -89,7 +89,7 @@ $domain-picker__suggestion-item-height: 24px;
 
 .domain-picker__footer {
 	display: flex;
-	justify-content: flex-end;
+	justify-content: space-between;
 }
 
 .domain-picker__suggestion-item-group {
@@ -221,4 +221,31 @@ $domain-picker__suggestion-item-height: 24px;
 
 .domain-picker__price-is-paid {
 	text-decoration: line-through;
+}
+
+.domain-picker__body {
+	display: flex;
+}
+
+.domain-picker__aside {
+	width: 220px;
+	padding-right: 30px;
+}
+
+.domain-picker__confirm-button {
+	position: relative;
+	top: 5px;
+}
+
+.domain-picker__more-button {
+	visibility: hidden; // @TODO: remove this once mobile layout is ready
+
+	@include break-mobile {
+		visibility: visible;
+	}
+
+	&.components-button {
+		@include onboarding-medium-text;
+		color: var( --color-neutral-100 );
+	}
 }

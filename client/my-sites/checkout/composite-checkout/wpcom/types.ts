@@ -1,20 +1,27 @@
+// Disabling duplicate imports while bugs in eslint-plugin-import TS 3.8 support remain.
+// See https://github.com/benmosher/eslint-plugin-import/issues/1667
+/* eslint-disable no-duplicate-imports */
+
 /**
  * Internal dependencies
  */
-import { CheckoutPaymentMethodSlug } from './types/checkout-payment-method-slug';
+import type { CheckoutPaymentMethodSlug } from './types/checkout-payment-method-slug';
+import type { WPCOMPaymentMethodClass } from './types/backend/payment-method';
 import {
-	WPCOMPaymentMethodClass,
 	readWPCOMPaymentMethodClass,
 	translateWpcomPaymentMethodToCheckoutPaymentMethod,
 	translateCheckoutPaymentMethodToWpcomPaymentMethod,
 } from './types/backend/payment-method';
-import {
+import type {
 	RequestCart,
 	RequestCartProduct,
 	ResponseCart,
 	ResponseCartProduct,
+	TempResponseCartProduct,
+	CartLocation,
+} from './types/backend/shopping-cart-endpoint';
+import {
 	emptyResponseCart,
-	prepareRequestCart,
 	removeItemFromResponseCart,
 	addItemToResponseCart,
 	replaceItemInResponseCart,
@@ -22,33 +29,35 @@ import {
 	removeCouponFromResponseCart,
 	addLocationToResponseCart,
 	doesCartLocationDifferFromResponseCartLocation,
-	CartLocation,
-	processRawResponse,
+	convertRawResponseCartToResponseCart,
+	convertResponseCartToRequestCart,
 } from './types/backend/shopping-cart-endpoint';
-import {
+import type {
 	DomainContactDetails,
 	PossiblyCompleteDomainContactDetails,
 	DomainContactDetailsErrors,
 } from './types/backend/domain-contact-details-components';
-import {
+import type {
 	WPCOMCart,
 	WPCOMCartItem,
 	WPCOMCartCouponItem,
-	emptyWPCOMCart,
 	CheckoutCartItem,
 	CheckoutCartItemAmount,
 } from './types/checkout-cart';
-import {
+import { emptyWPCOMCart } from './types/checkout-cart';
+import type {
 	WpcomStoreState,
-	getInitialWpcomStoreState,
 	ManagedContactDetails,
+	ManagedContactDetailsErrors,
+} from './types/wpcom-store-state';
+import {
+	getInitialWpcomStoreState,
 	emptyManagedContactDetails,
 	applyContactDetailsRequiredMask,
 	domainRequiredContactDetails,
 	taxRequiredContactDetails,
 	isCompleteAndValid,
 	isTouched,
-	ManagedContactDetailsErrors,
 	managedContactDetailsUpdaters,
 	prepareDomainContactDetails,
 	prepareDomainContactDetailsErrors,
@@ -58,18 +67,34 @@ import {
 	areRequiredFieldsNotEmpty,
 } from './types/wpcom-store-state';
 
-export {
+export type {
 	CheckoutPaymentMethodSlug,
 	WPCOMPaymentMethodClass,
-	readWPCOMPaymentMethodClass,
-	translateWpcomPaymentMethodToCheckoutPaymentMethod,
-	translateCheckoutPaymentMethodToWpcomPaymentMethod,
 	RequestCart,
 	RequestCartProduct,
 	ResponseCart,
 	ResponseCartProduct,
+	TempResponseCartProduct,
+	CartLocation,
+	WPCOMCart,
+	WPCOMCartItem,
+	WPCOMCartCouponItem,
+	CheckoutCartItem,
+	CheckoutCartItemAmount,
+	WpcomStoreState,
+	ManagedContactDetails,
+	ManagedContactDetailsErrors,
+	DomainContactDetails,
+	PossiblyCompleteDomainContactDetails,
+	DomainContactDetailsErrors,
+};
+
+export {
+	readWPCOMPaymentMethodClass,
+	translateWpcomPaymentMethodToCheckoutPaymentMethod,
+	translateCheckoutPaymentMethodToWpcomPaymentMethod,
 	emptyResponseCart,
-	prepareRequestCart,
+	convertResponseCartToRequestCart,
 	removeItemFromResponseCart,
 	addItemToResponseCart,
 	replaceItemInResponseCart,
@@ -77,28 +102,16 @@ export {
 	removeCouponFromResponseCart,
 	addLocationToResponseCart,
 	doesCartLocationDifferFromResponseCartLocation,
-	CartLocation,
-	processRawResponse,
-	WPCOMCart,
-	WPCOMCartItem,
-	WPCOMCartCouponItem,
+	convertRawResponseCartToResponseCart,
 	emptyWPCOMCart,
-	CheckoutCartItem,
-	CheckoutCartItemAmount,
-	WpcomStoreState,
 	getInitialWpcomStoreState,
-	ManagedContactDetails,
 	emptyManagedContactDetails,
 	applyContactDetailsRequiredMask,
 	domainRequiredContactDetails,
 	taxRequiredContactDetails,
 	isCompleteAndValid,
 	isTouched,
-	ManagedContactDetailsErrors,
 	managedContactDetailsUpdaters,
-	DomainContactDetails,
-	PossiblyCompleteDomainContactDetails,
-	DomainContactDetailsErrors,
 	prepareDomainContactDetails,
 	prepareDomainContactDetailsErrors,
 	prepareDomainContactValidationRequest,
@@ -106,3 +119,5 @@ export {
 	isValid,
 	areRequiredFieldsNotEmpty,
 };
+
+/* eslint-enable no-duplicate-imports */

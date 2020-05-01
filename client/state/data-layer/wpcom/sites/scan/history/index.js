@@ -10,8 +10,14 @@ import {
 	JETPACK_SCAN_HISTORY_REQUEST_SUCCESS,
 	JETPACK_SCAN_HISTORY_REQUEST_FAILURE,
 } from 'state/action-types';
+import { formatScanThreat } from 'state/data-layer/wpcom/sites/scan';
 
-const fetchStatus = action => {
+const formatScanHistoryRawResponse = ( { threats, ...rest } ) => ( {
+	...rest,
+	threats: threats.map( formatScanThreat ),
+} );
+
+const fetchStatus = ( action ) => {
 	return http(
 		{
 			apiNamespace: 'wpcom/v2',
@@ -51,6 +57,7 @@ registerHandlers( 'state/data-layer/wpcom/sites/scan/history', {
 			fetch: fetchStatus,
 			onSuccess: onFetchStatusSuccess,
 			onError: onFetchStatusFailure,
+			fromApi: formatScanHistoryRawResponse,
 		} ),
 	],
 } );

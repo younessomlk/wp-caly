@@ -36,7 +36,7 @@ import {
 import { transferStates } from 'state/automated-transfer/constants';
 import { requestSite } from 'state/sites/actions';
 import FeatureExample from 'components/feature-example';
-import { PLAN_BUSINESS } from 'lib/plans/constants';
+import { PLAN_BUSINESS, FEATURE_SFTP } from 'lib/plans/constants';
 
 /**
  * Style dependencies
@@ -83,6 +83,7 @@ class Hosting extends Component {
 				event="calypso_hosting_configuration_upgrade_click"
 				href={ `/checkout/${ siteId }/business` }
 				plan={ PLAN_BUSINESS }
+				feature={ FEATURE_SFTP }
 				showIcon={ true }
 			/>
 		);
@@ -197,7 +198,7 @@ export const clickActivate = () =>
 	recordTracksEvent( 'calypso_hosting_configuration_activate_click' );
 
 export default connect(
-	state => {
+	( state ) => {
 		const siteId = getSelectedSiteId( state );
 
 		return {

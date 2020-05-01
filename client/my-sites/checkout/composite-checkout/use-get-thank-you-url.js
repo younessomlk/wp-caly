@@ -33,6 +33,7 @@ import { persistSignupDestination, retrieveSignupDestination } from 'signup/util
 import { getSelectedSite } from 'state/ui/selectors';
 import isEligibleForSignupDestination from 'state/selectors/is-eligible-for-signup-destination';
 import getPreviousPath from 'state/selectors/get-previous-path.js';
+import { abtest } from 'lib/abtest';
 
 export function getThankYouPageUrl( {
 	siteSlug,
@@ -195,9 +196,9 @@ function getRedirectUrlForConciergeNudge( { pendingOrReceiptId, cart, siteSlug, 
 		// The conciergeUpsellDial test is used when we need to quickly dial back the volume of concierge sessions
 		// being offered and so sold, to be inline with HE availability.
 		// To dial back, uncomment the condition below and modify the test config.
-		// if ( 'offer' === abtest( 'conciergeUpsellDial' ) ) {
-		return `/checkout/offer-quickstart-session/${ pendingOrReceiptId }/${ siteSlug }`;
-		// }
+		if ( 'offer' === abtest( 'conciergeUpsellDial' ) ) {
+			return `/checkout/offer-quickstart-session/${ pendingOrReceiptId }/${ siteSlug }`;
+		}
 	}
 
 	return;
@@ -268,12 +269,12 @@ export function useGetThankYouUrl( {
 	product,
 	siteId,
 } ) {
-	const selectedSiteData = useSelector( state => getSelectedSite( state ) );
+	const selectedSiteData = useSelector( ( state ) => getSelectedSite( state ) );
 	const adminUrl = selectedSiteData?.options?.admin_url;
-	const isEligibleForSignupDestinationResult = useSelector( state =>
+	const isEligibleForSignupDestinationResult = useSelector( ( state ) =>
 		isEligibleForSignupDestination( state, siteId, cart )
 	);
-	const previousRoute = useSelector( state => getPreviousPath( state ) );
+	const previousRoute = useSelector( ( state ) => getPreviousPath( state ) );
 
 	const getThankYouUrl = useCallback( () => {
 		const transactionResult = select( 'wpcom' ).getTransactionResult();

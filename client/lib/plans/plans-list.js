@@ -11,8 +11,7 @@ import i18n from 'i18n-calypso';
 import { isEnabled } from 'config';
 import * as constants from './constants';
 
-const WPComGetBillingTimeframe = annualPriceText =>
-	annualPriceText ? `billed annually` : i18n.translate( 'per month, billed annually' );
+const WPComGetBillingTimeframe = () => i18n.translate( 'per month, billed annually' );
 const WPComGetBiennialBillingTimeframe = () => i18n.translate( '/month, billed every two years' );
 
 const plansDescriptionHeadingComponent = {
@@ -73,12 +72,8 @@ const getPlanBloggerDetails = () => ( {
 const getPlanPersonalDetails = () => ( {
 	group: constants.GROUP_WPCOM,
 	type: constants.TYPE_PERSONAL,
-	getTitle: isEligibleForPlanStepUpdates =>
-		isEligibleForPlanStepUpdates ? 'Personal plan' : i18n.translate( 'Personal' ),
-	getAudience: isEligibleForPlanStepUpdates =>
-		isEligibleForPlanStepUpdates
-			? 'WordPress essentials for a basic site.'
-			: i18n.translate( 'Best for personal use' ),
+	getTitle: () => i18n.translate( 'Personal' ),
+	getAudience: () => i18n.translate( 'Best for personal use' ),
 	getBlogAudience: () => i18n.translate( 'Best for personal use' ),
 	getPortfolioAudience: () => i18n.translate( 'Best for personal use' ),
 	getStoreAudience: () => i18n.translate( 'Best for personal use' ),
@@ -89,13 +84,11 @@ const getPlanPersonalDetails = () => ( {
 				'Get access to high-quality email and live chat support.',
 			plansDescriptionHeadingComponent
 		),
-	getShortDescription: isEligibleForPlanStepUpdates =>
-		isEligibleForPlanStepUpdates
-			? 'Build your starter online home with basic site-editing tools, a custom domain name, and access to live chat support.'
-			: i18n.translate(
-					'Boost your website with a custom domain name, and remove all WordPress.com advertising. ' +
-						'Get access to high-quality email and live chat support.'
-			  ),
+	getShortDescription: () =>
+		i18n.translate(
+			'Boost your website with a custom domain name, and remove all WordPress.com advertising. ' +
+				'Get access to high-quality email and live chat support.'
+		),
 	getPlanCompareFeatures: () => [
 		// pay attention to ordering, shared features should align on /plan page
 		constants.FEATURE_CUSTOM_DOMAIN,
@@ -129,12 +122,8 @@ const getPlanPersonalDetails = () => ( {
 const getPlanEcommerceDetails = () => ( {
 	group: constants.GROUP_WPCOM,
 	type: constants.TYPE_ECOMMERCE,
-	getTitle: isEligibleForPlanStepUpdates =>
-		isEligibleForPlanStepUpdates ? 'eCommerce plan' : i18n.translate( 'eCommerce' ),
-	getAudience: isEligibleForPlanStepUpdates =>
-		isEligibleForPlanStepUpdates
-			? 'Build a professional online store.'
-			: i18n.translate( 'Best for online stores' ),
+	getTitle: () => i18n.translate( 'eCommerce' ),
+	getAudience: () => i18n.translate( 'Best for online stores' ),
 	getBlogAudience: () => i18n.translate( 'Best for online stores' ),
 	getPortfolioAudience: () => i18n.translate( 'Best for online stores' ),
 	getStoreAudience: () => i18n.translate( 'Best for online stores' ),
@@ -146,14 +135,12 @@ const getPlanEcommerceDetails = () => ( {
 			plansDescriptionHeadingComponent
 		);
 	},
-	getShortDescription: isEligibleForPlanStepUpdates =>
-		isEligibleForPlanStepUpdates
-			? 'Start selling in no time, and create the best shopping, payment, and delivery experience for your customers.'
-			: i18n.translate(
-					'Sell products or services with this powerful, ' +
-						'all-in-one online store experience. This plan includes premium integrations and is extendable, ' +
-						'so it’ll grow with you as your business grows.'
-			  ),
+	getShortDescription: () =>
+		i18n.translate(
+			'Sell products or services with this powerful, ' +
+				'all-in-one online store experience. This plan includes premium integrations and is extendable, ' +
+				'so it’ll grow with you as your business grows.'
+		),
 	getTagline: () =>
 		i18n.translate(
 			'Learn more about everything included with eCommerce and take advantage of its powerful marketplace features.'
@@ -220,12 +207,8 @@ const getPlanEcommerceDetails = () => ( {
 const getPlanPremiumDetails = () => ( {
 	group: constants.GROUP_WPCOM,
 	type: constants.TYPE_PREMIUM,
-	getTitle: isEligibleForPlanStepUpdates =>
-		isEligibleForPlanStepUpdates ? 'Premium plan' : i18n.translate( 'Premium' ),
-	getAudience: isEligibleForPlanStepUpdates =>
-		isEligibleForPlanStepUpdates
-			? 'Powerful tools at a great value.'
-			: i18n.translate( 'Best for freelancers' ),
+	getTitle: () => i18n.translate( 'Premium' ),
+	getAudience: () => i18n.translate( 'Best for freelancers' ),
 	getBlogAudience: () => i18n.translate( 'Best for freelancers' ),
 	getPortfolioAudience: () => i18n.translate( 'Best for freelancers' ),
 	getStoreAudience: () => i18n.translate( 'Best for freelancers' ),
@@ -237,14 +220,12 @@ const getPlanPremiumDetails = () => ( {
 				' and the ability to monetize your site with ads.',
 			plansDescriptionHeadingComponent
 		),
-	getShortDescription: isEligibleForPlanStepUpdates =>
-		isEligibleForPlanStepUpdates
-			? 'Build a sleek site with beautiful themes, robust design and monetization tools, custom CSS, and Google Analytics.'
-			: i18n.translate(
-					'Build a unique website with advanced design tools, CSS editing, lots of space for audio and video,' +
-						' Google Analytics support,' +
-						' and the ability to monetize your site with ads.'
-			  ),
+	getShortDescription: () =>
+		i18n.translate(
+			'Build a unique website with advanced design tools, CSS editing, lots of space for audio and video,' +
+				' Google Analytics support,' +
+				' and the ability to monetize your site with ads.'
+		),
 	getPlanCompareFeatures: () =>
 		compact( [
 			// pay attention to ordering, shared features should align on /plan page
@@ -291,12 +272,8 @@ const getPlanPremiumDetails = () => ( {
 const getPlanBusinessDetails = () => ( {
 	group: constants.GROUP_WPCOM,
 	type: constants.TYPE_BUSINESS,
-	getTitle: isEligibleForPlanStepUpdates =>
-		isEligibleForPlanStepUpdates ? 'Business plan' : i18n.translate( 'Business' ),
-	getAudience: isEligibleForPlanStepUpdates =>
-		isEligibleForPlanStepUpdates
-			? 'All you need for a growing business.'
-			: i18n.translate( 'Best for small businesses' ),
+	getTitle: () => i18n.translate( 'Business' ),
+	getAudience: () => i18n.translate( 'Best for small businesses' ),
 	getBlogAudience: () => i18n.translate( 'Best for small businesses' ),
 	getPortfolioAudience: () => i18n.translate( 'Best for small businesses' ),
 	getStoreAudience: () => i18n.translate( 'The plan for small businesses' ),
@@ -307,13 +284,11 @@ const getPlanBusinessDetails = () => ( {
 				' 200 GB storage, and the ability to remove WordPress.com branding.',
 			plansDescriptionHeadingComponent
 		),
-	getShortDescription: isEligibleForPlanStepUpdates =>
-		isEligibleForPlanStepUpdates
-			? 'The full power of WordPress, unlocked: from plugins and custom themes  to SFTP and phpMyAdmin, this plan has it all.'
-			: i18n.translate(
-					'Power your business website with custom plugins and themes, unlimited premium and business theme templates,' +
-						' 200 GB storage, and the ability to remove WordPress.com branding.'
-			  ),
+	getShortDescription: () =>
+		i18n.translate(
+			'Power your business website with custom plugins and themes, unlimited premium and business theme templates,' +
+				' 200 GB storage, and the ability to remove WordPress.com branding.'
+		),
 	getTagline: () =>
 		i18n.translate(
 			'Learn more about everything included with Business and take advantage of its professional features.'
@@ -424,7 +399,7 @@ export const PLANS_LIST = {
 		...getPlanBloggerDetails(),
 		term: constants.TERM_ANNUALLY,
 		getBillingTimeFrame: WPComGetBillingTimeframe,
-		availableFor: plan => includes( [ constants.PLAN_FREE ], plan ),
+		availableFor: ( plan ) => includes( [ constants.PLAN_FREE ], plan ),
 		getProductId: () => 1010,
 		getStoreSlug: () => constants.PLAN_BLOGGER,
 		getPathSlug: () => 'blogger',
@@ -434,7 +409,7 @@ export const PLANS_LIST = {
 		...getPlanBloggerDetails(),
 		term: constants.TERM_BIENNIALLY,
 		getBillingTimeFrame: WPComGetBiennialBillingTimeframe,
-		availableFor: plan => includes( [ constants.PLAN_FREE, constants.PLAN_BLOGGER ], plan ),
+		availableFor: ( plan ) => includes( [ constants.PLAN_FREE, constants.PLAN_BLOGGER ], plan ),
 		getProductId: () => 1030,
 		getStoreSlug: () => constants.PLAN_BLOGGER_2_YEARS,
 		getPathSlug: () => 'blogger-2-years',
@@ -444,7 +419,7 @@ export const PLANS_LIST = {
 		...getPlanPersonalDetails(),
 		term: constants.TERM_ANNUALLY,
 		getBillingTimeFrame: WPComGetBillingTimeframe,
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			includes(
 				[ constants.PLAN_FREE, constants.PLAN_BLOGGER, constants.PLAN_BLOGGER_2_YEARS ],
 				plan
@@ -458,7 +433,7 @@ export const PLANS_LIST = {
 		...getPlanPersonalDetails(),
 		term: constants.TERM_BIENNIALLY,
 		getBillingTimeFrame: WPComGetBiennialBillingTimeframe,
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			includes(
 				[
 					constants.PLAN_FREE,
@@ -477,7 +452,7 @@ export const PLANS_LIST = {
 		...getPlanPremiumDetails(),
 		term: constants.TERM_ANNUALLY,
 		getBillingTimeFrame: WPComGetBillingTimeframe,
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			includes(
 				[
 					constants.PLAN_FREE,
@@ -497,7 +472,7 @@ export const PLANS_LIST = {
 		...getPlanPremiumDetails(),
 		term: constants.TERM_BIENNIALLY,
 		getBillingTimeFrame: WPComGetBiennialBillingTimeframe,
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			includes(
 				[
 					constants.PLAN_FREE,
@@ -518,7 +493,7 @@ export const PLANS_LIST = {
 		...getPlanBusinessDetails(),
 		term: constants.TERM_MONTHLY,
 		getBillingTimeFrame: () => i18n.translate( 'per month, billed monthly' ),
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			isEnabled( 'upgrades/wpcom-monthly-plans' ) &&
 			includes(
 				[
@@ -541,7 +516,7 @@ export const PLANS_LIST = {
 		...getPlanBusinessDetails(),
 		term: constants.TERM_ANNUALLY,
 		getBillingTimeFrame: WPComGetBillingTimeframe,
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			includes(
 				[
 					constants.PLAN_FREE,
@@ -564,7 +539,7 @@ export const PLANS_LIST = {
 		...getPlanBusinessDetails(),
 		term: constants.TERM_BIENNIALLY,
 		getBillingTimeFrame: WPComGetBiennialBillingTimeframe,
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			includes(
 				[
 					constants.PLAN_FREE,
@@ -588,7 +563,7 @@ export const PLANS_LIST = {
 		...getPlanEcommerceDetails(),
 		term: constants.TERM_ANNUALLY,
 		getBillingTimeFrame: WPComGetBillingTimeframe,
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			includes(
 				[
 					constants.PLAN_FREE,
@@ -613,7 +588,7 @@ export const PLANS_LIST = {
 		...getPlanEcommerceDetails(),
 		term: constants.TERM_BIENNIALLY,
 		getBillingTimeFrame: WPComGetBiennialBillingTimeframe,
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			includes(
 				[
 					constants.PLAN_FREE,
@@ -643,7 +618,7 @@ export const PLANS_LIST = {
 		getAudience: () => i18n.translate( 'Best for Students' ),
 		getProductId: () => 2002,
 		getStoreSlug: () => constants.PLAN_JETPACK_FREE,
-		getTagline: feature => {
+		getTagline: ( feature ) => {
 			switch ( feature ) {
 				case constants.FEATURE_JETPACK_BACKUP_DAILY:
 				case constants.FEATURE_JETPACK_BACKUP_DAILY_MONTHLY:
@@ -692,7 +667,7 @@ export const PLANS_LIST = {
 		getSubtitle: () => i18n.translate( 'Protection, speed, and revenue.' ),
 		getProductId: () => 2000,
 		getStoreSlug: () => constants.PLAN_JETPACK_PREMIUM,
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			includes(
 				[
 					constants.PLAN_JETPACK_FREE,
@@ -761,7 +736,7 @@ export const PLANS_LIST = {
 		getProductId: () => 2003,
 		getStoreSlug: () => constants.PLAN_JETPACK_PREMIUM_MONTHLY,
 		getPathSlug: () => 'premium-monthly',
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			includes(
 				[
 					constants.PLAN_JETPACK_FREE,
@@ -827,7 +802,7 @@ export const PLANS_LIST = {
 		getAudience: () => i18n.translate( 'Best for Personal Use' ),
 		getProductId: () => 2005,
 		getStoreSlug: () => constants.PLAN_JETPACK_PERSONAL,
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			includes( [ constants.PLAN_JETPACK_FREE, constants.PLAN_JETPACK_PERSONAL_MONTHLY ], plan ),
 		getPathSlug: () => 'jetpack-personal',
 		getDescription: () =>
@@ -876,7 +851,7 @@ export const PLANS_LIST = {
 		getStoreSlug: () => constants.PLAN_JETPACK_PERSONAL_MONTHLY,
 		getProductId: () => 2006,
 		getPathSlug: () => 'jetpack-personal-monthly',
-		availableFor: plan => includes( [ constants.PLAN_JETPACK_FREE ], plan ),
+		availableFor: ( plan ) => includes( [ constants.PLAN_JETPACK_FREE ], plan ),
 		getDescription: () =>
 			i18n.translate(
 				'{{strong}}Best for Personal Use:{{/strong}}' +
@@ -922,7 +897,7 @@ export const PLANS_LIST = {
 		getAudience: () => i18n.translate( 'Best for Organizations' ),
 		getStoreSlug: () => constants.PLAN_JETPACK_BUSINESS,
 		getProductId: () => 2001,
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			includes(
 				[
 					constants.PLAN_JETPACK_BUSINESS_MONTHLY,
@@ -954,7 +929,6 @@ export const PLANS_LIST = {
 				constants.FEATURE_SPAM_AKISMET_PLUS,
 				constants.FEATURE_EASY_SITE_MIGRATION,
 				constants.FEATURE_PREMIUM_SUPPORT,
-				constants.FEATURE_SEARCH,
 				isEnabled( 'republicize' ) && constants.FEATURE_REPUBLICIZE,
 				constants.FEATURE_SIMPLE_PAYMENTS,
 				constants.FEATURE_WORDADS_INSTANT,
@@ -968,7 +942,6 @@ export const PLANS_LIST = {
 		getSignupFeatures: () =>
 			compact( [
 				constants.FEATURE_OFFSITE_BACKUP_VAULTPRESS_REALTIME,
-				constants.FEATURE_SEARCH,
 				constants.FEATURE_UNLIMITED_PREMIUM_THEMES,
 				constants.FEATURE_ALL_PREMIUM_FEATURES_JETPACK,
 			] ),
@@ -996,7 +969,7 @@ export const PLANS_LIST = {
 		getProductId: () => 2004,
 		getStoreSlug: () => constants.PLAN_JETPACK_BUSINESS_MONTHLY,
 		getPathSlug: () => 'professional-monthly',
-		availableFor: plan =>
+		availableFor: ( plan ) =>
 			includes(
 				[
 					constants.PLAN_JETPACK_FREE,
@@ -1039,7 +1012,6 @@ export const PLANS_LIST = {
 		getSignupFeatures: () =>
 			compact( [
 				constants.FEATURE_OFFSITE_BACKUP_VAULTPRESS_REALTIME,
-				constants.FEATURE_SEARCH,
 				constants.FEATURE_UNLIMITED_PREMIUM_THEMES,
 				constants.FEATURE_ALL_PREMIUM_FEATURES_JETPACK,
 			] ),
@@ -1060,15 +1032,11 @@ export const PLANS_LIST = {
 
 export const PLANS_CONSTANTS_LIST = Object.keys( PLANS_LIST );
 
-export const getPlanObject = planName => {
+export const getPlanObject = ( planName ) => {
 	const plan = PLANS_LIST[ planName ];
 	const objectPlan = {};
-	Object.keys( plan ).forEach( key => {
-		const objectKey =
-			key
-				.substr( 3 )
-				.charAt( 0 )
-				.toLowerCase() + key.slice( 4 );
+	Object.keys( plan ).forEach( ( key ) => {
+		const objectKey = key.substr( 3 ).charAt( 0 ).toLowerCase() + key.slice( 4 );
 		objectPlan[ objectKey ] = plan[ key ]();
 	} );
 

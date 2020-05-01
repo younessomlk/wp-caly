@@ -93,7 +93,7 @@ export class MySitesSidebar extends Component {
 
 	expandManageSection = () => this.props.expandSection( SIDEBAR_SECTION_MANAGE );
 
-	toggleSection = memoize( id => () => this.props.toggleSection( id ) );
+	toggleSection = memoize( ( id ) => () => this.props.toggleSection( id ) );
 
 	onNavigate = () => {
 		this.props.setNextLayoutFocus( 'content' );
@@ -234,6 +234,10 @@ export class MySitesSidebar extends Component {
 		const { site, canUserUseEarn } = this.props;
 
 		if ( isEnabled( 'signup/wpforteams' ) && this.props.isSiteWPForTeams ) {
+			return null;
+		}
+
+		if ( ! site ) {
 			return null;
 		}
 
@@ -508,7 +512,7 @@ export class MySitesSidebar extends Component {
 		);
 	}
 
-	trackMenuItemClick = menuItemName => {
+	trackMenuItemClick = ( menuItemName ) => {
 		this.props.recordTracksEvent(
 			'calypso_mysites_sidebar_' + menuItemName.replace( /-/g, '_' ) + '_clicked'
 		);

@@ -6,9 +6,10 @@ import { useTranslate } from 'i18n-calypso';
 import styled from '@emotion/styled';
 import {
 	Checkout,
-	CheckoutStepBody,
-	CheckoutSteps,
 	CheckoutStep,
+	CheckoutStepArea,
+	CheckoutSteps,
+	CheckoutSummaryArea,
 	getDefaultPaymentMethodStep,
 	useIsStepActive,
 	useIsStepComplete,
@@ -25,10 +26,11 @@ import {
 import { areDomainsInLineItems, isLineItemADomain } from '../hooks/has-domains';
 import useCouponFieldState from '../hooks/use-coupon-field-state';
 import WPCheckoutOrderReview from './wp-checkout-order-review';
-import WPCheckoutOrderSummary, { WPCheckoutOrderSummaryTitle } from './wp-checkout-order-summary';
+import WPCheckoutOrderSummary from './wp-checkout-order-summary';
 import WPContactForm from './wp-contact-form';
 import { isCompleteAndValid } from '../types';
 import { WPOrderReviewTotal, WPOrderReviewSection, LineItemUI } from './wp-order-review-line-items';
+import CartFreeUserPlanUpsell from 'my-sites/checkout/cart/cart-free-user-plan-upsell';
 
 const ContactFormTitle = () => {
 	const translate = useTranslate();
@@ -72,7 +74,9 @@ export default function WPCheckout( {
 	getItemVariants,
 	domainContactValidationCallback,
 	responseCart,
+	addItemToCart,
 	subtotal,
+	isCartPendingUpdate,
 } ) {
 	const translate = useTranslate();
 	const couponFieldStateProps = useCouponFieldState( submitCoupon );
@@ -85,7 +89,7 @@ export default function WPCheckout( {
 	const isDomainFieldsVisible = !! firstDomainItem;
 	const shouldShowContactStep = isDomainFieldsVisible || total.amount.value > 0;
 
-	const contactInfo = useSelect( sel => sel( 'wpcom' ).getContactInfo() ) || {};
+	const contactInfo = useSelect( ( sel ) => sel( 'wpcom' ).getContactInfo() ) || {};
 	const { setSiteId, touchContactFields, applyDomainContactValidationResults } = useDispatch(
 		'wpcom'
 	);
@@ -128,97 +132,151 @@ export default function WPCheckout( {
 		setActiveStepNumber( 1 );
 	};
 
+	// By this point we have definitely loaded the cart using useShoppingCart
+	// so we mock the loaded property the CartStore would inject.
+	const mockCart = { ...responseCart, hasLoadedFromServer: true };
+
 	return (
 		<Checkout>
-			<CheckoutStepBody
-				activeStepContent={ null }
-				completeStepContent={ <WPCheckoutOrderSummary siteUrl={ siteUrl } /> }
-				titleContent={ <WPCheckoutOrderSummaryTitle /> }
-				errorMessage={ translate( 'There was an error with the summary step.' ) }
-				isStepActive={ false }
-				isStepComplete={ true }
-				stepNumber={ 1 }
-				totalSteps={ 1 }
-				stepId={ 'order-summary' }
-			/>
-			<CheckoutSteps>
-				<CheckoutStep
-					stepId="review-order-step"
-					isCompleteCallback={ () => true }
-					activeStepContent={
-						<WPCheckoutOrderReview
-							removeItem={ removeItem }
-							couponStatus={ couponStatus }
-							couponFieldStateProps={ couponFieldStateProps }
-							removeCoupon={ removeCouponAndResetActiveStep }
-							onChangePlanLength={ changePlanLength }
-							variantRequestStatus={ variantRequestStatus }
-							variantSelectOverride={ variantSelectOverride }
-							getItemVariants={ getItemVariants }
-						/>
-					}
-					titleContent={ <OrderReviewTitle /> }
-					completeStepContent={ <InactiveOrderReview /> }
-					editButtonText={ translate( 'Edit' ) }
-					editButtonAriaLabel={ translate( 'Edit the payment method' ) }
-					nextStepButtonText={ translate( 'Continue' ) }
-					nextStepButtonAriaLabel={ translate( 'Continue with the selected payment method' ) }
-					validatingButtonText={ translate( 'Please wait…' ) }
-					validatingButtonAriaLabel={ translate( 'Please wait…' ) }
-				/>
-				{ shouldShowContactStep && (
+			<CheckoutSummaryUI>
+				<WPCheckoutOrderSummary />
+				<UpsellWrapperUI>
+					<CartFreeUserPlanUpsell cart={ mockCart } addItemToCart={ addItemToCart } />
+				</UpsellWrapperUI>
+			</CheckoutSummaryUI>
+			<CheckoutStepArea>
+				<CheckoutSteps>
 					<CheckoutStep
-						stepId={ 'contact-form' }
-						isCompleteCallback={ () => {
-							setShouldShowContactDetailsValidationErrors( true );
-							return contactValidationCallback();
-						} }
+						stepId="review-order-step"
+						isCompleteCallback={ () => true }
 						activeStepContent={
-							<WPContactForm
+							<WPCheckoutOrderReview
+								removeItem={ removeItem }
+								couponStatus={ couponStatus }
+								couponFieldStateProps={ couponFieldStateProps }
+								removeCoupon={ removeCouponAndResetActiveStep }
+								onChangePlanLength={ changePlanLength }
+								variantRequestStatus={ variantRequestStatus }
+								variantSelectOverride={ variantSelectOverride }
+								getItemVariants={ getItemVariants }
 								siteUrl={ siteUrl }
-								isComplete={ false }
-								isActive={ true }
-								CountrySelectMenu={ CountrySelectMenu }
-								countriesList={ countriesList }
-								StateSelect={ StateSelect }
-								renderDomainContactFields={ renderDomainContactFields }
-								shouldShowContactDetailsValidationErrors={
-									shouldShowContactDetailsValidationErrors
-								}
 							/>
 						}
-						completeStepContent={ <WPContactForm summary isComplete={ true } isActive={ false } /> }
-						titleContent={ <ContactFormTitle /> }
+						titleContent={ <OrderReviewTitle /> }
+						completeStepContent={ <InactiveOrderReview /> }
 						editButtonText={ translate( 'Edit' ) }
-						editButtonAriaLabel={ translate( 'Edit the contact details' ) }
+						editButtonAriaLabel={ translate( 'Edit the payment method' ) }
 						nextStepButtonText={ translate( 'Continue' ) }
-						nextStepButtonAriaLabel={ translate( 'Continue with the entered contact details' ) }
-						validatingButtonText={ translate( 'Please wait…' ) }
-						validatingButtonAriaLabel={ translate( 'Please wait…' ) }
+						nextStepButtonAriaLabel={ translate( 'Continue with the selected payment method' ) }
+						validatingButtonText={
+							isCartPendingUpdate ? translate( 'Updating cart…' ) : translate( 'Please wait…' )
+						}
+						validatingButtonAriaLabel={
+							isCartPendingUpdate ? translate( 'Updating cart…' ) : translate( 'Please wait…' )
+						}
 					/>
-				) }
-				<CheckoutStep
-					stepId="payment-method-step"
-					activeStepContent={
-						<PaymentMethodStep
-							CheckoutTerms={ CheckoutTerms }
-							responseCart={ responseCart }
-							subtotal={ subtotal }
+					{ shouldShowContactStep && (
+						<CheckoutStep
+							stepId={ 'contact-form' }
+							isCompleteCallback={ () => {
+								setShouldShowContactDetailsValidationErrors( true );
+								return contactValidationCallback();
+							} }
+							activeStepContent={
+								<WPContactForm
+									siteUrl={ siteUrl }
+									isComplete={ false }
+									isActive={ true }
+									CountrySelectMenu={ CountrySelectMenu }
+									countriesList={ countriesList }
+									StateSelect={ StateSelect }
+									renderDomainContactFields={ renderDomainContactFields }
+									shouldShowContactDetailsValidationErrors={
+										shouldShowContactDetailsValidationErrors
+									}
+								/>
+							}
+							completeStepContent={
+								<WPContactForm summary isComplete={ true } isActive={ false } />
+							}
+							titleContent={ <ContactFormTitle /> }
+							editButtonText={ translate( 'Edit' ) }
+							editButtonAriaLabel={ translate( 'Edit the contact details' ) }
+							nextStepButtonText={ translate( 'Continue' ) }
+							nextStepButtonAriaLabel={ translate( 'Continue with the entered contact details' ) }
+							validatingButtonText={
+								isCartPendingUpdate ? translate( 'Updating cart…' ) : translate( 'Please wait…' )
+							}
+							validatingButtonAriaLabel={
+								isCartPendingUpdate ? translate( 'Updating cart…' ) : translate( 'Please wait…' )
+							}
 						/>
-					}
-					completeStepContent={ paymentMethodStep.completeStepContent }
-					titleContent={ paymentMethodStep.titleContent }
-					editButtonText={ translate( 'Edit' ) }
-					editButtonAriaLabel={ translate( 'Edit the payment method' ) }
-					nextStepButtonText={ translate( 'Continue' ) }
-					nextStepButtonAriaLabel={ translate( 'Continue with the selected payment method' ) }
-					validatingButtonText={ translate( 'Please wait…' ) }
-					validatingButtonAriaLabel={ translate( 'Please wait…' ) }
-				/>
-			</CheckoutSteps>
+					) }
+					<CheckoutStep
+						stepId="payment-method-step"
+						activeStepContent={
+							<PaymentMethodStep
+								CheckoutTerms={ CheckoutTerms }
+								responseCart={ responseCart }
+								subtotal={ subtotal }
+							/>
+						}
+						completeStepContent={ paymentMethodStep.completeStepContent }
+						titleContent={ paymentMethodStep.titleContent }
+						editButtonText={ translate( 'Edit' ) }
+						editButtonAriaLabel={ translate( 'Edit the payment method' ) }
+						nextStepButtonText={ translate( 'Continue' ) }
+						nextStepButtonAriaLabel={ translate( 'Continue with the selected payment method' ) }
+						validatingButtonText={
+							isCartPendingUpdate ? translate( 'Updating cart…' ) : translate( 'Please wait…' )
+						}
+						validatingButtonAriaLabel={
+							isCartPendingUpdate ? translate( 'Updating cart…' ) : translate( 'Please wait…' )
+						}
+					/>
+				</CheckoutSteps>
+			</CheckoutStepArea>
 		</Checkout>
 	);
 }
+
+const CheckoutSummaryUI = styled( CheckoutSummaryArea )`
+	display: none;
+
+	@media ( ${( props ) => props.theme.breakpoints.desktopUp} ) {
+		display: block;
+	}
+`;
+
+const UpsellWrapperUI = styled.div`
+	margin-top: 24px;
+	background: ${( props ) => props.theme.colors.surface};
+
+	.cart__upsell-wrapper {
+		border: 1px solid ${( props ) => props.theme.colors.borderColorLight};
+	}
+
+	.cart__upsell-header {
+		border-bottom: 1px solid ${( props ) => props.theme.colors.borderColorLight};
+		border-top: none;
+		box-shadow: none;
+		padding-left: 20px;
+		padding-right: 20px;
+
+		.section-header__label {
+			color: ${( props ) => props.theme.colors.textColor};
+			font-size: 16px;
+		}
+	}
+
+	.cart__upsell-body {
+		padding: 20px;
+
+		p {
+			margin-bottom: 1.2em;
+		}
+	}
+`;
 
 function setActiveStepNumber( stepNumber ) {
 	window.location.hash = '#step' + stepNumber;
@@ -226,9 +284,9 @@ function setActiveStepNumber( stepNumber ) {
 
 function PaymentMethodStep( { CheckoutTerms, responseCart, subtotal } ) {
 	const [ items, total ] = useLineItems();
-	const taxes = items.filter( item => item.type === 'tax' );
+	const taxes = items.filter( ( item ) => item.type === 'tax' );
 	return (
-		<React.Fragment>
+		<>
 			{ paymentMethodStep.activeStepContent }
 
 			<CheckoutTermsUI>
@@ -237,12 +295,12 @@ function PaymentMethodStep( { CheckoutTerms, responseCart, subtotal } ) {
 
 			<WPOrderReviewSection>
 				{ subtotal && <LineItemUI subtotal item={ subtotal } /> }
-				{ taxes.map( tax => (
+				{ taxes.map( ( tax ) => (
 					<LineItemUI tax key={ tax.id } item={ tax } />
 				) ) }
 				<WPOrderReviewTotal total={ total } />
 			</WPOrderReviewSection>
-		</React.Fragment>
+		</>
 	);
 }
 
@@ -251,7 +309,7 @@ function InactiveOrderReview() {
 	return (
 		<SummaryContent>
 			<ProductList>
-				{ items.filter( shouldItemBeInSummary ).map( product => {
+				{ items.filter( shouldItemBeInSummary ).map( ( product ) => {
 					return <ProductListItem key={ product.id }>{ product.label }</ProductListItem>;
 				} ) }
 			</ProductList>
@@ -303,7 +361,7 @@ const CheckoutTermsUI = styled.div`
 const SummaryContent = styled.div`
 	margin-top: 12px;
 
-	@media ( ${props => props.theme.breakpoints.smallPhoneUp} ) {
+	@media ( ${( props ) => props.theme.breakpoints.smallPhoneUp} ) {
 		display: flex;
 		justify-content: space-between;
 		align-items: flex-end;

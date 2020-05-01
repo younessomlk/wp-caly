@@ -48,11 +48,11 @@ function preloadEditor() {
 }
 
 class PostItem extends React.Component {
-	clickHandler = clickTarget => () => {
+	clickHandler = ( clickTarget ) => () => {
 		this.props.bumpStat( 'calypso_post_item_click', clickTarget );
 	};
 
-	toggleCurrentPostSelection = event => {
+	toggleCurrentPostSelection = ( event ) => {
 		this.props.togglePostSelection( this.props.globalId );
 		event.stopPropagation();
 	};
@@ -184,7 +184,7 @@ class PostItem extends React.Component {
 							onClick={ this.clickHandler( 'title' ) }
 							onMouseOver={ preloadEditor }
 						>
-							{ ! externalPostLink && (
+							{ ! externalPostLink && ! isTrashed && (
 								<a
 									href={ enabledPostLink }
 									className="post-item__title-link"
@@ -193,6 +193,13 @@ class PostItem extends React.Component {
 									{ title || translate( 'Untitled' ) }
 								</a>
 							) }
+
+							{ ! externalPostLink && isTrashed && (
+								<span className="post-item__title-link" data-e2e-title={ title }>
+									{ title || translate( 'Untitled' ) }
+								</span>
+							) }
+
 							{ ! isPlaceholder && externalPostLink && (
 								<ExternalLink
 									icon={ true }

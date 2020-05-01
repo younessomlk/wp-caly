@@ -55,7 +55,7 @@ export class ThankYouCard extends Component {
 			return null;
 		}
 
-		const recordThankYouClick = value => {
+		const recordThankYouClick = ( value ) => {
 			this.props.recordTracksEvent( 'calypso_jetpack_product_thankyou', {
 				product_name: 'search',
 				value,
@@ -109,14 +109,7 @@ export class ThankYouCard extends Component {
 								href={ siteAdminUrl + 'customize.php?autofocus[section]=jetpack_search' }
 								onClick={ () => recordThankYouClick( 'customizer' ) }
 							>
-								{ translate( 'Customize Search now' ) }
-							</Button>
-
-							<Button
-								href={ siteAdminUrl + 'admin.php?page=jetpack#/dashboard' }
-								onClick={ () => recordThankYouClick( 'my_site' ) }
-							>
-								{ translate( 'Go back to my site' ) }
+								{ translate( 'Try Search and customize it now' ) }
 							</Button>
 						</p>
 					) }
@@ -137,7 +130,7 @@ export class ThankYouCard extends Component {
 }
 
 export default connect(
-	state => {
+	( state ) => {
 		const currentUser = getCurrentUser( state );
 		const selectedSiteId = getSelectedSiteId( state );
 		const selectedSiteSlug = getSiteSlug( state, selectedSiteId );

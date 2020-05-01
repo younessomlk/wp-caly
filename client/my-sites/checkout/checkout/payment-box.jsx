@@ -15,7 +15,7 @@ import NavItem from 'components/section-nav/item';
 import NavTabs from 'components/section-nav/tabs';
 import SectionNav from 'components/section-nav';
 import SectionHeader from 'components/section-header';
-import analytics from 'lib/analytics';
+import { recordTracksEvent } from 'lib/analytics/tracks';
 import { gaRecordEvent } from 'lib/analytics/ga';
 import { paymentMethodName, isPaymentMethodEnabled } from 'lib/cart-values';
 import {
@@ -41,11 +41,11 @@ export class PaymentBox extends PureComponent {
 		}
 	}
 
-	handlePaymentMethodChange = paymentMethod => {
+	handlePaymentMethodChange = ( paymentMethod ) => {
 		const onSelectPaymentMethod = this.props.onSelectPaymentMethod;
-		return function() {
+		return function () {
 			gaRecordEvent( 'Upgrades', 'Switch Payment Method' );
-			analytics.tracks.recordEvent( 'calypso_checkout_switch_to_' + snakeCase( paymentMethod ) );
+			recordTracksEvent( 'calypso_checkout_switch_to_' + snakeCase( paymentMethod ) );
 			onSelectPaymentMethod( paymentMethod );
 		};
 	};
@@ -128,7 +128,7 @@ export class PaymentBox extends PureComponent {
 				href=""
 				onClick={ this.handlePaymentMethodChange( method ) }
 				selected={ this.props.currentPaymentMethod === method }
-				onKeyPress={ event => this.choosePaymentMethodWithKeyboard( event, method ) }
+				onKeyPress={ ( event ) => this.choosePaymentMethodWithKeyboard( event, method ) }
 			>
 				{ this.getPaymentProviderLabel( method ) }
 			</NavItem>
@@ -139,7 +139,7 @@ export class PaymentBox extends PureComponent {
 		if ( ! this.props.paymentMethods ) {
 			return null;
 		}
-		return this.props.paymentMethods.map( method => {
+		return this.props.paymentMethods.map( ( method ) => {
 			return this.paymentMethod( method );
 		} );
 	}

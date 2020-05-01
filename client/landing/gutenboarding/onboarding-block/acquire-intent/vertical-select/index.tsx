@@ -50,17 +50,17 @@ const VerticalSelect: React.FunctionComponent< Props > = ( { onNext } ) => {
 	 */
 	const suggestionRef = React.createRef< any >();
 
-	const verticals = useSelect( select =>
+	const verticals = useSelect( ( select ) =>
 		select( VERTICALS_STORE )
 			.getVerticals()
-			.map( x => ( {
+			.map( ( x ) => ( {
 				label: x.vertical_name,
 				id: x.vertical_id,
 				slug: x.vertical_slug,
 			} ) )
 	);
 
-	const { siteVertical, siteTitle } = useSelect( select => select( ONBOARD_STORE ).getState() );
+	const { siteVertical, siteTitle } = useSelect( ( select ) => select( ONBOARD_STORE ).getState() );
 	const { setSiteVertical, resetSiteVertical } = useDispatch( ONBOARD_STORE );
 	const isMobile = useViewportMatch( 'small', '<' );
 
@@ -104,7 +104,7 @@ const VerticalSelect: React.FunctionComponent< Props > = ( { onNext } ) => {
 		const normalizedInputValue = inputValue.toLowerCase();
 
 		// TODO: write a more advanced compare fn https://github.com/Automattic/wp-calypso/pull/40645#discussion_r402156751
-		const newSuggestions = verticals.filter( vertical =>
+		const newSuggestions = verticals.filter( ( vertical ) =>
 			vertical.label.toLowerCase().includes( normalizedInputValue )
 		);
 
@@ -112,7 +112,7 @@ const VerticalSelect: React.FunctionComponent< Props > = ( { onNext } ) => {
 		// If yes, we store it in firstSuggestion (for later use), and remove it from newSuggestions...
 		const firstSuggestion = remove(
 			newSuggestions,
-			suggestion => suggestion.label.toLowerCase() === normalizedInputValue
+			( suggestion ) => suggestion.label.toLowerCase() === normalizedInputValue
 		)[ 0 ] ?? {
 			// ...otherwise, we set firstSuggestion to the user-supplied vertical...
 			label: inputValue.trim(),
@@ -133,7 +133,7 @@ const VerticalSelect: React.FunctionComponent< Props > = ( { onNext } ) => {
 		setSuggestions( [] );
 	};
 
-	const handleBlur = () => {
+	const selectLastInputValue = () => {
 		const lastQuery = inputText.trim();
 		if ( isFocused && lastQuery.length ) {
 			const vertical = suggestions[ 0 ] ?? { label: lastQuery, id: '', slug: '' };
@@ -142,7 +142,7 @@ const VerticalSelect: React.FunctionComponent< Props > = ( { onNext } ) => {
 	};
 
 	const handleArrowClick = () => {
-		handleBlur();
+		selectLastInputValue();
 		onNext();
 	};
 
@@ -170,9 +170,9 @@ const VerticalSelect: React.FunctionComponent< Props > = ( { onNext } ) => {
 			input.length && ! suggestions.length && handleSelect( { label: input } );
 			return;
 		}
-		if ( e.keyCode === TAB ) {
+		if ( e.keyCode === TAB && input.length ) {
 			e.preventDefault();
-			handleBlur();
+			selectLastInputValue();
 		}
 	};
 
@@ -186,6 +186,12 @@ const VerticalSelect: React.FunctionComponent< Props > = ( { onNext } ) => {
 		inputRef.current.innerText = siteVertical?.label || '';
 	}, [ siteVertical, inputRef ] );
 
+	React.useEffect( () => {
+		if ( !! suggestions.length && isMobile ) {
+			window.scrollTo( 0, 0 );
+		}
+	}, [ suggestions, isMobile ] );
+
 	// translators: Form input for a site's topic where "<Input />" is replaced by user input and must be preserved verbatim in translated string.
 	const madlibTemplate = __( 'My site is about <Input />' );
 	// translators: Form input for a site's topic where "<Input />" is replaced with the topic selected by the user.
@@ -195,7 +201,12 @@ const VerticalSelect: React.FunctionComponent< Props > = ( { onNext } ) => {
 		{
 			Input: (
 				<span className="vertical-select__suggestions-wrapper">
-					<span className="vertical-select__input-wrapper">
+					{ ! isMobile && ' ' }
+					<span
+						className={ classnames( 'vertical-select__input-wrapper', {
+							'vertical-select__input-wrapper--with-arrow': showArrow,
+						} ) }
+					>
 						<span
 							contentEditable
 							tabIndex={ 0 }
@@ -208,15 +219,15 @@ const VerticalSelect: React.FunctionComponent< Props > = ( { onNext } ) => {
 							onKeyDown={ handleInputKeyDownEvent }
 							onKeyUp={ handleInputKeyUpEvent }
 							onFocus={ () => setIsFocused( true ) }
-							onBlur={ handleBlur }
+							onBlur={ selectLastInputValue }
 						/>
 						<span className="vertical-select__placeholder">{ animatedPlaceholder }</span>
 						{ showArrow && (
 							<Arrow className="vertical-select__arrow" onClick={ handleArrowClick } />
 						) }
 					</span>
-					<div className="vertical-select__suggestions">
-						{ !! verticals.length && (
+					{ !! suggestions.length && (
+						<div className="vertical-select__suggestions">
 							<Suggestions
 								ref={ suggestionRef }
 								query={ inputText }
@@ -224,18 +235,21 @@ const VerticalSelect: React.FunctionComponent< Props > = ( { onNext } ) => {
 								suggest={ handleSuggestAction }
 								title={ __( 'Suggestions' ) }
 							/>
-						) }
-					</div>
+						</div>
+					) }
 				</span>
 			),
 		}
 	);
 
 	return (
+		/* eslint-disable jsx-a11y/click-events-have-key-events */
+		/* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 		<form
 			className={ classnames( 'vertical-select', {
 				'vertical-select--with-suggestions': !! suggestions.length && isMobile,
 			} ) }
+			onClick={ () => inputRef.current.focus() } // focus the input when clicking label or placeholder
 		>
 			{ madlib }
 		</form>

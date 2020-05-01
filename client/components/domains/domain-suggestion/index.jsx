@@ -46,6 +46,7 @@ class DomainSuggestion extends React.Component {
 			priceRule,
 			salePrice,
 			isEligibleVariantForDomainTest,
+			showFreeDomainExplainerForFreePlan,
 			isFeatured,
 		} = this.props;
 		const classes = classNames(
@@ -81,6 +82,7 @@ class DomainSuggestion extends React.Component {
 							salePrice={ salePrice }
 							rule={ priceRule }
 							isEligibleVariantForDomainTest={ isEligibleVariantForDomainTest }
+							showFreeDomainExplainerForFreePlan={ showFreeDomainExplainerForFreePlan }
 						/>
 					) }
 				</div>
@@ -97,7 +99,7 @@ class DomainSuggestion extends React.Component {
 	}
 }
 
-DomainSuggestion.Placeholder = function() {
+DomainSuggestion.Placeholder = function () {
 	/* eslint-disable wpcalypso/jsx-classname-namespace */
 	return (
 		<div className="domain-suggestion card is-compact is-placeholder is-clickable">

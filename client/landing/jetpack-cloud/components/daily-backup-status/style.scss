@@ -1,6 +1,8 @@
 .daily-backup-status {
 	text-align: center;
-	margin-top: 2rem;
+	padding-top: 2rem;
+	padding-bottom: 1rem;
+	background: #fff;
 }
 
 .daily-backup-status__status-icon.gridicon {
@@ -40,13 +42,13 @@
 .daily-backup-status__date,
 .daily-backup-status__static-title {
 	font-size: 1.4rem;
-	font-weight: 500;
+	font-weight: 400;
 	margin-bottom: 1rem;
 }
 
 .daily-backup-status__failed-message {
 	font-size: 1.4rem;
-	font-weight: 500;
+	font-weight: 400;
 	color: var( --color-scary-50 );
 	margin-bottom: 0.5rem;
 	margin-top: -0.5rem;
@@ -71,7 +73,6 @@
 	margin: 1rem 0;
 }
 
-.daily-backup-status__meta,
 .daily-backup-status__title {
 	display: none;
 }
@@ -81,6 +82,44 @@
 	background: transparent;
 	box-shadow: none;
 	padding: 0;
+}
+
+.daily-backup-status__realtime-details {
+	text-align: left;
+}
+
+.daily-backup-status__realtime-details-title {
+	margin-top: 1rem;
+	margin-bottom: 0.5rem;
+	font-weight: 400;
+}
+
+.daily-backup-status__realtime-details-card .activity-card .card {
+	margin: 0;
+	padding: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.daily-backup-status__realtime-details-card .activity-card .card .activity-log-item__actor .activity-log-item__actor-info {
+	display: flex;
+}
+
+.daily-backup-status__realtime-details-card .activity-card .card .activity-log-item__actor .activity-log-item__actor-info .activity-log-item__actor-name::after {
+	margin-right: 0.2rem;
+}
+
+.daily-backup-status__realtime-details-card .activity-card .card .activity-log-item__actor .gravatar,
+.daily-backup-status__realtime-details-card .activity-card .card .activity-log-item__actor svg {
+	width: 30px;
+}
+
+.daily-backup-status__meta {
+	margin-bottom: 1.6rem;
+	margin-top: -0.3rem;
+	color: var( --studio-gray-40 );
+	font-weight: 400;
+	font-size: 0.9rem;
 }
 
 @include breakpoint( '>660px' ) {
@@ -98,6 +137,8 @@
 
 	.daily-backup-status {
 		text-align: left;
+		background: transparent;
+		padding-bottom: 0;
 	}
 
 	.daily-backup-status__icon-section {
@@ -110,12 +151,13 @@
 	}
 
 	.daily-backup-status__title {
-		font-weight: 500;
+		font-weight: 400;
 		margin-left: 0.5rem;
 	}
 
 	.daily-backup-status__meta {
 		margin-bottom: 1rem;
+		margin-top: 0;
 		color: var( --studio-gray-40 );
 		font-weight: 400;
     	font-size: 0.9rem;

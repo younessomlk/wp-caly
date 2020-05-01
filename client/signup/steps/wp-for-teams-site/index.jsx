@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-
 import React from 'react';
 import { connect } from 'react-redux';
 import { localize } from 'i18n-calypso';
@@ -13,7 +12,7 @@ import debugFactory from 'debug';
  */
 import config from 'config';
 import wpcom from 'lib/wp';
-import analytics from 'lib/analytics';
+import { recordTracksEvent } from 'lib/analytics/tracks';
 import formState from 'lib/form-state';
 import { login } from 'lib/paths';
 import ValidationFieldset from 'signup/validation-fieldset';
@@ -87,7 +86,7 @@ class WpForTeamsSite extends React.Component {
 		this.save();
 	}
 
-	sanitizeSubdomain = domain => {
+	sanitizeSubdomain = ( domain ) => {
 		if ( ! domain ) {
 			return domain;
 		}
@@ -118,20 +117,17 @@ class WpForTeamsSite extends React.Component {
 				blog_title: fields.siteTitle,
 				validate: true,
 			},
-			function( error, response ) {
+			function ( error, response ) {
 				debug( error, response );
 
 				if ( error && error.message ) {
 					if ( fields.site && ! includes( siteUrlsSearched, fields.site ) ) {
 						siteUrlsSearched.push( fields.site );
 
-						analytics.tracks.recordEvent(
-							'calypso_signup_wp_for_teams_site_url_validation_failed',
-							{
-								error: error.error,
-								site_url: fields.site,
-							}
-						);
+						recordTracksEvent( 'calypso_signup_wp_for_teams_site_url_validation_failed', {
+							error: error.error,
+							site_url: fields.site,
+						} );
 					}
 
 					timesValidationFailed++;
@@ -145,7 +141,7 @@ class WpForTeamsSite extends React.Component {
 		);
 	};
 
-	setFormState = state => {
+	setFormState = ( state ) => {
 		this.setState( { form: state } );
 	};
 
@@ -154,12 +150,12 @@ class WpForTeamsSite extends React.Component {
 		timesValidationFailed = 0;
 	};
 
-	handleSubmit = event => {
+	handleSubmit = ( event ) => {
 		event.preventDefault();
 
 		this.setState( { submitting: true } );
 
-		this.formStateController.handleSubmit( hasErrors => {
+		this.formStateController.handleSubmit( ( hasErrors ) => {
 			const site = formState.getFieldValue( this.state.form, 'site' );
 			const siteTitle = formState.getFieldValue( this.state.form, 'siteTitle' );
 
@@ -169,7 +165,7 @@ class WpForTeamsSite extends React.Component {
 				return;
 			}
 
-			analytics.tracks.recordEvent( 'calypso_signup_wp_for_teams_site_step_submit', {
+			recordTracksEvent( 'calypso_signup_wp_for_teams_site_step_submit', {
 				unique_site_urls_searched: siteUrlsSearched.length,
 				times_validation_failed: timesValidationFailed,
 			} );
@@ -200,20 +196,20 @@ class WpForTeamsSite extends React.Component {
 		} );
 	};
 
-	handleChangeEvent = event => {
+	handleChangeEvent = ( event ) => {
 		this.formStateController.handleFieldChange( {
 			name: event.target.name,
 			value: event.target.value,
 		} );
 	};
 
-	handleFormControllerError = error => {
+	handleFormControllerError = ( error ) => {
 		if ( error ) {
 			throw error;
 		}
 	};
 
-	getErrorMessagesWithLogin = fieldName => {
+	getErrorMessagesWithLogin = ( fieldName ) => {
 		const link = login( {
 				isNative: config.isEnabled( 'login/native-login-links' ),
 				redirectTo: window.location.href,

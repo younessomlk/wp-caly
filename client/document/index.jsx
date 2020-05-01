@@ -65,11 +65,12 @@ class Document extends React.Component {
 
 		const installedChunks = entrypoint.js
 			.concat( chunkFiles.js )
-			.map( chunk => path.parse( chunk ).name );
+			.map( ( chunk ) => path.parse( chunk ).name );
 
 		const inlineScript =
 			`var COMMIT_SHA = ${ jsonStringifyForHtml( commitSha ) };\n` +
 			`var BUILD_TIMESTAMP = ${ jsonStringifyForHtml( buildTimestamp ) };\n` +
+			`var BUILD_TARGET = ${ jsonStringifyForHtml( target ) };\n` +
 			( user ? `var currentUser = ${ jsonStringifyForHtml( user ) };\n` : '' ) +
 			( isSupportSession ? 'var isSupportSession = true;\n' : '' ) +
 			( app ? `var app = ${ jsonStringifyForHtml( app ) };\n` : '' ) +
@@ -181,16 +182,17 @@ class Document extends React.Component {
 						} }
 					/>
 
-					{ // Use <script nomodule> to redirect browsers with no ES module
-					// support to the fallback build. ES module support is a convenient
-					// test to determine that a browser is modern enough to handle
-					// the evergreen bundle.
-					addEvergreenCheck && (
-						<script
-							nonce={ inlineScriptNonce }
-							noModule
-							dangerouslySetInnerHTML={ {
-								__html: `
+					{
+						// Use <script nomodule> to redirect browsers with no ES module
+						// support to the fallback build. ES module support is a convenient
+						// test to determine that a browser is modern enough to handle
+						// the evergreen bundle.
+						addEvergreenCheck && (
+							<script
+								nonce={ inlineScriptNonce }
+								noModule
+								dangerouslySetInnerHTML={ {
+									__html: `
 							(function() {
 								var url = window.location.href;
 
@@ -201,9 +203,10 @@ class Document extends React.Component {
 								}
 							})();
 							`,
-							} }
-						/>
-					) }
+								} }
+							/>
+						)
+					}
 
 					{ i18nLocaleScript && ! useTranslationChunks && <script src={ i18nLocaleScript } /> }
 					{ /*
@@ -220,10 +223,18 @@ class Document extends React.Component {
 							} }
 						/>
 					) }
-					{ entrypoint.js.map( asset => (
+
+					{ entrypoint?.language?.manifest && <script src={ entrypoint.language.manifest } /> }
+
+					{ ( entrypoint?.language?.translations || [] ).map( ( translationChunk ) => (
+						<script key={ translationChunk } src={ translationChunk } />
+					) ) }
+
+					{ entrypoint.js.map( ( asset ) => (
 						<script key={ asset } src={ asset } />
 					) ) }
-					{ chunkFiles.js.map( chunk => (
+
+					{ chunkFiles.js.map( ( chunk ) => (
 						<script key={ chunk } src={ chunk } />
 					) ) }
 					<script nonce={ inlineScriptNonce } type="text/javascript">

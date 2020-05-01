@@ -2,7 +2,7 @@
  * External dependencies
  */
 import React from 'react';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { addQueryArgs } from '@wordpress/url';
 import { useI18n } from '@automattic/react-i18n';
 import { useHistory } from 'react-router-dom';
@@ -16,7 +16,7 @@ import { usePath, Step } from '../../path';
 import { isEnabled } from '../../../../config';
 import Link from '../../components/link';
 import { SubTitle, Title } from '../../components/titles';
-
+import { useTrackStep } from '../../hooks/use-track-step';
 import './style.scss';
 
 type Design = import('../../stores/onboard/types').Design;
@@ -27,7 +27,9 @@ const DesignSelector: React.FunctionComponent = () => {
 	const { __ } = useI18n();
 	const { push } = useHistory();
 	const makePath = usePath();
-	const { setSelectedDesign, setFonts, resetOnboardStore } = useDispatch( ONBOARD_STORE );
+
+	const { setSelectedDesign, setFonts } = useDispatch( ONBOARD_STORE );
+	const { getSelectedDesign } = useSelect( ( select ) => select( ONBOARD_STORE ) );
 
 	const getDesignUrl = ( design: Design ) => {
 		// We temporarily show pre-generated screenshots until we can generate tall versions dynamically using mshots.
@@ -46,20 +48,21 @@ const DesignSelector: React.FunctionComponent = () => {
 		return mshotsUrl + encodeURIComponent( previewUrl );
 	};
 
+	useTrackStep( 'DesignSelection', () => ( {
+		selected_design: getSelectedDesign()?.slug,
+	} ) );
+
 	return (
 		<div className="gutenboarding-page design-selector">
 			<div className="design-selector__header">
 				<div className="design-selector__heading">
-					<Title>{ __( 'Choose a starting design' ) }</Title>
+					<Title>{ __( 'Choose a design' ) }</Title>
 					<SubTitle>
-						{ __(
-							'Get started with one of our top website layouts. You can always change it later'
-						) }
+						{ __( 'Pick your favorite homepage layout. You can customize or change it later.' ) }
 					</SubTitle>
 				</div>
 				<Link
 					className="design-selector__start-over-button"
-					onClick={ () => resetOnboardStore() }
 					to={ makePath( Step.IntentGathering ) }
 					isLink
 				>
@@ -68,7 +71,7 @@ const DesignSelector: React.FunctionComponent = () => {
 			</div>
 			<div className="design-selector__design-grid">
 				<div className="design-selector__grid">
-					{ designs.featured.map( design => (
+					{ designs.featured.map( ( design ) => (
 						<button
 							key={ design.slug }
 							className="design-selector__design-option"

@@ -12,19 +12,20 @@ import { navigation, siteSelection, sites } from 'my-sites/controller';
 import { makeLayout, render as clientRender } from 'controller';
 import {
 	showUpsellIfNoScan,
+	showUpsellIfNoScanHistory,
 	scan,
 	scanHistory,
 } from 'landing/jetpack-cloud/sections/scan/controller';
 
-export default function() {
+export default function () {
 	if ( config.isEnabled( 'jetpack-cloud/scan' ) ) {
 		page( '/scan', siteSelection, sites, navigation, makeLayout, clientRender );
 		page(
 			'/scan/:site',
 			siteSelection,
 			navigation,
-			showUpsellIfNoScan,
 			scan,
+			showUpsellIfNoScan,
 			makeLayout,
 			clientRender
 		);
@@ -34,8 +35,8 @@ export default function() {
 				'/scan/history/:site/:filter?',
 				siteSelection,
 				navigation,
-				showUpsellIfNoScan,
 				scanHistory,
+				showUpsellIfNoScanHistory,
 				makeLayout,
 				clientRender
 			);

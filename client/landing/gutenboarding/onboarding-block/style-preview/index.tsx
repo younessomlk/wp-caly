@@ -20,15 +20,17 @@ import { STORE_KEY as ONBOARD_STORE } from '../../stores/onboard';
 import { USER_STORE } from '../../stores/user';
 import { useFreeDomainSuggestion } from '../../hooks/use-free-domain-suggestion';
 import SignupForm from '../../components/signup-form';
+import { useTrackStep } from '../../hooks/use-track-step';
 
 import './style.scss';
 
 const StylePreview: React.FunctionComponent = () => {
-	const { selectedDesign } = useSelect( select => select( ONBOARD_STORE ).getState() );
+	const { getSelectedFonts } = useSelect( ( select ) => select( ONBOARD_STORE ) );
+	const { selectedDesign } = useSelect( ( select ) => select( ONBOARD_STORE ).getState() );
 
 	const [ showSignupDialog, setShowSignupDialog ] = useState( false );
 
-	const currentUser = useSelect( select => select( USER_STORE ).getCurrentUser() );
+	const currentUser = useSelect( ( select ) => select( USER_STORE ).getCurrentUser() );
 
 	const hasSelectedDesign = !! selectedDesign;
 
@@ -39,6 +41,11 @@ const StylePreview: React.FunctionComponent = () => {
 	const { createSite } = useDispatch( ONBOARD_STORE );
 
 	const freeDomainSuggestion = useFreeDomainSuggestion();
+
+	useTrackStep( 'Style', () => ( {
+		selected_heading_font: getSelectedFonts()?.headings,
+		selected_body_font: getSelectedFonts()?.base,
+	} ) );
 
 	const handleSignup = () => {
 		setShowSignupDialog( true );
@@ -59,8 +66,10 @@ const StylePreview: React.FunctionComponent = () => {
 		<div className="gutenboarding-page style-preview">
 			<div className="style-preview__header">
 				<div className="style-preview__titles">
-					<Title>{ __( 'Select your fonts' ) }</Title>
-					<SubTitle>{ __( 'Add some personality to your design.' ) }</SubTitle>
+					<Title>{ __( 'Pick a font pairing' ) }</Title>
+					<SubTitle>
+						{ __( 'Customize your design with typography. You can always fine-tune it later.' ) }
+					</SubTitle>
 				</div>
 				<ViewportSelect selected={ selectedViewport } onSelect={ setSelectedViewport } />
 				<div className="style-preview__actions">

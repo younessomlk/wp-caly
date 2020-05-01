@@ -17,7 +17,7 @@ export function generateFlows( {
 	getLaunchDestination = noop,
 	getThankYouNoSiteDestination = noop,
 	getChecklistThemeDestination = noop,
-	getPreLaunchEditorDestination = noop,
+	getEditorDestination = noop,
 } = {} ) {
 	const flows = {
 		account: {
@@ -58,7 +58,7 @@ export function generateFlows( {
 
 		'rebrand-cities': {
 			steps: [ 'rebrand-cities-welcome', 'user' ],
-			destination: function( dependencies ) {
+			destination: function ( dependencies ) {
 				return '/plans/select/business/' + dependencies.siteSlug;
 			},
 			description: 'Create an account for REBRAND cities partnership',
@@ -114,6 +114,15 @@ export function generateFlows( {
 			destination: getSignupDestination,
 			description: 'Abridged version of the onboarding flow. Read more in https://wp.me/pau2Xa-Vs.',
 			lastModified: '2020-03-03',
+			showRecaptcha: true,
+		},
+
+		'onboarding-plan-first': {
+			steps: [ 'user', 'plans', 'domains', 'upsell-plan', 'plans-plan-only' ],
+			destination: getSignupDestination,
+			description:
+				'Shows the plan step before the domains step. Read more in https://wp.me/pbxNRc-cj.',
+			lastModified: '2020-04-22',
 			showRecaptcha: true,
 		},
 
@@ -243,7 +252,7 @@ export function generateFlows( {
 	if ( isEnabled( 'signup/wpforteams' ) ) {
 		flows[ 'wp-for-teams' ] = {
 			steps: [ 'team-site', 'user' ],
-			destination: dependencies => `https://${ dependencies.siteSlug }`,
+			destination: ( dependencies ) => `https://${ dependencies.siteSlug }`,
 			description: 'WordPress for Teams signup flow',
 			lastModified: '2020-03-23',
 		};
@@ -344,20 +353,20 @@ export function generateFlows( {
 	}
 
 	if ( isEnabled( 'gutenboarding' ) ) {
-		flows.frankenflow = {
-			steps: [ 'plans-launch', 'launch' ],
+		flows[ 'new-launch' ] = {
+			steps: [ 'domains-launch', 'plans-launch', 'launch' ],
 			destination: getLaunchDestination,
-			description: 'Frankenflow launch for a site created from Gutenboarding',
-			lastModified: '2020-01-22',
+			description: 'Launch flow for a site created from /new',
+			lastModified: '2020-04-28',
 			pageTitle: translate( 'Launch your site' ),
-			providesDependenciesInQuery: [ 'siteSlug' ],
+			providesDependenciesInQuery: [ 'siteSlug', 'source' ],
 		};
 	}
 
 	if ( isEnabled( 'gutenboarding' ) ) {
 		flows.prelaunch = {
 			steps: [ 'plans-with-domain' ],
-			destination: getPreLaunchEditorDestination,
+			destination: getEditorDestination,
 			description: 'Gutenboarding flow for creating a site with a paid domain',
 			lastModified: '2020-04-06',
 			pageTitle: translate( 'Get a domain for your site' ),

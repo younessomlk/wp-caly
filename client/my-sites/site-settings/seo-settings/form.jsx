@@ -20,7 +20,7 @@ import FormInputValidation from 'components/forms/form-input-validation';
 import FormLabel from 'components/forms/form-label';
 import FormSettingExplanation from 'components/forms/form-setting-explanation';
 import CountedTextarea from 'components/forms/counted-textarea';
-import Banner from 'components/banner';
+import UpsellNudge from 'blocks/upsell-nudge';
 import { getSeoTitleFormatsForSite, isJetpackSite, isRequestingSite } from 'state/sites/selectors';
 import {
 	isSiteSettingsSaveSuccessful,
@@ -183,7 +183,7 @@ export class SeoForm extends React.Component {
 		);
 	};
 
-	updateTitleFormats = seoTitleFormats => {
+	updateTitleFormats = ( seoTitleFormats ) => {
 		const dirtyFields = new Set( this.state.dirtyFields );
 		dirtyFields.add( 'seoTitleFormats' );
 
@@ -193,7 +193,7 @@ export class SeoForm extends React.Component {
 		} );
 	};
 
-	submitSeoForm = event => {
+	submitSeoForm = ( event ) => {
 		const { siteId, storedTitleFormats, showAdvancedSeo, showWebsiteMeta } = this.props;
 
 		if ( ! event.isDefaultPrevented() && event.nativeEvent ) {
@@ -230,7 +230,7 @@ export class SeoForm extends React.Component {
 		// We will pass an empty string in this case.
 		updatedOptions.advanced_seo_title_formats = mapValues(
 			updatedOptions.advanced_seo_title_formats,
-			format => ( isArray( format ) && 0 === format.length ? '' : format )
+			( format ) => ( isArray( format ) && 0 === format.length ? '' : format)
 		);
 
 		this.props.saveSiteSettings( siteId, updatedOptions );
@@ -328,7 +328,7 @@ export class SeoForm extends React.Component {
 					<Notice
 						status="is-warning"
 						showDismiss={ false }
-						text={ ( function() {
+						text={ ( function () {
 							if ( isSitePrivate ) {
 								if ( siteIsComingSoon ) {
 									return translate(
@@ -366,7 +366,7 @@ export class SeoForm extends React.Component {
 				{ ! this.props.hasSeoPreviewFeature &&
 					! this.props.hasAdvancedSEOFeature &&
 					selectedSite.plan && (
-						<Banner
+						<UpsellNudge
 							description={ translate(
 								'Get tools to optimize your site for improved performance in search engine results.'
 							) }
@@ -376,6 +376,7 @@ export class SeoForm extends React.Component {
 								type: siteIsJetpack ? TYPE_PREMIUM : TYPE_BUSINESS,
 								...( siteIsJetpack ? { term: TERM_ANNUALLY } : {} ),
 							} ) }
+							showIcon={ true }
 							title={ nudgeTitle }
 						/>
 					) }
@@ -479,7 +480,7 @@ export class SeoForm extends React.Component {
 	}
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = ( state ) => {
 	const selectedSite = getSelectedSite( state );
 	// SEO Tools are available with Business plan on WordPress.com, and with Premium plan on Jetpack sites
 	const isAdvancedSeoEligible = selectedSite.plan && hasSupportingPlan( selectedSite.plan );

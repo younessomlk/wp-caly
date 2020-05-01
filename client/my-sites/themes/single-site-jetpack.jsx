@@ -20,7 +20,7 @@ import { isPartnerPurchase } from 'lib/purchases';
 import JetpackReferrerMessage from './jetpack-referrer-message';
 import JetpackUpgradeMessage from './jetpack-upgrade-message';
 import { connectOptions } from './theme-options';
-import Banner from 'components/banner';
+import UpsellNudge from 'blocks/upsell-nudge';
 import { FEATURE_UNLIMITED_PREMIUM_THEMES, PLAN_JETPACK_BUSINESS } from 'lib/plans/constants';
 import QuerySitePlans from 'components/data/query-site-plans';
 import QuerySitePurchases from 'components/data/query-site-purchases';
@@ -36,21 +36,21 @@ import {
 	isJetpackSiteMultiSite,
 } from 'state/sites/selectors';
 
-const ConnectedThemesSelection = connectOptions( props => {
+const ConnectedThemesSelection = connectOptions( ( props ) => {
 	return (
 		<ThemesSelection
 			{ ...props }
-			getOptions={ function( theme ) {
+			getOptions={ function ( theme ) {
 				return pickBy(
 					addTracking( props.options ),
-					option => ! ( option.hideForTheme && option.hideForTheme( theme, props.siteId ) )
+					( option ) => ! ( option.hideForTheme && option.hideForTheme( theme, props.siteId ) )
 				);
 			} }
 		/>
 	);
 } );
 
-const ConnectedSingleSiteJetpack = connectOptions( props => {
+const ConnectedSingleSiteJetpack = connectOptions( ( props ) => {
 	const {
 		analyticsPath,
 		analyticsPageTitle,
@@ -96,7 +96,8 @@ const ConnectedSingleSiteJetpack = connectOptions( props => {
 			/>
 			<CurrentTheme siteId={ siteId } />
 			{ ! requestingSitePlans && currentPlan && ! hasUnlimitedPremiumThemes && ! isPartnerPlan && (
-				<Banner
+				<UpsellNudge
+					forceDisplay
 					plan={ PLAN_JETPACK_BUSINESS }
 					title={ translate( 'Access all our premium themes with our Professional plan!' ) }
 					description={ translate(
@@ -105,6 +106,7 @@ const ConnectedSingleSiteJetpack = connectOptions( props => {
 							'and security scanning.'
 					) }
 					event="themes_plans_free_personal_premium"
+					showIcon={ true }
 				/>
 			) }
 			<ThemeShowcase
@@ -127,19 +129,19 @@ const ConnectedSingleSiteJetpack = connectOptions( props => {
 							filter={ filter }
 							vertical={ vertical }
 							siteId={ siteId /* This is for the options in the '...' menu only */ }
-							getScreenshotUrl={ function( theme ) {
+							getScreenshotUrl={ function ( theme ) {
 								if ( ! getScreenshotOption( theme ).getUrl ) {
 									return null;
 								}
 								return getScreenshotOption( theme ).getUrl( theme );
 							} }
-							onScreenshotClick={ function( themeId ) {
+							onScreenshotClick={ function ( themeId ) {
 								if ( ! getScreenshotOption( themeId ).action ) {
 									return;
 								}
 								getScreenshotOption( themeId ).action( themeId );
 							} }
-							getActionLabel={ function( theme ) {
+							getActionLabel={ function ( theme ) {
 								return getScreenshotOption( theme ).label;
 							} }
 							trackScrollPage={ props.trackScrollPage }

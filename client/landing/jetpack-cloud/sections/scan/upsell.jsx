@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button } from '@automattic/components';
 import { translate } from 'i18n-calypso';
 
 /**
@@ -13,7 +12,9 @@ import DocumentHead from 'components/data/document-head';
 import SecurityIcon from 'landing/jetpack-cloud/components/security-icon';
 import Main from 'components/main';
 import SidebarNavigation from 'my-sites/sidebar-navigation';
+import PageViewTracker from 'lib/analytics/page-view-tracker';
 import StatsFooter from 'landing/jetpack-cloud/components/stats-footer';
+import Upsell from 'landing/jetpack-cloud/components/upsell';
 import { getSelectedSiteSlug } from 'state/ui/selectors';
 import { recordTracksEvent } from 'state/analytics/actions';
 
@@ -22,24 +23,17 @@ function ScanUpsellPage( props ) {
 		<Main className="scan__main">
 			<DocumentHead title="Scanner" />
 			<SidebarNavigation />
+			<PageViewTracker path="/scan/:site" title="Scanner Upsell" />
 			<div className="scan__content">
-				<SecurityIcon icon="info" />
-				<h1 className="scan__header">{ translate( 'Your site does not have scan' ) }</h1>
-				<p>
-					{ translate(
+				<Upsell
+					headerText={ translate( 'Your site does not have scan' ) }
+					bodyText={ translate(
 						'Automatic scanning and one-click fixes keep your site one step ahead of security threats.'
 					) }
-				</p>
-				<Button
-					primary
-					// TODO: Use Jetpack redirect.
-					href={ `https://wordpress.com/checkout/jetpack_scan/${ props.siteSlug }` }
-					className="scan__button"
-					target="_blank"
+					buttonLink={ `https://wordpress.com/checkout/jetpack_scan/${ props.siteSlug }` }
 					onClick={ () => props.recordTracksEvent( 'cloud_scan_upsell_click' ) }
-				>
-					{ translate( 'Upgrade now' ) }
-				</Button>
+					iconComponent={ <SecurityIcon icon="info" /> }
+				/>
 			</div>
 			<StatsFooter
 				noticeText="Failing to plan is planning to fail. Regular backups ensure that should the worst happen, you are prepared. Jetpack Backups has you covered."
@@ -50,7 +44,7 @@ function ScanUpsellPage( props ) {
 }
 
 export default connect(
-	state => ( {
+	( state ) => ( {
 		siteSlug: getSelectedSiteSlug( state ),
 	} ),
 	{ recordTracksEvent }

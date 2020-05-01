@@ -29,6 +29,7 @@ export const UpsellNudge = ( {
 	canManageSite,
 	className,
 	compact,
+	customerType,
 	description,
 	disableHref,
 	dismissPreferenceName,
@@ -38,13 +39,16 @@ export const UpsellNudge = ( {
 	forceHref,
 	href,
 	icon,
-	isJetpack,
+	isJetpackDevDocs,
+	jetpack,
+	horizontal,
 	isVip,
 	list,
 	onClick,
 	onDismissClick,
 	plan,
 	planHasFeature,
+	price,
 	showIcon = false,
 	site,
 	title,
@@ -66,14 +70,14 @@ export const UpsellNudge = ( {
 		( feature && planHasFeature ) ||
 		( ! feature && ! isFreePlan( site.plan ) ) ||
 		( feature === FEATURE_NO_ADS && site.options.wordads ) ||
-		( ! isJetpack && site.jetpack ) ||
-		( isJetpack && ! site.jetpack );
+		( ! jetpack && site.jetpack ) ||
+		( jetpack && ! site.jetpack );
 
 	if ( shouldNotDisplay && ! forceDisplay ) {
 		return null;
 	}
 
-	if ( ! href && site ) {
+	if ( ! href && site && ! customerType ) {
 		href = addQueryArgs( { feature, plan }, `/plans/${ site.slug }` );
 	}
 
@@ -82,19 +86,22 @@ export const UpsellNudge = ( {
 			callToAction={ callToAction }
 			className={ classes }
 			compact={ compact }
+			customerType={ customerType }
 			description={ description }
 			disableHref={ disableHref }
 			dismissPreferenceName={ dismissPreferenceName }
 			event={ event }
 			feature={ feature }
 			forceHref={ forceHref }
+			horizontal={ horizontal }
 			href={ href }
 			icon={ icon }
-			jetpack={ isJetpack }
+			jetpack={ jetpack || isJetpackDevDocs } //Force show Jetpack example in Devdocs
 			list={ list }
 			onClick={ onClick }
 			onDismissClick={ onDismissClick }
 			plan={ plan }
+			price={ price }
 			showIcon={ showIcon }
 			title={ title }
 			tracksClickName={ tracksClickName }
@@ -114,7 +121,7 @@ export default connect( ( state, ownProps ) => {
 		site: getSite( state, siteId ),
 		planHasFeature: hasFeature( state, siteId, ownProps.feature ),
 		canManageSite: canCurrentUser( state, siteId, 'manage_options' ),
-		isJetpack: isJetpackSite( state, siteId ),
+		jetpack: isJetpackSite( state, siteId ),
 		isVip: isVipSite( state, siteId ),
 	};
 } )( localize( UpsellNudge ) );

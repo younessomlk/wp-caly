@@ -19,7 +19,7 @@ import { getLanguageRouteParam } from 'lib/i18n-utils';
  */
 import './style.scss';
 
-export default function() {
+export default function () {
 	const user = userFactory();
 	const isLoggedOut = ! user.get();
 	const locale = getLanguageRouteParam( 'locale' );

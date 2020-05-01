@@ -8,7 +8,6 @@ import { defer } from 'lodash';
 /**
  * Internal Dependencies
  */
-import { setReaderFullViewPostKey } from 'state/reader/full-view/actions';
 import { trackPageLoad } from 'reader/controller-helper';
 import AsyncLoad from 'components/async-load';
 
@@ -27,8 +26,6 @@ export function blogPost( context, next ) {
 		basePath = '/read/blogs/:blog_id/posts/:post_id',
 		fullPageTitle = analyticsPageTitle + ' > Blog Post > ' + blogId + ' > ' + postId;
 
-	context.store.dispatch( setReaderFullViewPostKey( { blogId, postId, feedId: 0 } ) );
-
 	let referral;
 	if ( context.query.ref_blog && context.query.ref_post ) {
 		referral = { blogId: context.query.ref_blog, postId: context.query.ref_post };
@@ -42,7 +39,7 @@ export function blogPost( context, next ) {
 			postId={ postId }
 			referral={ referral }
 			referralStream={ context.lastRoute }
-			onClose={ function() {
+			onClose={ function () {
 				page.back( context.lastRoute || '/' );
 			} }
 		/>
@@ -56,8 +53,6 @@ export function feedPost( context, next ) {
 		postId = context.params.post,
 		basePath = '/read/feeds/:feed_id/posts/:feed_item_id',
 		fullPageTitle = analyticsPageTitle + ' > Feed Post > ' + feedId + ' > ' + postId;
-
-	context.store.dispatch( setReaderFullViewPostKey( { blogId: 0, postId, feedId } ) );
 
 	trackPageLoad( basePath, fullPageTitle, 'full_post' );
 

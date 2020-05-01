@@ -120,13 +120,10 @@ export class SiteNotice extends React.Component {
 
 		const eligibleDomains = reject(
 			this.props.domains,
-			domain =>
+			( domain ) =>
 				domain.isWPCOMDomain ||
 				domain.name.endsWith( '.wpcomstaging.com' ) ||
-				( domain.registrationDate &&
-					moment( domain.registrationDate )
-						.add( 7, 'days' )
-						.isAfter() )
+				( domain.registrationDate && moment( domain.registrationDate ).add( 7, 'days' ).isAfter() )
 		);
 
 		if ( eligibleDomains.length !== 1 ) {
@@ -137,7 +134,7 @@ export class SiteNotice extends React.Component {
 
 		const priceAndSaleInfo = transform(
 			productsList,
-			function( result, value, key ) {
+			function ( result, value, key ) {
 				if ( value.is_domain_registration && value.available ) {
 					const regularPrice = getUnformattedDomainPrice( key, productsList );
 					const minRegularPrice = get( result, 'minRegularPrice', regularPrice );
@@ -192,6 +189,7 @@ export class SiteNotice extends React.Component {
 				dismissPreferenceName="calypso_upgrade_nudge_cta_click"
 				event="calypso_upgrade_nudge_impression"
 				forceDisplay={ true }
+				horizontal={ true }
 				title={ preventWidows( noticeText ) }
 				tracksClickName="calypso_upgrade_nudge_cta_click"
 				tracksClickProperties={ { cta_name: 'domain-upsell-nudge' } }
@@ -307,7 +305,7 @@ export default connect(
 			messagePath,
 		};
 	},
-	dispatch => {
+	( dispatch ) => {
 		return {
 			clickClaimDomainNotice: () =>
 				dispatch(

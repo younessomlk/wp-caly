@@ -135,7 +135,7 @@ export class ProductSelector extends Component {
 
 		return find(
 			purchases,
-			purchase =>
+			( purchase ) =>
 				purchase.active &&
 				( includes( productSlugs, purchase.productSlug ) ||
 					includes( productSlugs, this.getRelatedYearlyProductSlug( purchase.productSlug ) ) ||
@@ -152,7 +152,7 @@ export class ProductSelector extends Component {
 
 		return find(
 			purchases,
-			purchase => purchase.active && purchase.productSlug === currentPlanSlug
+			( purchase ) => purchase.active && purchase.productSlug === currentPlanSlug
 		);
 	}
 
@@ -160,7 +160,7 @@ export class ProductSelector extends Component {
 		const { currentPlanSlug, productSlugs } = this.props;
 		return ! currentPlanSlug
 			? null
-			: filter( productSlugs, productSlug => planHasFeature( currentPlanSlug, productSlug ) );
+			: filter( productSlugs, ( productSlug ) => planHasFeature( currentPlanSlug, productSlug ) );
 	}
 
 	currentPlanIncludesProduct( product ) {
@@ -168,13 +168,13 @@ export class ProductSelector extends Component {
 		const productSlugs = this.getProductSlugsForCurrentPlan();
 		return ! currentPlanSlug || ! productSlugs
 			? false
-			: productSlugs.some( slug => product.slugs.includes( slug ) );
+			: productSlugs.some( ( slug ) => product.slugs.includes( slug ) );
 	}
 
 	getProductSlugByCurrentPlan( product ) {
 		return ! this.props.currentPlanSlug
 			? null
-			: find( product.slugs, slug => planHasFeature( this.props.currentPlanSlug, slug ) );
+			: find( product.slugs, ( slug ) => planHasFeature( this.props.currentPlanSlug, slug ) );
 	}
 
 	getSubtitleByProduct( product ) {
@@ -228,6 +228,16 @@ export class ProductSelector extends Component {
 		const planProductSlug = this.getProductSlugByCurrentPlan( product );
 		if ( planProductSlug && optionDescriptions && optionDescriptions[ planProductSlug ] ) {
 			return optionDescriptions[ planProductSlug ];
+		}
+
+		// Plans landing page at /jetpack/connect/store
+		if ( ! this.props.selectedSiteSlug ) {
+			return (
+				description +
+				this.props.translate(
+					'The price of this subscription is based on the number of records you have on your site.'
+				)
+			);
 		}
 
 		// Default product description.
@@ -287,7 +297,7 @@ export class ProductSelector extends Component {
 		const { intervalType, storeProducts } = this.props;
 		const productSlugs = product.options[ intervalType ];
 
-		return productSlugs.map( productSlug => {
+		return productSlugs.map( ( productSlug ) => {
 			const productObject = storeProducts[ productSlug ];
 
 			return {
@@ -301,7 +311,7 @@ export class ProductSelector extends Component {
 		} );
 	}
 
-	handleCheckoutForProduct = productObject => {
+	handleCheckoutForProduct = ( productObject ) => {
 		const { currentPlanSlug, intervalType, selectedSiteSlug, onUpgradeClick } = this.props;
 
 		return () => {
@@ -318,7 +328,7 @@ export class ProductSelector extends Component {
 		};
 	};
 
-	handleManagePurchase = productSlug => {
+	handleManagePurchase = ( productSlug ) => {
 		return () => {
 			this.props.recordTracksEvent( 'calypso_manage_purchase_click', {
 				slug: productSlug,
@@ -355,7 +365,7 @@ export class ProductSelector extends Component {
 		return (
 			<ProductCardAction
 				onClick={ this.handleCheckoutForProduct( productObject ) }
-				intro={ this.getIntervalDiscount( selectedProductSlug ) }
+				intro={ this.props.selectedSiteSlug && this.getIntervalDiscount( selectedProductSlug ) }
 				label={ translate( 'Get %(productName)s', {
 					args: {
 						productName: this.getActionButtonName( product, productObject.product_slug ),
@@ -423,7 +433,7 @@ export class ProductSelector extends Component {
 
 		return findKey(
 			productPriceMatrix,
-			relatedMonthlyProduct => relatedMonthlyProduct.relatedProduct === monthlyProductSlug
+			( relatedMonthlyProduct ) => relatedMonthlyProduct.relatedProduct === monthlyProductSlug
 		);
 	}
 
@@ -499,6 +509,22 @@ export class ProductSelector extends Component {
 		return null;
 	}
 
+	renderPromo() {
+		return (
+			<ProductCardPromoNudge
+				badgeText={ this.props.translate( 'Up to %(discount)s off!', {
+					args: { discount: '70%' },
+				} ) }
+				text={ this.props.translate(
+					'Hurry, these are {{strong}}Limited time introductory prices!{{/strong}}',
+					{
+						components: { strong: <strong /> },
+					}
+				) }
+			/>
+		);
+	}
+
 	renderProducts() {
 		const {
 			fetchingPlans,
@@ -508,11 +534,10 @@ export class ProductSelector extends Component {
 			products,
 			selectedSiteSlug,
 			storeProducts,
-			translate,
 		} = this.props;
 
 		if ( isEmpty( storeProducts ) || fetchingSitePurchases || fetchingSitePlans || fetchingPlans ) {
-			return map( products, product => {
+			return map( products, ( product ) => {
 				return (
 					<ProductCard
 						key={ product.id }
@@ -526,7 +551,7 @@ export class ProductSelector extends Component {
 
 		const currentPlanInSelectedTimeframe = this.isCurrentPlanInSelectedTimeframe();
 
-		return map( products, product => {
+		return map( products, ( product ) => {
 			const stateKey = this.getStateKey( product.id, intervalType );
 			const selectedSlug = this.state[ stateKey ];
 			const productObject = storeProducts[ selectedSlug ];
@@ -579,36 +604,31 @@ export class ProductSelector extends Component {
 					purchase={ purchase }
 					subtitle={ this.getSubtitleByProduct( product ) }
 				>
-					{ hasProductPurchase && isCurrent && this.renderManageButton( product, purchase ) }
-					{ ! hasProductPurchase && ! isCurrent && (
+					{ selectedSiteSlug && hasProductPurchase && this.renderManageButton( product, purchase ) }
+					{ ! selectedSiteSlug && product.id === 'jetpack_search' && (
 						<Fragment>
-							{ product.hasPromo && (
-								<ProductCardPromoNudge
-									badgeText={ translate( 'Up to %(discount)s off!', {
-										args: { discount: '70%' },
-									} ) }
-									text={ translate(
-										'Hurry, these are {{strong}}Limited time introductory prices!{{/strong}}',
-										{
-											components: { strong: <strong /> },
-										}
-									) }
-								/>
-							) }
-
-							<ProductCardOptions
-								optionsLabel={ optionsLabel }
-								options={ this.getProductOptions( product ) }
-								selectedSlug={ selectedSlug }
-								handleSelect={ productSlug =>
-									this.handleProductOptionSelect( stateKey, productSlug, product.id )
-								}
-								forceRadiosEvenIfOnlyOneOption={ !! product.forceRadios }
-							/>
-
+							{ product.hasPromo && this.renderPromo() }
 							{ this.renderCheckoutButton( product ) }
 						</Fragment>
 					) }
+					{ ( selectedSiteSlug || ( ! selectedSiteSlug && product.id !== 'jetpack_search' ) ) &&
+						! hasProductPurchase &&
+						! isCurrent && (
+							<Fragment>
+								{ product.hasPromo && this.renderPromo() }
+								<ProductCardOptions
+									optionsLabel={ optionsLabel }
+									options={ this.getProductOptions( product ) }
+									selectedSlug={ selectedSlug }
+									handleSelect={ ( productSlug ) =>
+										this.handleProductOptionSelect( stateKey, productSlug, product.id )
+									}
+									forceRadiosEvenIfOnlyOneOption={ !! product.forceRadios }
+								/>
+
+								{ this.renderCheckoutButton( product ) }
+							</Fragment>
+						) }
 				</ProductCard>
 			);
 		} );

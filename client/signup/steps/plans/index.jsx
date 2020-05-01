@@ -26,7 +26,7 @@ import { getSiteType } from 'state/signup/steps/site-type/selectors';
 import { getSiteTypePropertyValue } from 'lib/signup/site-type';
 import { saveSignupStep, submitSignupStep } from 'state/signup/progress/actions';
 import { recordTracksEvent } from 'state/analytics/actions';
-import { abtest } from 'lib/abtest';
+import hasInitializedSites from 'state/selectors/has-initialized-sites';
 
 /**
  * Style dependencies
@@ -38,7 +38,7 @@ export class PlansStep extends Component {
 		this.props.saveSignupStep( { stepName: this.props.stepName } );
 	}
 
-	onSelectPlan = cartItem => {
+	onSelectPlan = ( cartItem ) => {
 		const { additionalStepData, stepSectionName, stepName, flowName } = this.props;
 
 		if ( cartItem ) {
@@ -108,15 +108,7 @@ export class PlansStep extends Component {
 	};
 
 	isGutenboarding = () =>
-		this.props.flowName === 'frankenflow' || this.props.flowName === 'prelaunch'; // signup flows coming from Gutenboarding
-
-	isEligibleForPlanStepTest() {
-		return (
-			! this.props.isLaunchPage &&
-			! this.isGutenboarding() &&
-			'variantCopyUpdates' === abtest( 'planStepCopyUpdates' )
-		);
-	}
+		this.props.flowName === 'new-launch' || this.props.flowName === 'prelaunch'; // signup flows coming from Gutenboarding
 
 	getGutenboardingHeader() {
 		if ( this.isGutenboarding() ) {
@@ -153,7 +145,6 @@ export class PlansStep extends Component {
 					hideFreePlan={ hideFreePlan }
 					isInSignup={ true }
 					isLaunchPage={ isLaunchPage }
-					isEligibleForPlanStepTest={ this.isEligibleForPlanStepTest() }
 					onUpgradeClick={ this.onSelectPlan }
 					showFAQ={ false }
 					displayJetpackPlans={ false }
@@ -169,41 +160,26 @@ export class PlansStep extends Component {
 		);
 	}
 
-	getHeaderTextAB() {
-		if ( this.isEligibleForPlanStepTest() ) {
-			return 'Select your WordPress.com plan';
-		}
-
-		return null;
-	}
-
-	getSubHeaderTextAB() {
-		if ( this.isEligibleForPlanStepTest() ) {
-			return 'All plans include blazing-fast WordPress hosting.';
-		}
-
-		return null;
-	}
-
 	plansFeaturesSelection() {
-		const { flowName, stepName, positionInFlow, translate, selectedSite, siteSlug } = this.props;
+		const {
+			flowName,
+			stepName,
+			positionInFlow,
+			translate,
+			hasInitializedSitesBackUrl,
+		} = this.props;
 
-		const headerText =
-			this.getHeaderTextAB() ||
-			this.props.headerText ||
-			translate( "Pick a plan that's right for you." );
+		const headerText = this.props.headerText || translate( "Pick a plan that's right for you." );
 		const fallbackHeaderText = this.props.fallbackHeaderText || headerText;
 		const subHeaderText =
-			this.getSubHeaderTextAB() ||
-			this.props.subHeaderText ||
-			translate( 'Choose a plan. Upgrade as you grow.' );
+			this.props.subHeaderText || translate( 'Choose a plan. Upgrade as you grow.' );
 		const fallbackSubHeaderText = this.props.fallbackSubHeaderText || subHeaderText;
 
 		let backUrl, backLabelText;
 
-		if ( 0 === positionInFlow && selectedSite ) {
-			backUrl = '/view/' + siteSlug;
-			backLabelText = translate( 'Back to Site' );
+		if ( 0 === positionInFlow && hasInitializedSitesBackUrl ) {
+			backUrl = hasInitializedSitesBackUrl;
+			backLabelText = translate( 'Back to My Sites' );
 		}
 
 		return (
@@ -217,7 +193,7 @@ export class PlansStep extends Component {
 				fallbackSubHeaderText={ fallbackSubHeaderText }
 				isWideLayout={ true }
 				stepContent={ this.plansFeaturesList() }
-				allowBackFirstStep={ !! selectedSite }
+				allowBackFirstStep={ !! hasInitializedSitesBackUrl }
 				backUrl={ backUrl }
 				backLabelText={ backLabelText }
 				hideFormattedHeader={ this.isGutenboarding() }
@@ -256,7 +232,7 @@ PlansStep.propTypes = {
  * @param {object} domainItem domainItem object stored in the "choose domain" step
  * @returns {boolean} is .blog domain registration
  */
-export const isDotBlogDomainRegistration = domainItem => {
+export const isDotBlogDomainRegistration = ( domainItem ) => {
 	if ( ! domainItem ) {
 		return false;
 	}
@@ -277,7 +253,7 @@ export default connect(
 		customerType: parseQs( path.split( '?' ).pop() ).customerType,
 		siteGoals: getSiteGoals( state ) || '',
 		siteType: getSiteType( state ),
-		siteSlug,
+		hasInitializedSitesBackUrl: hasInitializedSites( state ) ? '/sites/' : false,
 	} ),
 	{ recordTracksEvent, saveSignupStep, submitSignupStep }
 )( localize( PlansStep ) );

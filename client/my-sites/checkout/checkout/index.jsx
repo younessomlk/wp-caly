@@ -12,7 +12,7 @@ import { format as formatUrl, parse as parseUrl } from 'url';
 /**
  * Internal dependencies
  */
-import analytics from 'lib/analytics';
+import { recordTracksEvent } from 'lib/analytics/tracks';
 import { shouldShowTax, hasPendingPayment, getEnabledPaymentMethods } from 'lib/cart-values';
 import {
 	conciergeSessionItem,
@@ -94,6 +94,7 @@ import {
 } from 'signup/utils';
 import { isExternal } from 'lib/url';
 import { withLocalizedMoment } from 'components/localized-moment';
+import { abtest } from 'lib/abtest';
 
 /**
  * Style dependencies
@@ -194,7 +195,7 @@ export class Checkout extends React.Component {
 	trackPageView( props ) {
 		props = props || this.props;
 
-		analytics.tracks.recordEvent( 'calypso_checkout_page_view', {
+		recordTracksEvent( 'calypso_checkout_page_view', {
 			saved_cards: props.cards.length,
 			is_renewal: hasRenewalItem( props.cart ),
 			apple_pay_available: isApplePayAvailable(),
@@ -249,7 +250,7 @@ export class Checkout extends React.Component {
 					selectedSiteSlug
 				);
 			} )
-			.filter( item => item );
+			.filter( ( item ) => item );
 		replaceCartWithItems( itemsToAdd );
 	}
 
@@ -464,9 +465,9 @@ export class Checkout extends React.Component {
 			// The conciergeUpsellDial test is used when we need to quickly dial back the volume of concierge sessions
 			// being offered and so sold, to be inline with HE availability.
 			// To dial back, uncomment the condition below and modify the test config.
-			// if ( 'offer' === abtest( 'conciergeUpsellDial' ) ) {
-			return `/checkout/offer-quickstart-session/${ pendingOrReceiptId }/${ selectedSiteSlug }`;
-			// }
+			if ( 'offer' === abtest( 'conciergeUpsellDial' ) ) {
+				return `/checkout/offer-quickstart-session/${ pendingOrReceiptId }/${ selectedSiteSlug }`;
+			}
 		}
 	}
 
@@ -535,10 +536,9 @@ export class Checkout extends React.Component {
 		// We want to be product-specific, as the same path will likely be used for
 		// WP.com sites purchasing Search.
 		if (
-			product === 'jetpack_search' ||
-			product === 'jetpack_scan' ||
-			product === 'jetpack_backup_daily' ||
-			product === 'jetpack_backup_monthly'
+			startsWith( product, 'jetpack_backup' ) ||
+			startsWith( product, 'jetpack_search' ) ||
+			startsWith( product, 'jetpack_scan' )
 		) {
 			signupDestination = this.getFallbackDestination( pendingOrReceiptId );
 		} else {
@@ -625,13 +625,13 @@ export class Checkout extends React.Component {
 			// group all purchases into an array
 			purchasedProducts = reduce(
 				( receipt && receipt.purchases ) || {},
-				function( result, value ) {
+				function ( result, value ) {
 					return result.concat( value );
 				},
 				[]
 			);
 			// and take the first product which matches the product id of the renewalItem
-			product = find( purchasedProducts, function( item ) {
+			product = find( purchasedProducts, function ( item ) {
 				return item.product_id === renewalItem.product_id;
 			} );
 
@@ -783,7 +783,7 @@ export class Checkout extends React.Component {
 		const availableTerms = findPlansKeys( {
 			group: chosenPlan.group,
 			type: chosenPlan.type,
-		} ).filter( planSlug => getPlan( planSlug ).availableFor( currentPlanSlug ) );
+		} ).filter( ( planSlug ) => getPlan( planSlug ).availableFor( currentPlanSlug ) );
 
 		if ( availableTerms.length < 2 ) {
 			return false;
@@ -808,7 +808,7 @@ export class Checkout extends React.Component {
 		const cartItem = getCartItemForPlan( planSlug, {
 			domainToBundle: get( product, 'extra.domain_to_bundle', '' ),
 		} );
-		analytics.tracks.recordEvent( 'calypso_signup_plan_select', {
+		recordTracksEvent( 'calypso_signup_plan_select', {
 			product_slug: cartItem.product_slug,
 			free_trial: cartItem.free_trial,
 			from_section: 'checkout',
@@ -875,7 +875,7 @@ export class Checkout extends React.Component {
 
 		if ( this.props.children ) {
 			this.props.setHeaderText( '' );
-			return React.Children.map( this.props.children, child => {
+			return React.Children.map( this.props.children, ( child ) => {
 				return React.cloneElement( child, {
 					handleCheckoutCompleteRedirect: this.handleCheckoutCompleteRedirect,
 				} );

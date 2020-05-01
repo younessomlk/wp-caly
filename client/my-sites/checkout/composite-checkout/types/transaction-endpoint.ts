@@ -1,10 +1,8 @@
 /**
  * External dependencies
  */
-import {
-	WPCOMCartItem,
-	getNonProductWPCOMCartItemTypes,
-} from 'my-sites/checkout/composite-checkout/wpcom';
+import { getNonProductWPCOMCartItemTypes } from 'my-sites/checkout/composite-checkout/wpcom';
+import { WPCOMCartItem } from 'my-sites/checkout/composite-checkout/wpcom/types';
 import debugFactory from 'debug';
 
 const debug = debugFactory( 'calypso:transaction-endpoint' );
@@ -111,7 +109,7 @@ export function createTransactionEndpointCartFromLineItems( {
 		temporary: false,
 		extra: [],
 		products: items
-			.filter( product => ! getNonProductWPCOMCartItemTypes().includes( product.type ) )
+			.filter( ( product ) => ! getNonProductWPCOMCartItemTypes().includes( product.type ) )
 			.map( convertItem ),
 		tax: {
 			location: {
@@ -157,7 +155,7 @@ export function createTransactionEndpointRequestPayloadFromLineItems( {
 			country,
 			postalCode,
 			subdivisionCode,
-			items: items.filter( item => item.type !== 'tax' ),
+			items: items.filter( ( item ) => item.type !== 'tax' ),
 		} ),
 		domainDetails,
 		payment: {
@@ -174,7 +172,7 @@ export function createTransactionEndpointRequestPayloadFromLineItems( {
 }
 
 function getCouponIdFromProducts( items: WPCOMCartItem[] ): string | undefined {
-	const couponItem = items.find( item => item.type === 'coupon' );
+	const couponItem = items.find( ( item ) => item.type === 'coupon' );
 	return couponItem?.wpcom_meta?.couponCode;
 }
 

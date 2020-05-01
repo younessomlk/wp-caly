@@ -34,7 +34,7 @@ import { hasGSuiteWithUs, getGSuiteMailboxCount } from 'lib/gsuite';
 
 import './style.scss';
 
-const DomainManagementNavigationItemContents = function( props ) {
+const DomainManagementNavigationItemContents = function ( props ) {
 	const { materialIcon, text, description } = props;
 	return (
 		<React.Fragment>
@@ -47,7 +47,7 @@ const DomainManagementNavigationItemContents = function( props ) {
 	);
 };
 
-const DomainManagementNavigationItem = function( props ) {
+const DomainManagementNavigationItem = function ( props ) {
 	const { path, onClick, external, materialIcon, text, description } = props;
 
 	return (
@@ -159,7 +159,7 @@ class DomainManagementNavigationEnhanced extends React.Component {
 				},
 			} );
 		} else {
-			description = translate( 'Destination: external to WordPress.com' );
+			description = translate( 'Destination: external service' );
 		}
 
 		return (
@@ -332,16 +332,18 @@ class DomainManagementNavigationEnhanced extends React.Component {
 	}
 
 	getSimilarDomains() {
-		const { selectedSite, translate } = this.props;
+		const { domain, selectedSite, translate } = this.props;
 
-		// NOTE: remember to add translate to the description string once you start working on it
+		// we don't use the full domain name, to avoid an error about the taken domain
+		const searchTerm = domain.name.split( '.' )[ 0 ];
+
 		return (
 			<DomainManagementNavigationItem
-				path={ domainAddNew( selectedSite.slug ) }
+				path={ domainAddNew( selectedSite.slug, searchTerm ) }
 				onClick={ this.handlePickCustomDomainClick }
 				materialIcon="search"
 				text={ translate( 'Find similar domains' ) }
-				description={ 'Placeholder text' }
+				description={ translate( 'Matches available' ) }
 			/>
 		);
 	}

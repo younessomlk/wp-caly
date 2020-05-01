@@ -7,9 +7,7 @@ import { localize } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
-import { backupDetailPath } from 'landing/jetpack-cloud/sections/backups/paths';
 import Gridicon from 'components/gridicon';
-import Button from 'components/forms/form-button';
 import ActivityCard from '../../components/activity-card';
 
 /**
@@ -24,11 +22,17 @@ import mediaImage from 'assets/images/illustrations/media.svg';
 
 class BackupDelta extends Component {
 	renderRealtime() {
-		const { allowRestore, timezone, gmtOffset, moment, siteSlug, translate } = this.props;
+		const {
+			allowRestore,
+			timezone,
+			gmtOffset,
+			moment,
+			realtimeBackups,
+			siteSlug,
+			translate,
+		} = this.props;
 
-		const realtimeEvents = this.props.realtimeEvents.filter( event => event.activityIsRewindable );
-
-		const cards = realtimeEvents.map( activity => (
+		const cards = realtimeBackups.map( ( activity ) => (
 			<ActivityCard
 				key={ activity.activityId }
 				{ ...{
@@ -67,7 +71,7 @@ class BackupDelta extends Component {
 		const { metaDiff } = this.props;
 		const metas = [];
 
-		metaDiff.forEach( meta => {
+		metaDiff.forEach( ( meta ) => {
 			if ( meta.num > 0 || meta.num < 0 ) {
 				const operator = meta.num < 0 ? '' : '+';
 				const plural = meta.num > 1 || meta.num < -1 ? 's' : '';
@@ -80,10 +84,9 @@ class BackupDelta extends Component {
 	}
 
 	renderDaily() {
-		const { backupAttempts, deltas, metaDiff, siteSlug, translate } = this.props;
-		const mainBackup = backupAttempts.complete && backupAttempts.complete[ 0 ];
+		const { deltas, metaDiff, translate } = this.props;
 
-		const mediaCreated = deltas.mediaCreated.map( item => (
+		const mediaCreated = deltas.mediaCreated.map( ( item ) => (
 			<div key={ item.activityId } className="backup-delta__media-image">
 				<img
 					alt=""
@@ -120,7 +123,7 @@ class BackupDelta extends Component {
 		const postsOperator = postsCount >= 0 ? '+' : '';
 		const postCountDisplay = `${ postsOperator }${ postsCount }`;
 
-		const posts = deltas.posts.map( item => {
+		const posts = deltas.posts.map( ( item ) => {
 			if ( 'post__published' === item.activityName ) {
 				return (
 					<div key={ item.activityId } className="backup-delta__post-block">
@@ -143,7 +146,7 @@ class BackupDelta extends Component {
 			}
 		} );
 
-		const plugins = deltas.plugins.map( item => {
+		const plugins = deltas.plugins.map( ( item ) => {
 			const className =
 				'plugin__installed' === item.activityName
 					? 'backup-delta__extension-block-installed'
@@ -156,7 +159,7 @@ class BackupDelta extends Component {
 			);
 		} );
 
-		const themes = deltas.themes.map( item => {
+		const themes = deltas.themes.map( ( item ) => {
 			const className =
 				'theme__installed' === item.activityName
 					? 'backup-delta__extension-block-installed'
@@ -184,16 +187,23 @@ class BackupDelta extends Component {
 			deltas.posts.length ||
 			deltas.plugins.length ||
 			deltas.themes.length ||
-			!! metaDiff.filter( diff => 0 !== diff.num ).length
+			!! metaDiff.filter( ( diff ) => 0 !== diff.num ).length
 		);
 
 		return (
 			<div className="backup-delta__daily">
-				{ hasChanges && (
-					<div className="backup-delta__changes-header">
-						{ translate( 'Changes in this backup' ) }
+				<div className="backup-delta__changes-header">
+					{ translate( 'Changes in this backup' ) }
+				</div>
+
+				{ ! hasChanges && (
+					<div className="backup-delta__daily-no-changes">
+						{ translate(
+							'Looks like there have been no new site changes since your last backup.'
+						) }
 					</div>
 				) }
+
 				{ !! deltas.mediaCreated.length && (
 					<Fragment>
 						<div className="backup-delta__section-header">{ translate( 'Media' ) }</div>
@@ -225,15 +235,6 @@ class BackupDelta extends Component {
 					</Fragment>
 				) }
 				{ this.renderMetaDiff() }
-				{ mainBackup && (
-					<Button
-						isPrimary={ false }
-						className="backup-delta__view-all-button"
-						href={ backupDetailPath( siteSlug, mainBackup.rewindId ) }
-					>
-						{ translate( 'View all backup details' ) }
-					</Button>
-				) }
 			</div>
 		);
 	}

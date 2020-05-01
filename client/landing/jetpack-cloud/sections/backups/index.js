@@ -11,11 +11,12 @@ import config from 'config';
 import { navigation, siteSelection, sites } from 'my-sites/controller';
 import { makeLayout, render as clientRender } from 'controller';
 import {
-	backups,
 	backupActivity,
 	backupDetail,
 	backupDownload,
 	backupRestore,
+	backups,
+	showUpsellIfNoBackup,
 	wrapInSiteOffsetProvider,
 } from 'landing/jetpack-cloud/sections/backups/controller';
 import {
@@ -26,7 +27,7 @@ import {
 	backupDetailPath,
 } from './paths';
 
-export default function() {
+export default function () {
 	if ( config.isEnabled( 'jetpack-cloud/backups' ) ) {
 		/* handles /backups/activity, see `backupActivityPath` */
 		page( backupActivityPath(), siteSelection, sites, makeLayout, clientRender );
@@ -38,6 +39,7 @@ export default function() {
 			navigation,
 			backupActivity,
 			wrapInSiteOffsetProvider,
+			showUpsellIfNoBackup,
 			makeLayout,
 			clientRender
 		);
@@ -82,6 +84,7 @@ export default function() {
 			navigation,
 			backups,
 			wrapInSiteOffsetProvider,
+			showUpsellIfNoBackup,
 			makeLayout,
 			clientRender
 		);

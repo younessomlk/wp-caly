@@ -13,7 +13,7 @@ import moment from 'moment';
  * Internal dependencies
  */
 import Gridicon from 'components/gridicon';
-import analytics from 'lib/analytics';
+import { recordTracksEvent } from 'lib/analytics/tracks';
 import { gaRecordEvent } from 'lib/analytics/ga';
 import { Button, Card, CompactCard } from '@automattic/components';
 import Count from 'components/count';
@@ -521,7 +521,7 @@ export class PluginMeta extends Component {
 		}
 
 		const siteVersion = this.props.selectedSite.options.software_version.split( '-' )[ 0 ];
-		return some( this.props.plugin.compatibility, compatibleVersion => {
+		return some( this.props.plugin.compatibility, ( compatibleVersion ) => {
 			return compatibleVersion.indexOf( siteVersion ) === 0;
 		} );
 	}
@@ -538,7 +538,7 @@ export class PluginMeta extends Component {
 
 	getAvailableNewVersions() {
 		return this.props.sites
-			.map( site => {
+			.map( ( site ) => {
 				if ( ! site.canUpdateFiles ) {
 					return null;
 				}
@@ -551,10 +551,10 @@ export class PluginMeta extends Component {
 					}
 				}
 			} )
-			.filter( newVersions => newVersions );
+			.filter( ( newVersions ) => newVersions );
 	}
 
-	handlePluginUpdatesSingleSite = event => {
+	handlePluginUpdatesSingleSite = ( event ) => {
 		event.preventDefault();
 		PluginsActions.updatePlugin( this.props.sites[ 0 ], this.props.sites[ 0 ].plugin );
 
@@ -564,16 +564,16 @@ export class PluginMeta extends Component {
 			'Plugin Name',
 			this.props.pluginSlug
 		);
-		analytics.tracks.recordEvent( 'calypso_plugins_actions_update_plugin', {
+		recordTracksEvent( 'calypso_plugins_actions_update_plugin', {
 			site: this.props.sites[ 0 ].ID,
 			plugin: this.props.sites[ 0 ].plugin.slug,
 			selected_site: this.props.sites[ 0 ].ID,
 		} );
 	};
 
-	handlePluginUpdatesMultiSite = event => {
+	handlePluginUpdatesMultiSite = ( event ) => {
 		event.preventDefault();
-		this.props.sites.forEach( site => {
+		this.props.sites.forEach( ( site ) => {
 			const { plugin } = site;
 			if (
 				site.canUpdateFiles &&
@@ -584,7 +584,7 @@ export class PluginMeta extends Component {
 				PluginsActions.updatePlugin( site, plugin );
 				PluginsActions.removePluginsNotices( 'completed', 'error' );
 
-				analytics.tracks.recordEvent( 'calypso_plugins_actions_update_plugin_all_sites', {
+				recordTracksEvent( 'calypso_plugins_actions_update_plugin_all_sites', {
 					site: site,
 					plugin: plugin.slug,
 				} );
@@ -710,7 +710,7 @@ export class PluginMeta extends Component {
 	}
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = ( state ) => {
 	const siteId = getSelectedSiteId( state );
 	const selectedSite = getSelectedSite( state );
 

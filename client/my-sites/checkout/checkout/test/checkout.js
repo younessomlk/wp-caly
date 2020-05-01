@@ -20,10 +20,8 @@ jest.mock( 'lib/transaction/actions', () => ( {
 	resetTransaction: jest.fn(),
 } ) );
 jest.mock( 'lib/signup/step-actions/fetch-sites-and-user', () => ( {} ) );
-jest.mock( 'lib/analytics', () => ( {
-	tracks: {
-		recordEvent: jest.fn(),
-	},
+jest.mock( 'lib/analytics/tracks', () => ( {
+	recordTracksEvent: jest.fn(),
 } ) );
 jest.mock( 'lib/analytics/ad-tracking', () => ( {
 	recordViewCheckout: jest.fn(),
@@ -126,8 +124,8 @@ describe( 'Checkout', () => {
 	} );
 
 	test( 'checkout blocked on pending payment', () => {
-		isEnabled.mockImplementation( flag => flag === 'async-payments' );
-		hasPendingPayment.mockImplementation( cart => cart && cart.has_pending_payment );
+		isEnabled.mockImplementation( ( flag ) => flag === 'async-payments' );
+		hasPendingPayment.mockImplementation( ( cart ) => cart && cart.has_pending_payment );
 
 		const wrapper = shallow( <Checkout { ...defaultProps } /> );
 

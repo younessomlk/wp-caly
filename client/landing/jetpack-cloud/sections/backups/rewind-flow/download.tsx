@@ -20,28 +20,29 @@ import ProgressBar from './progress-bar';
 import QueryRewindBackupStatus from 'components/data/query-rewind-backup-status';
 import RewindConfigEditor from './rewind-config-editor';
 import RewindFlowNotice, { RewindFlowNoticeLevel } from './rewind-flow-notice';
+import contactSupportUrl from 'landing/jetpack-cloud/lib/contact-support-url';
 
 interface Props {
 	backupDisplayDate: string;
 	rewindId: string;
 	siteId: number;
-	siteSlug: string;
+	siteUrl: string;
 }
 
 const BackupDownloadFlow: FunctionComponent< Props > = ( {
 	backupDisplayDate,
 	rewindId,
 	siteId,
-	siteSlug,
+	siteUrl,
 } ) => {
 	const dispatch = useDispatch();
 	const translate = useTranslate();
 
 	const [ rewindConfig, setRewindConfig ] = useState< RewindConfig >( defaultRewindConfig );
 
-	const downloadId = useSelector( state => getBackupDownloadId( state, siteId, rewindId ) );
-	const downloadUrl = useSelector( state => getBackupDownloadUrl( state, siteId, rewindId ) );
-	const downloadProgress = useSelector( state =>
+	const downloadId = useSelector( ( state ) => getBackupDownloadId( state, siteId, rewindId ) );
+	const downloadUrl = useSelector( ( state ) => getBackupDownloadUrl( state, siteId, rewindId ) );
+	const downloadProgress = useSelector( ( state ) =>
 		getBackupDownloadProgress( state, siteId, rewindId )
 	);
 
@@ -84,7 +85,7 @@ const BackupDownloadFlow: FunctionComponent< Props > = ( {
 				className="rewind-flow__primary-button"
 				primary
 				onClick={ requestDownload }
-				disabled={ Object.values( rewindConfig ).every( setting => ! setting ) }
+				disabled={ Object.values( rewindConfig ).every( ( setting ) => ! setting ) }
 			>
 				{ translate( 'Create downloadable file' ) }
 			</Button>
@@ -170,7 +171,7 @@ const BackupDownloadFlow: FunctionComponent< Props > = ( {
 			</h3>
 			<Button
 				className="rewind-flow__primary-button"
-				href={ `https://jetpack.com/contact-support/?scan-state=error&site-slug=${ siteSlug }` }
+				href={ contactSupportUrl( siteUrl, 'error' ) }
 				primary
 				rel="noopener noreferrer"
 				target="_blank"

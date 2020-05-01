@@ -41,9 +41,9 @@ export default function CheckoutSystemDecider( {
 	clearTransaction,
 	cart,
 } ) {
-	const isJetpack = useSelector( state => isJetpackSite( state, selectedSite?.ID ) );
-	const countryCode = useSelector( state => getCurrentUserCountryCode( state ) );
-	const locale = useSelector( state => getCurrentUserLocale( state ) );
+	const isJetpack = useSelector( ( state ) => isJetpackSite( state, selectedSite?.ID ) );
+	const countryCode = useSelector( ( state ) => getCurrentUserCountryCode( state ) );
+	const locale = useSelector( ( state ) => getCurrentUserLocale( state ) );
 	const reduxDispatch = useDispatch();
 	useEffect( () => {
 		if ( product ) {
@@ -51,6 +51,7 @@ export default function CheckoutSystemDecider( {
 				logToLogstash( {
 					feature: 'calypso_client',
 					message: 'CheckoutSystemDecider saw productSlug to add',
+					severity: config( 'env_id' ) === 'production' ? 'error' : 'debug',
 					extra: {
 						productSlug: product,
 					},
@@ -127,12 +128,12 @@ function shouldShowCompositeCheckout(
 		return false;
 	}
 	// Disable for GSuite plans
-	if ( cart.products?.find( product => product.product_slug.includes( 'gapps' ) ) ) {
+	if ( cart.products?.find( ( product ) => product.product_slug.includes( 'gapps' ) ) ) {
 		debug( 'shouldShowCompositeCheckout false because cart contains GSuite' );
 		return false;
 	}
 	// Disable for jetpack plans
-	if ( cart.products?.find( product => product.product_slug.includes( 'jetpack' ) ) ) {
+	if ( cart.products?.find( ( product ) => product.product_slug.includes( 'jetpack' ) ) ) {
 		debug( 'shouldShowCompositeCheckout false because cart contains jetpack' );
 		return false;
 	}
@@ -147,7 +148,7 @@ function shouldShowCompositeCheckout(
 		return false;
 	}
 	// Disable for TLDs that have special contact forms
-	if ( getTlds( cart ).find( tld => tldsWithAdditionalDetailsForms.includes( tld ) ) ) {
+	if ( getTlds( cart ).find( ( tld ) => tldsWithAdditionalDetailsForms.includes( tld ) ) ) {
 		debug(
 			'shouldShowCompositeCheckout false because cart contains TLD with special contact form'
 		);
@@ -159,13 +160,20 @@ function shouldShowCompositeCheckout(
 	// products via URL, so we list those slugs here. Renewals use actual slugs,
 	// so they do not need to go through this check.
 	const isRenewal = !! purchaseId;
-	const pseudoSlugsToAllow = [ 'personal', 'premium', 'blogger', 'ecommerce', 'business' ];
-	const slugPrefixesToAllow = [ 'domain-mapping:' ];
+	const pseudoSlugsToAllow = [
+		'personal',
+		'premium',
+		'blogger',
+		'ecommerce',
+		'business',
+		'concierge-session',
+	];
+	const slugPrefixesToAllow = [ 'domain-mapping:', 'theme:' ];
 	if (
 		! isRenewal &&
 		productSlug &&
-		! pseudoSlugsToAllow.find( slug => productSlug === slug ) &&
-		! slugPrefixesToAllow.find( slugPrefix => productSlug.startsWith( slugPrefix ) )
+		! pseudoSlugsToAllow.find( ( slug ) => productSlug === slug ) &&
+		! slugPrefixesToAllow.find( ( slugPrefix ) => productSlug.startsWith( slugPrefix ) )
 	) {
 		debug(
 			'shouldShowCompositeCheckout false because product does not match list of allowed products',

@@ -39,6 +39,8 @@ const domainProduct = {
 	product_id: 106,
 	volume: 1,
 	is_domain_registration: true,
+	item_original_cost_integer: 500,
+	item_original_cost_display: 'R$5',
 	item_subtotal_integer: 500,
 	item_subtotal_display: 'R$5',
 };
@@ -59,6 +61,8 @@ const domainTransferProduct = {
 	meta: 'foo.cash',
 	product_id: 106,
 	volume: 1,
+	item_original_cost_integer: 500,
+	item_original_cost_display: 'R$5',
 	item_subtotal_integer: 500,
 	item_subtotal_display: 'R$5',
 };
@@ -75,6 +79,8 @@ const planWithBundledDomain = {
 	meta: '',
 	product_id: 1009,
 	volume: 1,
+	item_original_cost_integer: 14400,
+	item_original_cost_display: 'R$144',
 	item_subtotal_integer: 14400,
 	item_subtotal_display: 'R$144',
 };
@@ -90,6 +96,8 @@ const planWithoutDomain = {
 	meta: '',
 	product_id: 1009,
 	volume: 1,
+	item_original_cost_integer: 14400,
+	item_original_cost_display: 'R$144',
 	item_subtotal_integer: 14400,
 	item_subtotal_display: 'R$144',
 };
@@ -122,6 +130,8 @@ describe( 'CompositeCheckout', () => {
 			},
 			temporary: false,
 			allowed_payment_methods: [ 'WPCOM_Billing_Stripe_Payment_Method' ],
+			savings_total_integer: 0,
+			savings_total_display: '-R$0',
 			total_tax_integer: 700,
 			total_tax_display: 'R$7',
 			total_cost_integer: 15600,
@@ -180,6 +190,18 @@ describe( 'CompositeCheckout', () => {
 							product_slug: 'domain_reg',
 							prices: {},
 						},
+						premium_theme: {
+							product_id: 39,
+							product_name: 'Product',
+							product_slug: 'premium_theme',
+							prices: {},
+						},
+						'concierge-session': {
+							product_id: 371,
+							product_name: 'Product',
+							product_slug: 'concierge-session',
+							prices: {},
+						},
 					},
 				},
 				countries: { payments: countryList, domains: countryList },
@@ -215,7 +237,7 @@ describe( 'CompositeCheckout', () => {
 			renderResult = render( <MyCheckout />, container );
 		} );
 		const { getAllByLabelText } = renderResult;
-		getAllByLabelText( 'WordPress.com Personal' ).map( element =>
+		getAllByLabelText( 'WordPress.com Personal' ).map( ( element ) =>
 			expect( element ).toHaveTextContent( 'R$144' )
 		);
 	} );
@@ -226,7 +248,7 @@ describe( 'CompositeCheckout', () => {
 			renderResult = render( <MyCheckout />, container );
 		} );
 		const { getAllByLabelText } = renderResult;
-		getAllByLabelText( 'Tax' ).map( element => expect( element ).toHaveTextContent( 'R$7' ) );
+		getAllByLabelText( 'Tax' ).map( ( element ) => expect( element ).toHaveTextContent( 'R$7' ) );
 	} );
 
 	it( 'renders the total amount', async () => {
@@ -235,7 +257,9 @@ describe( 'CompositeCheckout', () => {
 			renderResult = render( <MyCheckout />, container );
 		} );
 		const { getAllByLabelText } = renderResult;
-		getAllByLabelText( 'Total' ).map( element => expect( element ).toHaveTextContent( 'R$156' ) );
+		getAllByLabelText( 'Total' ).map( ( element ) =>
+			expect( element ).toHaveTextContent( 'R$156' )
+		);
 	} );
 
 	it( 'renders the paypal payment method option', async () => {
@@ -429,13 +453,13 @@ describe( 'CompositeCheckout', () => {
 		expect( getByText( 'ZIP code' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the checkout greeting header', async () => {
+	it( 'renders the checkout summary', async () => {
 		let renderResult;
 		await act( async () => {
 			renderResult = render( <MyCheckout />, container );
 		} );
 		const { getByText } = renderResult;
-		expect( getByText( 'You are all set to check out' ) ).toBeInTheDocument();
+		expect( getByText( 'Purchase Details' ) ).toBeInTheDocument();
 		expect( page.redirect ).not.toHaveBeenCalled();
 	} );
 
@@ -470,8 +494,70 @@ describe( 'CompositeCheckout', () => {
 			);
 		} );
 		const { getAllByLabelText } = renderResult;
-		getAllByLabelText( 'WordPress.com Personal' ).map( element =>
+		getAllByLabelText( 'WordPress.com Personal' ).map( ( element ) =>
 			expect( element ).toHaveTextContent( 'R$144' )
+		);
+	} );
+
+	it( 'does not redirect if the cart is empty when it loads but the url has a concierge session', async () => {
+		const cartChanges = { products: [] };
+		const additionalProps = { product: 'concierge-session' };
+		await act( async () => {
+			render(
+				<MyCheckout cartChanges={ cartChanges } additionalProps={ additionalProps } />,
+				container
+			);
+		} );
+		expect( page.redirect ).not.toHaveBeenCalled();
+	} );
+
+	it( 'adds the domain mapping product to the cart when the url has a concierge session', async () => {
+		let renderResult;
+		const cartChanges = { products: [ planWithoutDomain ] };
+		const additionalProps = { product: 'concierge-session' };
+		await act( async () => {
+			renderResult = render(
+				<MyCheckout cartChanges={ cartChanges } additionalProps={ additionalProps } />,
+				container
+			);
+		} );
+		const { getAllByLabelText } = renderResult;
+		getAllByLabelText( 'WordPress.com Personal' ).map( ( element ) =>
+			expect( element ).toHaveTextContent( 'R$144' )
+		);
+		getAllByLabelText( 'Support Session' ).map( ( element ) =>
+			expect( element ).toHaveTextContent( 'R$49' )
+		);
+	} );
+
+	it( 'does not redirect if the cart is empty when it loads but the url has a theme', async () => {
+		const cartChanges = { products: [] };
+		const additionalProps = { product: 'theme:ovation' };
+		await act( async () => {
+			render(
+				<MyCheckout cartChanges={ cartChanges } additionalProps={ additionalProps } />,
+				container
+			);
+		} );
+		expect( page.redirect ).not.toHaveBeenCalled();
+	} );
+
+	it( 'adds the domain mapping product to the cart when the url has a theme', async () => {
+		let renderResult;
+		const cartChanges = { products: [ planWithoutDomain ] };
+		const additionalProps = { product: 'theme:ovation' };
+		await act( async () => {
+			renderResult = render(
+				<MyCheckout cartChanges={ cartChanges } additionalProps={ additionalProps } />,
+				container
+			);
+		} );
+		const { getAllByLabelText } = renderResult;
+		getAllByLabelText( 'WordPress.com Personal' ).map( ( element ) =>
+			expect( element ).toHaveTextContent( 'R$144' )
+		);
+		getAllByLabelText( 'Premium Theme: Ovation' ).map( ( element ) =>
+			expect( element ).toHaveTextContent( 'R$69' )
 		);
 	} );
 
@@ -498,10 +584,10 @@ describe( 'CompositeCheckout', () => {
 			);
 		} );
 		const { getAllByLabelText } = renderResult;
-		getAllByLabelText( 'WordPress.com Personal' ).map( element =>
+		getAllByLabelText( 'WordPress.com Personal' ).map( ( element ) =>
 			expect( element ).toHaveTextContent( 'R$144' )
 		);
-		getAllByLabelText( 'Domain Mapping: bar.com' ).map( element =>
+		getAllByLabelText( 'Domain Mapping: bar.com' ).map( ( element ) =>
 			expect( element ).toHaveTextContent( 'R$0' )
 		);
 	} );
@@ -517,7 +603,7 @@ describe( 'CompositeCheckout', () => {
 			);
 		} );
 		const { getAllByLabelText } = renderResult;
-		getAllByLabelText( 'WordPress.com Personal' ).map( element =>
+		getAllByLabelText( 'WordPress.com Personal' ).map( ( element ) =>
 			expect( element ).toHaveTextContent( 'R$144' )
 		);
 	} );
@@ -579,11 +665,11 @@ describe( 'CompositeCheckout', () => {
 			);
 		} );
 		const { getAllByLabelText } = renderResult;
-		getAllByLabelText( 'WordPress.com Personal' ).map( element =>
+		getAllByLabelText( 'WordPress.com Personal' ).map( ( element ) =>
 			expect( element ).toHaveTextContent( 'R$144' )
 		);
-		getAllByLabelText( 'Coupon: MYCOUPONCODE' ).map( element =>
-			expect( element ).toHaveTextContent( '-$0' )
+		getAllByLabelText( 'Coupon: MYCOUPONCODE' ).map( ( element ) =>
+			expect( element ).toHaveTextContent( '$0' )
 		);
 	} );
 
@@ -652,6 +738,8 @@ async function mockSetCartEndpoint( _, requestCart ) {
 			'WPCOM_Billing_Ebanx',
 			'WPCOM_Billing_Web_Payment',
 		],
+		savings_total_display: '$0',
+		savings_total_integer: 0,
 		total_tax_display: 'R$7',
 		total_tax_integer: taxInteger,
 		total_cost_display: 'R$156',
@@ -666,7 +754,7 @@ async function mockSetCartEndpoint( _, requestCart ) {
 }
 
 function convertRequestProductToResponseProduct( currency ) {
-	return product => {
+	return ( product ) => {
 		const { product_id } = product;
 
 		switch ( product_id ) {
@@ -677,6 +765,8 @@ function convertRequestProductToResponseProduct( currency ) {
 					product_slug: 'personal-bundle',
 					currency: currency,
 					is_domain_registration: false,
+					item_original_cost_integer: 14400,
+					item_original_cost_display: 'R$144',
 					item_subtotal_integer: 14400,
 					item_subtotal_display: 'R$144',
 					item_tax: 0,
@@ -691,6 +781,8 @@ function convertRequestProductToResponseProduct( currency ) {
 					product_slug: 'domain_map',
 					currency: currency,
 					is_domain_registration: false,
+					item_original_cost_integer: 0,
+					item_original_cost_display: 'R$0',
 					item_subtotal_integer: 0,
 					item_subtotal_display: 'R$0',
 					item_tax: 0,
@@ -705,8 +797,42 @@ function convertRequestProductToResponseProduct( currency ) {
 					product_slug: 'domain_reg',
 					currency: currency,
 					is_domain_registration: true,
+					item_original_cost_integer: 70,
+					item_original_cost_display: 'R$70',
 					item_subtotal_integer: 70,
 					item_subtotal_display: 'R$70',
+					item_tax: 0,
+					meta: product.meta,
+					volume: 1,
+					extra: {},
+				};
+			case 39:
+				return {
+					product_id: 39,
+					product_name: 'Premium Theme: Ovation',
+					product_slug: 'premium_theme',
+					currency: currency,
+					is_domain_registration: false,
+					item_original_cost_integer: 69,
+					item_original_cost_display: 'R$69',
+					item_subtotal_integer: 69,
+					item_subtotal_display: 'R$69',
+					item_tax: 0,
+					meta: product.meta,
+					volume: 1,
+					extra: {},
+				};
+			case 371:
+				return {
+					product_id: 371,
+					product_name: 'Support Session',
+					product_slug: 'concierge-session',
+					currency: currency,
+					is_domain_registration: false,
+					item_original_cost_integer: 49,
+					item_original_cost_display: 'R$49',
+					item_subtotal_integer: 49,
+					item_subtotal_display: 'R$49',
 					item_tax: 0,
 					meta: product.meta,
 					volume: 1,
@@ -720,8 +846,10 @@ function convertRequestProductToResponseProduct( currency ) {
 			product_slug: 'unknown',
 			currency: currency,
 			is_domain_registration: false,
-			item_subtotal_integer: 0,
+			savings_total_display: '$0',
+			savings_total_integer: 0,
 			item_subtotal_display: '$0',
+			item_subtotal_integer: 0,
 			item_tax: 0,
 		};
 	};

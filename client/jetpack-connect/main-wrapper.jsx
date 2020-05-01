@@ -68,6 +68,6 @@ export class JetpackConnectMainWrapper extends PureComponent {
 	}
 }
 
-export default connect( state => ( {
+export default connect( ( state ) => ( {
 	partnerSlug: getPartnerSlugFromQuery( state ),
 } ) )( localize( JetpackConnectMainWrapper ) );

@@ -6,7 +6,8 @@ import { has, invoke } from 'lodash';
 /**
  * Internal dependencies
  */
-import analytics from 'lib/analytics';
+import { recordPageView } from 'lib/analytics/page-view';
+import { recordTracksEvent, setTracksOptOut } from 'lib/analytics/tracks';
 import { gaRecordEvent, gaRecordPageView } from 'lib/analytics/ga';
 import { bumpStat } from 'lib/analytics/mc';
 import { addHotJarScript } from 'lib/analytics/hotjar';
@@ -24,17 +25,17 @@ import {
 
 const eventServices = {
 	ga: ( { category, action, label, value } ) => gaRecordEvent( category, action, label, value ),
-	tracks: ( { name, properties } ) => analytics.tracks.recordEvent( name, properties ),
+	tracks: ( { name, properties } ) => recordTracksEvent( name, properties ),
 	fb: ( { name, properties } ) => trackCustomFacebookConversionEvent( name, properties ),
 	adwords: ( { properties } ) => trackCustomAdWordsRemarketingEvent( properties ),
 };
 
 const pageViewServices = {
 	ga: ( { url, title } ) => gaRecordPageView( url, title ),
-	default: ( { url, title, ...params } ) => analytics.pageView.record( url, title, params ),
+	default: ( { url, title, ...params } ) => recordPageView( url, title, params ),
 };
 
-const loadTrackingTool = trackingTool => {
+const loadTrackingTool = ( trackingTool ) => {
 	if ( trackingTool === 'HotJar' ) {
 		addHotJarScript();
 	}
@@ -42,7 +43,7 @@ const loadTrackingTool = trackingTool => {
 
 const statBump = ( { group, name } ) => bumpStat( group, name );
 
-const dispatcher = action => {
+const dispatcher = ( action ) => {
 	const analyticsMeta = action.meta.analytics;
 	analyticsMeta.forEach( ( { type, payload } ) => {
 		const { service = 'default', ...params } = payload;
@@ -60,14 +61,14 @@ const dispatcher = action => {
 	} );
 };
 
-export const analyticsMiddleware = () => next => action => {
+export const analyticsMiddleware = () => ( next ) => ( action ) => {
 	switch ( action.type ) {
 		case ANALYTICS_TRACKING_ON:
 			loadTrackingTool( action.trackingTool );
 			return;
 
 		case ANALYTICS_TRACKS_OPT_OUT:
-			analytics.tracks.setOptOut( action.isOptingOut );
+			setTracksOptOut( action.isOptingOut );
 			return;
 
 		default:
