@@ -118,7 +118,7 @@ export class JetpackSignup extends Component {
 		this.props.resetAuthAccountType();
 	};
 
-	showWooDnaLoginView = usernameOrEmail => {
+	showWooDnaLoginView = ( usernameOrEmail ) => {
 		this.setState( {
 			showWooDnaLoginForm: true,
 			signUpUsernameOrEmail: usernameOrEmail || null,
@@ -275,7 +275,7 @@ export class JetpackSignup extends Component {
 				header = translate( 'Log in to your WordPress.com account' );
 				/* translators: pluginName is the name of the Woo extension that initiated the connection flow */
 				subHeader = translate(
-					'Your account will enable you to start using the features and benefits offered by %(pluginName)',
+					'Your account will enable you to start using the features and benefits offered by %(pluginName)s',
 					{
 						args: {
 							pluginName: wooDna.name( translate ),
@@ -318,10 +318,12 @@ export class JetpackSignup extends Component {
 		footerLinks.push(
 			<LoggedOutFormLinkItem key="back" href={ authQuery.redirectAfterAuth }>
 				<Gridicon size={ 18 } icon="arrow-left" />{ ' ' }
-				{ // translators: eg: Return to The WordPress.com Blog
-				this.props.translate( 'Return to %(sitename)s', {
-					args: { sitename: decodeEntities( authQuery.blogname ) },
-				} ) }
+				{
+					// translators: eg: Return to The WordPress.com Blog
+					this.props.translate( 'Return to %(sitename)s', {
+						args: { sitename: decodeEntities( authQuery.blogname ) },
+					} )
+				}
 			</LoggedOutFormLinkItem>
 		);
 		const footer = <LoggedOutFormLinks>{ footerLinks }</LoggedOutFormLinks>;
@@ -394,7 +396,7 @@ export class JetpackSignup extends Component {
 }
 
 const connectComponent = connect(
-	state => ( {
+	( state ) => ( {
 		requestError: getRequestError( state ),
 		usernameOrEmail: getLastCheckedUsernameOrEmail( state ),
 		isFullLoginFormVisible: !! getAuthAccountType( state ),
