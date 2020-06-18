@@ -14,7 +14,7 @@ import { launchSiteOrRedirectToLaunchSignupFlow } from 'state/sites/launch/actio
 import { localizeUrl } from 'lib/i18n-utils';
 import { verifyEmail } from 'state/current-user/email-verification/actions';
 
-const getTaskDescription = ( task, { isDomainUnverified, isEmailUnverified } ) => {
+const getTaskDescription = ( task, { isDomainUnverified } ) => {
 	switch ( task.id ) {
 		case 'site_launched':
 			if ( isDomainUnverified ) {
@@ -27,6 +27,7 @@ const getTaskDescription = ( task, { isDomainUnverified, isEmailUnverified } ) =
 					</>
 				);
 			}
+			/*
 			if ( isEmailUnverified ) {
 				return (
 					<>
@@ -37,6 +38,7 @@ const getTaskDescription = ( task, { isDomainUnverified, isEmailUnverified } ) =
 					</>
 				);
 			}
+			*/
 			return task.description;
 		default:
 			return task.description;
@@ -51,7 +53,7 @@ const isTaskDisabled = (
 		case 'email_verified':
 			return 'requesting' === emailVerificationStatus || ! isEmailUnverified;
 		case 'site_launched':
-			return isDomainUnverified || isEmailUnverified;
+			return isDomainUnverified;
 		default:
 			return false;
 	}
