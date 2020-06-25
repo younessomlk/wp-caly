@@ -19,6 +19,7 @@ import MshotsImage from '../../components/mshots-image';
 import { getDesignImageUrl } from '../../available-designs';
 import JetpackLogo from 'calypso/components/jetpack-logo'; // @TODO: extract to @automattic package
 import type { Design } from '../../stores/onboard/types';
+import { isEnabled } from 'calypso/config';
 
 /**
  * Style dependencies
@@ -71,12 +72,15 @@ const DesignSelector: React.FunctionComponent = () => {
 							} }
 						>
 							<span className="design-selector__image-frame">
-								<MshotsImage src={ getDesignImageUrl( design ) } alt="" />
-								{ /* <img
-									alt=""
-									aria-labelledby={ makeOptionId( design ) }
-									src={ getDesignImageUrl( design ) }
-								/> */ }
+								{ isEnabled( 'gutenboarding/mshot-preview' ) ? (
+									<MshotsImage src={ getDesignImageUrl( design ) } alt="" />
+								) : (
+									<img
+										alt=""
+										aria-labelledby={ makeOptionId( design ) }
+										src={ getDesignImageUrl( design ) }
+									/>
+								) }
 							</span>
 							<span className="design-selector__option-overlay">
 								<span id={ makeOptionId( design ) } className="design-selector__option-meta">
