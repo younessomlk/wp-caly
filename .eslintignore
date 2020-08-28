@@ -29,3 +29,5 @@ node_modules/
 /client/server/devdocs/proptypes-index.json
 /client/server/bundler/assets.json
 /cached-requests.json
+
+!/test/e2e/lib/node_modules/
