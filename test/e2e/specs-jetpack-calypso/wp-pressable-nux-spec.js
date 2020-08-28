@@ -17,7 +17,6 @@ import PressableNUXFlow from '../lib/flows/pressable-nux-flow.js';
 import ReaderPage from '../lib/pages/reader-page.js';
 import SidebarComponent from '../lib/components/sidebar-component.js';
 import NavBarComponent from '../lib/components/nav-bar-component.js';
-import JetpackConnectFlow from '../lib/flows/jetpack-connect-flow.js';
 import LoginFlow from '../lib/flows/login-flow.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
