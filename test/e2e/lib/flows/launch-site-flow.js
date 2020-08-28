@@ -1,9 +1,9 @@
 /**
  * Internal dependencies
  */
-import FindADomainComponent from '../components/find-a-domain-component';
-import PickAPlanPage from '../pages/signup/pick-a-plan-page';
-import MyHomePage from '../pages/my-home-page';
+import FindADomainComponent from '../components/find-a-domain-component.js';
+import PickAPlanPage from '../pages/signup/pick-a-plan-page.js';
+import MyHomePage from '../pages/my-home-page.js';
 
 export default class LaunchSiteFlow {
 	constructor( driver ) {

@@ -20,8 +20,8 @@ import PostEditorToolbarComponent from '../lib/components/post-editor-toolbar-co
 import * as driverManager from '../lib/driver-manager.js';
 import * as mediaHelper from '../lib/media-helper.js';
 import * as dataHelper from '../lib/data-helper.js';
-import * as driverHelper from '../lib/driver-helper';
-import PaypalCheckoutPage from '../lib/pages/external/paypal-checkout-page';
+import * as driverHelper from '../lib/driver-helper.js';
+import PaypalCheckoutPage from '../lib/pages/external/paypal-checkout-page.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 const startBrowserTimeoutMS = config.get( 'startBrowserTimeoutMS' );

@@ -7,8 +7,8 @@ import assert from 'assert';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
-import localizationData from '../../localization-data.json';
+import AsyncBaseContainer from '../async-base-container.js';
+import localizationData from '../../localization-data.json.js';
 
 const by = webdriver.By;
 

@@ -8,16 +8,16 @@ import config from 'config';
  * Internal dependencies
  */
 import * as driverManager from '../lib/driver-manager.js';
-import * as dataHelper from '../lib/data-helper';
+import * as dataHelper from '../lib/data-helper.js';
 
 import ThemeDetailPage from '../lib/pages/theme-detail-page.js';
 import ThemesPage from '../lib/pages/themes-page.js';
 import CustomizerPage from '../lib/pages/customizer-page.js';
 
-import SidebarComponent from '../lib/components/sidebar-component';
-import SiteSelectorComponent from '../lib/components/site-selector-component';
-import ThemeDialogComponent from '../lib/components/theme-dialog-component';
-import CurrentThemeComponent from '../lib/components/current-theme-component';
+import SidebarComponent from '../lib/components/sidebar-component.js';
+import SiteSelectorComponent from '../lib/components/site-selector-component.js';
+import ThemeDialogComponent from '../lib/components/theme-dialog-component.js';
+import CurrentThemeComponent from '../lib/components/current-theme-component.js';
 
 import LoginFlow from '../lib/flows/login-flow.js';
 

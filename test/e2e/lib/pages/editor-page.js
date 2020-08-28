@@ -8,13 +8,13 @@ import webdriver from 'selenium-webdriver';
  */
 import * as driverHelper from '../driver-helper.js';
 import * as driverManager from '../driver-manager.js';
-import * as dataHelper from '../data-helper';
+import * as dataHelper from '../data-helper.js';
 
 const by = webdriver.By;
 const until = webdriver.until;
 
-import AsyncBaseContainer from '../async-base-container';
-import NoticesComponent from '../components/notices-component';
+import AsyncBaseContainer from '../async-base-container.js';
+import NoticesComponent from '../components/notices-component.js';
 
 export default class EditorPage extends AsyncBaseContainer {
 	constructor( driver, url ) {

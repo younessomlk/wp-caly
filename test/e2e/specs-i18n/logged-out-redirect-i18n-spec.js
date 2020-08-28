@@ -10,7 +10,7 @@ import config from 'config';
  */
 import * as driverManager from '../lib/driver-manager.js';
 
-import WPHomePage from '../lib/pages/wp-home-page';
+import WPHomePage from '../lib/pages/wp-home-page.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 const startBrowserTimeoutMS = config.get( 'startBrowserTimeoutMS' );

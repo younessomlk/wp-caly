@@ -7,9 +7,9 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import * as driverHelper from '../driver-helper';
-import * as dataHelper from '../data-helper';
-import AsyncBaseContainer from '../async-base-container';
+import * as driverHelper from '../driver-helper.js';
+import * as dataHelper from '../data-helper.js';
+import AsyncBaseContainer from '../async-base-container.js';
 
 const host = dataHelper.getJetpackHost();
 const jurassicNinjaCreateURL = 'http://jurassic.ninja/create';

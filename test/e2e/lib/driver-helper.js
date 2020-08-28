@@ -9,7 +9,7 @@ import { forEach } from 'lodash';
  * Internal dependencies
  */
 import * as SlackNotifier from './slack-notifier.js';
-import * as dataHelper from './data-helper';
+import * as dataHelper from './data-helper.js';
 
 const explicitWaitMS = config.get( 'explicitWaitMS' );
 const by = webdriver.By;

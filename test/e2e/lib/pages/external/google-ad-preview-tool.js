@@ -6,8 +6,8 @@ import { By as by, until } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../../async-base-container';
-import * as driverManager from '../../driver-manager';
+import AsyncBaseContainer from '../../async-base-container.js';
+import * as driverManager from '../../driver-manager.js';
 
 export default class GoogleAdPreviewTool extends AsyncBaseContainer {
 	constructor( driver, url ) {

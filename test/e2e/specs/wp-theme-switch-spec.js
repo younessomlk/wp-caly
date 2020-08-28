@@ -11,15 +11,15 @@ import * as driverManager from '../lib/driver-manager.js';
 
 import LoginFlow from '../lib/flows/login-flow.js';
 
-import CustomizerPage from '../lib/pages/customizer-page';
+import CustomizerPage from '../lib/pages/customizer-page.js';
 import ThemesPage from '../lib/pages/themes-page.js';
 import ThemePreviewPage from '../lib/pages/theme-preview-page.js';
 import ThemeDetailPage from '../lib/pages/theme-detail-page.js';
 import ThemeDialogComponent from '../lib/components/theme-dialog-component.js';
-import SidebarComponent from '../lib/components/sidebar-component';
+import SidebarComponent from '../lib/components/sidebar-component.js';
 import WPAdminCustomizerPage from '../lib/pages/wp-admin/wp-admin-customizer-page.js';
 import WPAdminLogonPage from '../lib/pages/wp-admin/wp-admin-logon-page.js';
-import * as dataHelper from '../lib/data-helper';
+import * as dataHelper from '../lib/data-helper.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 const startBrowserTimeoutMS = config.get( 'startBrowserTimeoutMS' );

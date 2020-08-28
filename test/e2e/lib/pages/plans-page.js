@@ -6,10 +6,10 @@ import webdriver from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
-import * as driverHelper from '../driver-helper';
-import * as dataHelper from '../data-helper';
-import { currentScreenSize } from '../driver-manager';
+import AsyncBaseContainer from '../async-base-container.js';
+import * as driverHelper from '../driver-helper.js';
+import * as dataHelper from '../data-helper.js';
+import { currentScreenSize } from '../driver-manager.js';
 
 const by = webdriver.By;
 const host = dataHelper.getJetpackHost();

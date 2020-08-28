@@ -6,10 +6,9 @@ import { By, until } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import * as driverHelper from '../../driver-helper';
-import * as dataHelper from '../../data-helper';
-
-import AsyncBaseContainer from '../../async-base-container';
+import * as driverHelper from '../../driver-helper.js';
+import * as dataHelper from '../../data-helper.js';
+import AsyncBaseContainer from '../../async-base-container.js';
 
 export default class CommentsAreaComponent extends AsyncBaseContainer {
 	constructor( driver ) {

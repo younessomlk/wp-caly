@@ -7,23 +7,23 @@ import { By } from 'selenium-webdriver';
  * Internal dependencies
  */
 import LoginPage from '../pages/login-page.js';
-import EditorPage from '../pages/editor-page';
-import WPAdminLoginPage from '../pages/wp-admin/wp-admin-logon-page';
+import EditorPage from '../pages/editor-page.js';
+import WPAdminLoginPage from '../pages/wp-admin/wp-admin-logon-page.js';
 import ReaderPage from '../pages/reader-page.js';
-import StatsPage from '../pages/stats-page';
-import StoreDashboardPage from '../pages/woocommerce/store-dashboard-page';
-import PluginsBrowserPage from '../pages/plugins-browser-page';
-import GutenbergEditorComponent from '../gutenberg/gutenberg-editor-component';
-import CustomerHome from '../pages/customer-home-page';
+import StatsPage from '../pages/stats-page.js';
+import StoreDashboardPage from '../pages/woocommerce/store-dashboard-page.js';
+import PluginsBrowserPage from '../pages/plugins-browser-page.js';
+import GutenbergEditorComponent from '../gutenberg/gutenberg-editor-component.js';
+import CustomerHome from '../pages/customer-home-page.js';
 
 import SidebarComponent from '../components/sidebar-component.js';
 import NavBarComponent from '../components/nav-bar-component.js';
 
-import * as dataHelper from '../data-helper';
-import * as driverHelper from '../driver-helper';
-import * as driverManager from '../driver-manager';
-import * as loginCookieHelper from '../login-cookie-helper';
-import PagesPage from '../pages/pages-page';
+import * as dataHelper from '../data-helper.js';
+import * as driverHelper from '../driver-helper.js';
+import * as driverManager from '../driver-manager.js';
+import * as loginCookieHelper from '../login-cookie-helper.js';
+import PagesPage from '../pages/pages-page.js';
 
 const host = dataHelper.getJetpackHost();
 

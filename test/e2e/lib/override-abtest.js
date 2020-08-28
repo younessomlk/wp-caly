@@ -6,8 +6,8 @@ import { isEqual } from 'lodash';
 /**
  * Internal dependencies
  */
-import * as abTests from '../../../client/lib/abtest/active-tests';
-import * as slackNotifier from './slack-notifier';
+import * as abTests from '../../../client/lib/abtest/active-tests.js';
+import * as slackNotifier from './slack-notifier.js';
 
 async function writeABTests( driver, testList ) {
 	await driver.executeScript( 'window.localStorage.clear();' );

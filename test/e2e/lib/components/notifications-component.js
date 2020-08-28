@@ -8,7 +8,7 @@ import { By as by, until } from 'selenium-webdriver';
  */
 import * as driverHelper from '../driver-helper.js';
 
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 
 export default class NotificationsComponent extends AsyncBaseContainer {
 	constructor( driver ) {

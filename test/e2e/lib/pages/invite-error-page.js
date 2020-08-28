@@ -6,8 +6,7 @@ import { By } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
-
+import AsyncBaseContainer from '../async-base-container.js';
 import * as DriverHelper from '../driver-helper.js';
 
 export default class InviteErrorPage extends AsyncBaseContainer {

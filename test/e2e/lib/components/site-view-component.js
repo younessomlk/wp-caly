@@ -10,7 +10,7 @@ import config from 'config';
  * Internal dependencies
  */
 import * as driverHelper from '../driver-helper.js';
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 
 export default class SiteViewComponent extends AsyncBaseContainer {
 	constructor( driver ) {

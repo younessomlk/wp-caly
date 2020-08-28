@@ -11,9 +11,9 @@ import LoginFlow from '../lib/flows/login-flow.js';
 import assert from 'assert';
 
 import * as driverManager from '../lib/driver-manager.js';
-import * as dataHelper from '../lib/data-helper';
-import SideBarComponent from '../lib/components/sidebar-component';
-import MediaPage from '../lib/pages/media-page';
+import * as dataHelper from '../lib/data-helper.js';
+import SideBarComponent from '../lib/components/sidebar-component.js';
+import MediaPage from '../lib/pages/media-page.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 const startBrowserTimeoutMS = config.get( 'startBrowserTimeoutMS' );

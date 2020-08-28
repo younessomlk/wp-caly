@@ -13,8 +13,8 @@ import PostEditorSidebarComponent from '../lib/components/post-editor-sidebar-co
 
 import * as driverManager from '../lib/driver-manager.js';
 import * as mediaHelper from '../lib/media-helper.js';
-import * as dataHelper from '../lib/data-helper';
-import MediaPage from '../lib/pages/media-page';
+import * as dataHelper from '../lib/data-helper.js';
+import MediaPage from '../lib/pages/media-page.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 const startBrowserTimeoutMS = config.get( 'startBrowserTimeoutMS' );

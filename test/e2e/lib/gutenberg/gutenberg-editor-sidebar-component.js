@@ -7,10 +7,10 @@ import { By, Key } from 'selenium-webdriver';
  * Internal dependencies
  */
 import * as driverHelper from '../driver-helper.js';
-import AsyncBaseContainer from '../async-base-container';
-import * as driverManager from '../driver-manager';
-import * as SlackNotifier from '../slack-notifier';
-import GutenbergEditorComponent from './gutenberg-editor-component';
+import AsyncBaseContainer from '../async-base-container.js';
+import * as driverManager from '../driver-manager.js';
+import * as SlackNotifier from '../slack-notifier.js';
+import GutenbergEditorComponent from './gutenberg-editor-component.js';
 
 export default class GutenbergEditorSidebarComponent extends AsyncBaseContainer {
 	constructor( driver ) {

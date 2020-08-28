@@ -9,8 +9,8 @@ import config from 'config';
  */
 import LoginFlow from '../lib/flows/login-flow.js';
 
-import GutenbergEditorComponent from '../lib/gutenberg/gutenberg-editor-component';
-import WPAdminSidebar from '../lib/pages/wp-admin/wp-admin-sidebar';
+import GutenbergEditorComponent from '../lib/gutenberg/gutenberg-editor-component.js';
+import WPAdminSidebar from '../lib/pages/wp-admin/wp-admin-sidebar.js';
 
 import * as driverManager from '../lib/driver-manager.js';
 import * as dataHelper from '../lib/data-helper.js';

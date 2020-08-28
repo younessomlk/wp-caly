@@ -7,7 +7,7 @@ import assert from 'assert';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 
 export default class LandingPage extends AsyncBaseContainer {
 	constructor( driver, url ) {

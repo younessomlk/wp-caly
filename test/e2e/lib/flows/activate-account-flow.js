@@ -6,7 +6,7 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import EmailClient from '../email-client';
+import EmailClient from '../email-client.js';
 
 const signupInboxId = config.get( 'signupInboxId' );
 

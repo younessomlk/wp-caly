@@ -6,22 +6,22 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import LoginFlow from './login-flow';
-import SidebarComponent from '../components/sidebar-component';
-import AddNewSitePage from '../pages/add-new-site-page';
-import PickAPlanPage from '../pages/signup/pick-a-plan-page';
-import WporgCreatorPage from '../pages/wporg-creator-page';
-import JetpackAuthorizePage from '../pages/jetpack-authorize-page';
+import LoginFlow from './login-flow.js';
+import SidebarComponent from '../components/sidebar-component.js';
+import AddNewSitePage from '../pages/add-new-site-page.js';
+import PickAPlanPage from '../pages/signup/pick-a-plan-page.js';
+import WporgCreatorPage from '../pages/wporg-creator-page.js';
+import JetpackAuthorizePage from '../pages/jetpack-authorize-page.js';
 import WPAdminJetpackPage from '../pages/wp-admin/wp-admin-jetpack-page.js';
 import WPAdminSidebar from '../pages/wp-admin/wp-admin-sidebar.js';
-import WPAdminLogonPage from '../pages/wp-admin/wp-admin-logon-page';
-import WPAdminInPlaceApprovePage from '../pages/wp-admin/wp-admin-in-place-approve-page';
-import WPAdminInPlacePlansPage from '../pages/wp-admin/wp-admin-in-place-plans-page';
-import * as driverManager from '../driver-manager';
-import * as driverHelper from '../driver-helper';
-import * as dataHelper from '../data-helper';
-import JetpackConnectPage from '../pages/jetpack/jetpack-connect-page';
-// import NoticesComponent from '../components/notices-component';
+import WPAdminLogonPage from '../pages/wp-admin/wp-admin-logon-page.js';
+import WPAdminInPlaceApprovePage from '../pages/wp-admin/wp-admin-in-place-approve-page.js';
+import WPAdminInPlacePlansPage from '../pages/wp-admin/wp-admin-in-place-plans-page.js';
+import * as driverManager from '../driver-manager.js';
+import * as driverHelper from '../driver-helper.js';
+import * as dataHelper from '../data-helper.js';
+import JetpackConnectPage from '../pages/jetpack/jetpack-connect-page.js';
+// import NoticesComponent from '../components/notices-component.js';
 
 export default class JetpackConnectFlow {
 	constructor( driver, account, template ) {

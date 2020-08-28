@@ -6,13 +6,13 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import * as slackNotifier from './slack-notifier';
+import * as slackNotifier from './slack-notifier.js';
 
-import * as mediaHelper from './media-helper';
+import * as mediaHelper from './media-helper.js';
 
-import * as driverManager from './driver-manager';
-import * as driverHelper from './driver-helper';
-import * as videoRecorder from '../lib/video-recorder';
+import * as driverManager from './driver-manager.js';
+import * as driverHelper from './driver-helper.js';
+import * as videoRecorder from '../lib/video-recorder.js';
 
 const afterHookTimeoutMS = config.get( 'afterHookTimeoutMS' );
 let allPassed = true; // For SauceLabs status

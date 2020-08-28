@@ -6,9 +6,9 @@ import { By as by, until } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../../async-base-container';
+import AsyncBaseContainer from '../../async-base-container.js';
 
-import * as driverHelper from '../../driver-helper';
+import * as driverHelper from '../../driver-helper.js';
 
 export default class AddEditProductPage extends AsyncBaseContainer {
 	constructor( driver ) {

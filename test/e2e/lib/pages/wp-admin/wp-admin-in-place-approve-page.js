@@ -6,8 +6,8 @@ import { By, until } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import * as driverHelper from '../../driver-helper';
-import AsyncBaseContainer from '../../async-base-container';
+import * as driverHelper from '../../driver-helper.js';
+import AsyncBaseContainer from '../../async-base-container.js';
 
 export default class WPAdminInPlaceApprovePage extends AsyncBaseContainer {
 	constructor( driver ) {

@@ -14,21 +14,21 @@ import CheckOutPage from '../lib/pages/signup/checkout-page.js';
 import ReaderPage from '../lib/pages/reader-page.js';
 
 import FindADomainComponent from '../lib/components/find-a-domain-component.js';
-import RegistrationUnavailableComponent from '../lib/components/domain-registration-unavailable-component';
+import RegistrationUnavailableComponent from '../lib/components/domain-registration-unavailable-component.js';
 import SecurePaymentComponent from '../lib/components/secure-payment-component.js';
 import ShoppingCartWidgetComponent from '../lib/components/shopping-cart-widget-component.js';
 import SidebarComponent from '../lib/components/sidebar-component.js';
 import NavBarComponent from '../lib/components/nav-bar-component.js';
-import MyOwnDomainPage from '../lib/pages/domain-my-own-page';
-import MapADomainPage from '../lib/pages/domain-map-page';
-import TransferDomainPage from '../lib/pages/transfer-domain-page';
-import TransferDomainPrecheckPage from '../lib/pages/transfer-domain-precheck-page';
-import EnterADomainComponent from '../lib/components/enter-a-domain-component';
-import MapADomainCheckoutPage from '../lib/pages/domain-map-checkout-page';
+import MyOwnDomainPage from '../lib/pages/domain-my-own-page.js';
+import MapADomainPage from '../lib/pages/domain-map-page.js';
+import TransferDomainPage from '../lib/pages/transfer-domain-page.js';
+import TransferDomainPrecheckPage from '../lib/pages/transfer-domain-precheck-page.js';
+import EnterADomainComponent from '../lib/components/enter-a-domain-component.js';
+import MapADomainCheckoutPage from '../lib/pages/domain-map-checkout-page.js';
 
 import LoginFlow from '../lib/flows/login-flow.js';
 
-import * as SlackNotifier from '../lib/slack-notifier';
+import * as SlackNotifier from '../lib/slack-notifier.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 const startBrowserTimeoutMS = config.get( 'startBrowserTimeoutMS' );

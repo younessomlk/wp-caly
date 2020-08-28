@@ -6,8 +6,8 @@ import { By } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import * as driverHelper from '../../driver-helper';
-import GutenbergBlockComponent from './gutenberg-block-component';
+import * as driverHelper from '../../driver-helper.js';
+import GutenbergBlockComponent from './gutenberg-block-component.js';
 
 export class ContactFormBlockComponent extends GutenbergBlockComponent {
 	constructor( driver, blockID ) {
@@ -15,7 +15,10 @@ export class ContactFormBlockComponent extends GutenbergBlockComponent {
 	}
 
 	async _postInit() {
-		return await driverHelper.clickWhenClickable( this.driver, By.css( '.components-button.block-editor-block-variation-picker__variation' ) );
+		return await driverHelper.clickWhenClickable(
+			this.driver,
+			By.css( '.components-button.block-editor-block-variation-picker__variation' )
+		);
 	}
 
 	async openEditSettings() {

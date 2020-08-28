@@ -9,7 +9,7 @@ import config from 'config';
  */
 import * as driverHelper from '../driver-helper.js';
 
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 
 export default class NoticesComponent extends AsyncBaseContainer {
 	constructor( driver ) {

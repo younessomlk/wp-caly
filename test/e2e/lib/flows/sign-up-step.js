@@ -6,8 +6,8 @@
 /**
  * Internal dependencies
  */
-import SignupProcessingPage from '../pages/signup/signup-processing-page';
-import FindADomainComponent from '../components/find-a-domain-component';
+import SignupProcessingPage from '../pages/signup/signup-processing-page.js';
+import FindADomainComponent from '../components/find-a-domain-component.js';
 
 export default class SignUpStep {
 	constructor( driver ) {

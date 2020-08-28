@@ -6,16 +6,16 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import * as driverManager from '../lib/driver-manager';
-import * as dataHelper from '../lib/data-helper';
-import * as mediaHelper from '../lib/media-helper';
-import LoginFlow from '../lib/flows/login-flow';
-import EditorPage from '../lib/pages/editor-page';
-import PostEditorToolbarComponent from '../lib/components/post-editor-toolbar-component';
-import CommentsAreaComponent from '../lib/pages/frontend/comments-area-component';
-import GutenbergEditorComponent from '../lib/gutenberg/gutenberg-editor-component';
-import WPAdminLogonPage from '../lib/pages/wp-admin/wp-admin-logon-page';
-import WPAdminSidebar from '../lib/pages/wp-admin/wp-admin-sidebar';
+import * as driverManager from '../lib/driver-manager.js';
+import * as dataHelper from '../lib/data-helper.js';
+import * as mediaHelper from '../lib/media-helper.js';
+import LoginFlow from '../lib/flows/login-flow.js';
+import EditorPage from '../lib/pages/editor-page.js';
+import PostEditorToolbarComponent from '../lib/components/post-editor-toolbar-component.js';
+import CommentsAreaComponent from '../lib/pages/frontend/comments-area-component.js';
+import GutenbergEditorComponent from '../lib/gutenberg/gutenberg-editor-component.js';
+import WPAdminLogonPage from '../lib/pages/wp-admin/wp-admin-logon-page.js';
+import WPAdminSidebar from '../lib/pages/wp-admin/wp-admin-sidebar.js';
 
 const host = dataHelper.getJetpackHost();
 const screenSize = driverManager.currentScreenSize();

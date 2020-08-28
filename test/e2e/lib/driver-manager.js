@@ -3,20 +3,20 @@
  */
 import webdriver from 'selenium-webdriver';
 import chromedriver from 'chromedriver'; // eslint-disable-line no-unused-vars
-import firefox from 'selenium-webdriver/firefox';
-import chrome from 'selenium-webdriver/chrome';
+import firefox from 'selenium-webdriver/firefox.js';
+import chrome from 'selenium-webdriver/chrome.js';
 import config from 'config';
-import proxy from 'selenium-webdriver/proxy';
+import proxy from 'selenium-webdriver/proxy.js';
 import SauceLabs from 'saucelabs';
 import { times } from 'lodash';
 import { readFileSync } from 'fs';
 
-import * as remote from 'selenium-webdriver/remote';
+import * as remote from 'selenium-webdriver/remote/index.js';
 
 /**
  * Internal dependencies
  */
-import * as dataHelper from './data-helper';
+import * as dataHelper from './data-helper.js';
 
 const webDriverImplicitTimeOutMS = 2000;
 const webDriverPageLoadTimeOutMS = 60000;

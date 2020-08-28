@@ -6,11 +6,11 @@ import { By } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../../async-base-container';
+import AsyncBaseContainer from '../../async-base-container.js';
 
-import * as SlackNotifier from '../../slack-notifier';
-import * as driverHelper from '../../driver-helper';
-import LoginPage from '../../pages/login-page';
+import * as SlackNotifier from '../../slack-notifier.js';
+import * as driverHelper from '../../driver-helper.js';
+import LoginPage from '../../pages/login-page.js';
 
 export default class SignupProcessingPage extends AsyncBaseContainer {
 	constructor( driver ) {

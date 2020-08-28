@@ -6,7 +6,7 @@ import { By } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 
 export default class LoggedOutMasterbarComponent extends AsyncBaseContainer {
 	constructor( driver ) {

@@ -8,8 +8,7 @@ import { By } from 'selenium-webdriver';
  */
 import * as driverHelper from '../../driver-helper.js';
 import * as driverManager from '../../driver-manager.js';
-
-import AsyncBaseContainer from '../../async-base-container';
+import AsyncBaseContainer from '../../async-base-container.js';
 
 const screenSize = driverManager.currentScreenSize();
 

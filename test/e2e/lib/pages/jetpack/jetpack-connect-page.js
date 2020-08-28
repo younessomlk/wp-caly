@@ -6,8 +6,8 @@ import { By } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import * as driverHelper from '../../driver-helper';
-import AsyncBaseContainer from '../../async-base-container';
+import * as driverHelper from '../../driver-helper.js';
+import AsyncBaseContainer from '../../async-base-container.js';
 
 export default class JetpackConnectPage extends AsyncBaseContainer {
 	constructor( driver, url ) {

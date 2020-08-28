@@ -6,9 +6,9 @@ import { By } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import * as driverHelper from '../../driver-helper';
-import * as driverManager from '../../driver-manager';
-import AsyncBaseContainer from '../../async-base-container';
+import * as driverHelper from '../../driver-helper.js';
+import * as driverManager from '../../driver-manager.js';
+import AsyncBaseContainer from '../../async-base-container.js';
 
 export default class JetpackComPage extends AsyncBaseContainer {
 	constructor( driver, url = 'https://jetpack.com/' ) {

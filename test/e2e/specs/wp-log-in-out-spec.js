@@ -10,21 +10,21 @@ import config from 'config';
  * External dependencies
  */
 import * as driverManager from '../lib/driver-manager.js';
-import * as dataHelper from '../lib/data-helper';
+import * as dataHelper from '../lib/data-helper.js';
 
 import EmailClient from '../lib/email-client.js';
-import { listenForSMS } from '../lib/xmpp-client';
-import { subscribeToPush, approvePushToken } from '../lib/push-client';
-import ReaderPage from '../lib/pages/reader-page';
-import ProfilePage from '../lib/pages/profile-page';
-import WPHomePage from '../lib/pages/wp-home-page';
-import MagicLoginPage from '../lib/pages/magic-login-page';
+import { listenForSMS } from '../lib/xmpp-client.js';
+import { subscribeToPush, approvePushToken } from '../lib/push-client.js';
+import ReaderPage from '../lib/pages/reader-page.js';
+import ProfilePage from '../lib/pages/profile-page.js';
+import WPHomePage from '../lib/pages/wp-home-page.js';
+import MagicLoginPage from '../lib/pages/magic-login-page.js';
 
 import NavBarComponent from '../lib/components/nav-bar-component.js';
-import LoggedOutMasterbarComponent from '../lib/components/logged-out-masterbar-component';
+import LoggedOutMasterbarComponent from '../lib/components/logged-out-masterbar-component.js';
 
-import LoginFlow from '../lib/flows/login-flow';
-import LoginPage from '../lib/pages/login-page';
+import LoginFlow from '../lib/flows/login-flow.js';
+import LoginPage from '../lib/pages/login-page.js';
 import WPAdminLogonPage from '../lib/pages/wp-admin/wp-admin-logon-page.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );

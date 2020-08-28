@@ -13,7 +13,7 @@ import SignUpFlow from '../lib/flows/sign-up-flow.js';
 import CreateSiteFlow from '../lib/flows/create-site-flow.js';
 import LaunchSiteFlow from '../lib/flows/launch-site-flow.js';
 import DeleteAccountFlow from '../lib/flows/delete-account-flow.js';
-import SidebarComponent from '../lib/components/sidebar-component';
+import SidebarComponent from '../lib/components/sidebar-component.js';
 import FindADomainComponent from '../lib/components/find-a-domain-component.js';
 import MyHomePage from '../lib/pages/my-home-page.js';
 

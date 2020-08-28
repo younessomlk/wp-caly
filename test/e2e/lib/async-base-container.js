@@ -6,9 +6,9 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import * as driverManager from './driver-manager';
-import * as driverHelper from './driver-helper';
-import * as overrideABTests from './override-abtest';
+import * as driverManager from './driver-manager.js';
+import * as driverHelper from './driver-helper.js';
+import * as overrideABTests from './override-abtest.js';
 
 export default class AsyncBaseContainer {
 	constructor(

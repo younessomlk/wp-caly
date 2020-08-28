@@ -7,9 +7,9 @@ import URL from 'url';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 import * as driverHelper from '../driver-helper.js';
-import * as dataHelper from '../data-helper';
+import * as dataHelper from '../data-helper.js';
 
 export default class ReaderPage extends AsyncBaseContainer {
 	constructor( driver, url ) {

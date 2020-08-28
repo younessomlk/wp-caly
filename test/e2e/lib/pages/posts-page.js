@@ -6,10 +6,10 @@ import { By } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 
-import * as driverHelper from '../driver-helper';
-import { currentScreenSize } from '../driver-manager';
+import * as driverHelper from '../driver-helper.js';
+import { currentScreenSize } from '../driver-manager.js';
 
 export default class PostsPage extends AsyncBaseContainer {
 	constructor( driver ) {

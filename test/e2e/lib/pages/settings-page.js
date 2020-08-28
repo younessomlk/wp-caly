@@ -6,11 +6,11 @@ import { By } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 import DisconnectSurveyPage from './disconnect-survey-page.js';
 
 import * as DriverHelper from '../driver-helper.js';
-import NoticesComponent from '../components/notices-component';
+import NoticesComponent from '../components/notices-component.js';
 
 export default class SettingsPage extends AsyncBaseContainer {
 	constructor( driver ) {

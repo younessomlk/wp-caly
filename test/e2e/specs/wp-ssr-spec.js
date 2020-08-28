@@ -8,10 +8,10 @@ import assert from 'assert';
 /**
  * Internal dependencies
  */
-import LoginPage from '../lib/pages/login-page';
-import ThemesPage from '../lib/pages/themes-page';
-import * as dataHelper from '../lib/data-helper';
-import * as driverManager from '../lib/driver-manager';
+import LoginPage from '../lib/pages/login-page.js';
+import ThemesPage from '../lib/pages/themes-page.js';
+import * as dataHelper from '../lib/data-helper.js';
+import * as driverManager from '../lib/driver-manager.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 const startBrowserTimeoutMS = config.get( 'startBrowserTimeoutMS' );

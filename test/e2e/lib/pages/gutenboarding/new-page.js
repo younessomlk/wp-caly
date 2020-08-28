@@ -6,10 +6,9 @@ import { By as by } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../../async-base-container';
-
-import * as dataHelper from '../../data-helper';
-import * as driverHelper from '../../driver-helper';
+import AsyncBaseContainer from '../../async-base-container.js';
+import * as dataHelper from '../../data-helper.js';
+import * as driverHelper from '../../driver-helper.js';
 
 export default class NewPage extends AsyncBaseContainer {
 	constructor( driver, url ) {

@@ -8,7 +8,7 @@ import config from 'config';
  * Internal dependencies
  */
 import * as driverManager from '../lib/driver-manager.js';
-import * as dataHelper from '../lib/data-helper';
+import * as dataHelper from '../lib/data-helper.js';
 
 import SidebarComponent from '../lib/components/sidebar-component.js';
 import SiteViewComponent from '../lib/components/site-view-component.js';

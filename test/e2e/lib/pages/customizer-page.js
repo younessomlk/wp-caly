@@ -6,10 +6,10 @@ import { By as by, until } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import * as driverHelper from '../driver-helper';
-import * as driverManager from '../driver-manager';
-import * as slackNotifier from '../slack-notifier';
-import AsyncBaseContainer from '../async-base-container';
+import * as driverHelper from '../driver-helper.js';
+import * as driverManager from '../driver-manager.js';
+import * as slackNotifier from '../slack-notifier.js';
+import AsyncBaseContainer from '../async-base-container.js';
 
 export default class CustomizerPage extends AsyncBaseContainer {
 	constructor( driver ) {

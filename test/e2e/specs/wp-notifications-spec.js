@@ -8,8 +8,8 @@ import config from 'config';
  * Internal dependencies
  */
 import * as driverManager from '../lib/driver-manager.js';
-import * as slackNotifier from '../lib/slack-notifier';
-import * as dataHelper from '../lib/data-helper';
+import * as slackNotifier from '../lib/slack-notifier.js';
+import * as dataHelper from '../lib/data-helper.js';
 
 import LoginFlow from '../lib/flows/login-flow.js';
 

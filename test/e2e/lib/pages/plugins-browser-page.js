@@ -6,9 +6,9 @@ import webdriver from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
-import * as SlackNotifier from '../slack-notifier';
-import * as driverHelper from '../driver-helper';
+import AsyncBaseContainer from '../async-base-container.js';
+import * as SlackNotifier from '../slack-notifier.js';
+import * as driverHelper from '../driver-helper.js';
 
 const by = webdriver.By;
 

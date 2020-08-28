@@ -8,7 +8,7 @@ import { By as by } from 'selenium-webdriver';
  */
 import * as driverHelper from '../driver-helper.js';
 
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 
 export default class ShoppingCartWidgetComponent extends AsyncBaseContainer {
 	constructor( driver ) {

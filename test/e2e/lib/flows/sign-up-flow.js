@@ -6,15 +6,15 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import StartPage from '../pages/signup/start-page';
-import CreateYourAccountPage from '../pages/signup/create-your-account-page';
-import SignupProcessingPage from '../pages/signup/signup-processing-page';
+import StartPage from '../pages/signup/start-page.js';
+import CreateYourAccountPage from '../pages/signup/create-your-account-page.js';
+import SignupProcessingPage from '../pages/signup/signup-processing-page.js';
 
-import * as driverManager from '../driver-manager';
-import * as dataHelper from '../data-helper';
+import * as driverManager from '../driver-manager.js';
+import * as dataHelper from '../data-helper.js';
 
-import EmailClient from '../email-client';
-import ReaderPage from '../pages/reader-page';
+import EmailClient from '../email-client.js';
+import ReaderPage from '../pages/reader-page.js';
 
 const signupInboxId = config.get( 'signupInboxId' );
 

@@ -1,4 +1,6 @@
 /**
+ * const / = webdriver;
+ *
  * External dependencies
  */
 import assert from 'assert';
@@ -7,21 +9,21 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import * as driverManager from '../lib/driver-manager';
-import * as dataHelper from '../lib/data-helper';
+import * as driverManager from '../lib/driver-manager.js';
+import * as dataHelper from '../lib/data-helper.js';
 
-import NavBarComponent from '../lib/components/nav-bar-component';
-import SidebarComponent from '../lib/components/sidebar-component';
-import StoreSidebarComponent from '../lib/components/store-sidebar-component';
-import StoreSettingsPage from '../lib/pages/woocommerce/store-settings-page';
-import StoreOrdersPage from '../lib/pages/woocommerce/store-orders-page';
-import StoreOrderDetailsPage from '../lib/pages/woocommerce/store-order-details-page';
-import StoreProductsPage from '../lib/pages/woocommerce/store-products-page';
-import AddEditProductPage from '../lib/pages/woocommerce/add-edit-product-page';
-import StoreDashboardPage from '../lib/pages/woocommerce/store-dashboard-page';
+import NavBarComponent from '../lib/components/nav-bar-component.js';
+import SidebarComponent from '../lib/components/sidebar-component.js';
+import StoreSidebarComponent from '../lib/components/store-sidebar-component.js';
+import StoreSettingsPage from '../lib/pages/woocommerce/store-settings-page.js';
+import StoreOrdersPage from '../lib/pages/woocommerce/store-orders-page.js';
+import StoreOrderDetailsPage from '../lib/pages/woocommerce/store-order-details-page.js';
+import StoreProductsPage from '../lib/pages/woocommerce/store-products-page.js';
+import AddEditProductPage from '../lib/pages/woocommerce/add-edit-product-page.js';
+import StoreDashboardPage from '../lib/pages/woocommerce/store-dashboard-page.js';
 
-import LoginFlow from '../lib/flows/login-flow';
-import NoticesComponent from '../lib/components/notices-component';
+import LoginFlow from '../lib/flows/login-flow.js';
+import NoticesComponent from '../lib/components/notices-component.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 const startBrowserTimeoutMS = config.get( 'startBrowserTimeoutMS' );

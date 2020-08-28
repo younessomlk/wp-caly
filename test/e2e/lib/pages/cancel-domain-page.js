@@ -6,9 +6,9 @@ import webdriver from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 import * as driverHelper from '../driver-helper.js';
-import NoticesComponent from '../components/notices-component';
+import NoticesComponent from '../components/notices-component.js';
 
 const by = webdriver.By;
 
@@ -20,7 +20,10 @@ export default class CancelDomainPage extends AsyncBaseContainer {
 
 	async completeSurveyAndConfirm() {
 		await this.driver.sleep( 2000 ); // since this is in after block, wait before open survey
-		await driverHelper.clickWhenClickable( this.driver, by.css( '.confirm-cancel-domain__reasons-dropdown' ) );
+		await driverHelper.clickWhenClickable(
+			this.driver,
+			by.css( '.confirm-cancel-domain__reasons-dropdown' )
+		);
 		await driverHelper.clickWhenClickable( this.driver, by.css( 'option[value="other"]' ) );
 		await driverHelper.setWhenSettable(
 			this.driver,

@@ -10,10 +10,10 @@ import assert from 'assert';
 import * as driverManager from '../lib/driver-manager.js';
 
 import LoginFlow from '../lib/flows/login-flow.js';
-import * as dataHelper from '../lib/data-helper';
-import InlineHelpPopoverComponent from '../lib/components/inline-help-popover-component';
-import SupportSearchComponent from '../lib/components/support-search-component';
-import SidebarComponent from '../lib/components/sidebar-component';
+import * as dataHelper from '../lib/data-helper.js';
+import InlineHelpPopoverComponent from '../lib/components/inline-help-popover-component.js';
+import SupportSearchComponent from '../lib/components/support-search-component.js';
+import SidebarComponent from '../lib/components/sidebar-component.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 const startBrowserTimeoutMS = config.get( 'startBrowserTimeoutMS' );

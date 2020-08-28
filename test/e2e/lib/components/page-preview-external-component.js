@@ -7,7 +7,7 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 import ViewPagePage from '../../lib/pages/view-page-page.js';
 import * as driverHelper from '../driver-helper.js';
 

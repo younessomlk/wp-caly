@@ -7,12 +7,12 @@ import { kebabCase } from 'lodash';
 /**
  * Internal dependencies
  */
-import * as driverHelper from '../driver-helper';
+import * as driverHelper from '../driver-helper.js';
 import * as driverManager from '../driver-manager.js';
-import AsyncBaseContainer from '../async-base-container';
-import { ContactFormBlockComponent } from './blocks/contact-form-block-component';
-import { ShortcodeBlockComponent } from './blocks/shortcode-block-component';
-import { ImageBlockComponent } from './blocks/image-block-component';
+import AsyncBaseContainer from '../async-base-container.js';
+import { ContactFormBlockComponent } from './blocks/contact-form-block-component.js';
+import { ShortcodeBlockComponent } from './blocks/shortcode-block-component.js';
+import { ImageBlockComponent } from './blocks/image-block-component.js';
 
 export default class GutenbergEditorComponent extends AsyncBaseContainer {
 	constructor( driver, url, editorType = 'iframe' ) {

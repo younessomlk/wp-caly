@@ -9,8 +9,8 @@ import { By } from 'selenium-webdriver';
  * Internal dependencies
  */
 import * as driverManager from '../lib/driver-manager.js';
-import * as dataHelper from '../lib/data-helper';
-import * as driverHelper from '../lib/driver-helper';
+import * as dataHelper from '../lib/data-helper.js';
+import * as driverHelper from '../lib/driver-helper.js';
 
 import LoginFlow from '../lib/flows/login-flow.js';
 

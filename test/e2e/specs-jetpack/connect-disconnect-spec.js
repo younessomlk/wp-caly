@@ -6,17 +6,17 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import LoginFlow from '../lib/flows/login-flow';
-import JetpackAuthorizePage from '../lib/pages/jetpack-authorize-page';
-import PickAPlanPage from '../lib/pages/signup/pick-a-plan-page';
+import LoginFlow from '../lib/flows/login-flow.js';
+import JetpackAuthorizePage from '../lib/pages/jetpack-authorize-page.js';
+import PickAPlanPage from '../lib/pages/signup/pick-a-plan-page.js';
 import WPAdminJetpackPage from '../lib/pages/wp-admin/wp-admin-jetpack-page.js';
-import WPAdminLogonPage from '../lib/pages/wp-admin/wp-admin-logon-page';
+import WPAdminLogonPage from '../lib/pages/wp-admin/wp-admin-logon-page.js';
 import WPAdminSidebar from '../lib/pages/wp-admin/wp-admin-sidebar.js';
-import JetpackConnectFlow from '../lib/flows/jetpack-connect-flow';
-import WPAdminPostsPage from '../lib/pages/wp-admin/wp-admin-posts-page';
-import WPAdminDashboardPage from '../lib/pages/wp-admin/wp-admin-dashboard-page';
-import * as driverManager from '../lib/driver-manager';
-import * as dataHelper from '../lib/data-helper';
+import JetpackConnectFlow from '../lib/flows/jetpack-connect-flow.js';
+import WPAdminPostsPage from '../lib/pages/wp-admin/wp-admin-posts-page.js';
+import WPAdminDashboardPage from '../lib/pages/wp-admin/wp-admin-dashboard-page.js';
+import * as driverManager from '../lib/driver-manager.js';
+import * as dataHelper from '../lib/data-helper.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 const startBrowserTimeoutMS = config.get( 'startBrowserTimeoutMS' );

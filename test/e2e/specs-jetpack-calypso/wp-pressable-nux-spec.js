@@ -6,19 +6,19 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import PressableLogonPage from '../lib/pages/pressable/pressable-logon-page';
-import PressableSitesPage from '../lib/pages/pressable/pressable-sites-page';
-import PressableApprovePage from '../lib/pages/pressable/pressable-approve-page';
-import PressableSiteSettingsPage from '../lib/pages/pressable/pressable-site-settings-page';
-import JetpackAuthorizePage from '../lib/pages/jetpack-authorize-page';
-import * as driverManager from '../lib/driver-manager';
-import * as dataHelper from '../lib/data-helper';
-import PressableNUXFlow from '../lib/flows/pressable-nux-flow';
-import ReaderPage from '../lib/pages/reader-page';
-import SidebarComponent from '../lib/components/sidebar-component';
-import NavBarComponent from '../lib/components/nav-bar-component';
-import JetpackConnectFlow from '../lib/flows/jetpack-connect-flow';
-import LoginFlow from '../lib/flows/login-flow';
+import PressableLogonPage from '../lib/pages/pressable/pressable-logon-page.js';
+import PressableSitesPage from '../lib/pages/pressable/pressable-sites-page.js';
+import PressableApprovePage from '../lib/pages/pressable/pressable-approve-page.js';
+import PressableSiteSettingsPage from '../lib/pages/pressable/pressable-site-settings-page.js';
+import JetpackAuthorizePage from '../lib/pages/jetpack-authorize-page.js';
+import * as driverManager from '../lib/driver-manager.js';
+import * as dataHelper from '../lib/data-helper.js';
+import PressableNUXFlow from '../lib/flows/pressable-nux-flow.js';
+import ReaderPage from '../lib/pages/reader-page.js';
+import SidebarComponent from '../lib/components/sidebar-component.js';
+import NavBarComponent from '../lib/components/nav-bar-component.js';
+import JetpackConnectFlow from '../lib/flows/jetpack-connect-flow.js';
+import LoginFlow from '../lib/flows/login-flow.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 const startBrowserTimeoutMS = config.get( 'startBrowserTimeoutMS' );

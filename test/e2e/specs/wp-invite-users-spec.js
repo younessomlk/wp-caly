@@ -28,7 +28,7 @@ import NoSitesComponent from '../lib/components/no-sites-component.js';
 import * as dataHelper from '../lib/data-helper.js';
 import * as driverManager from '../lib/driver-manager.js';
 import EmailClient from '../lib/email-client.js';
-import GutenbergEditorComponent from '../lib/gutenberg/gutenberg-editor-component';
+import GutenbergEditorComponent from '../lib/gutenberg/gutenberg-editor-component.js';
 
 const mochaTimeOut = config.get( 'mochaTimeoutMS' );
 const startBrowserTimeoutMS = config.get( 'startBrowserTimeoutMS' );

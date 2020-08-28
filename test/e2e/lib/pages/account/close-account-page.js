@@ -9,7 +9,7 @@ import config from 'config';
  */
 import * as driverHelper from '../../driver-helper.js';
 
-import AsyncBaseContainer from '../../async-base-container';
+import AsyncBaseContainer from '../../async-base-container.js';
 
 const explicitWaitMS = config.get( 'explicitWaitMS' );
 
@@ -20,7 +20,7 @@ export default class CloseAccountPage extends AsyncBaseContainer {
 
 	async chooseCloseAccount() {
 		const buttonSelector = by.css( '.account-close button.is-scary' );
-		const confirmButtonSelector = by.css( '.dialog__action-buttons button.is-primary');
+		const confirmButtonSelector = by.css( '.dialog__action-buttons button.is-primary' );
 		const confirmDialogSelector = by.css( '.account-close__confirm-dialog' );
 		const pauseBetweenClickAttemptsMS = 100;
 

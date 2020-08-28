@@ -6,10 +6,10 @@ import { By } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import * as dataHelper from '../../data-helper';
-import * as driverHelper from '../../driver-helper';
-import AsyncBaseContainer from '../../async-base-container';
-import * as driverManager from '../../driver-manager';
+import * as dataHelper from '../../data-helper.js';
+import * as driverHelper from '../../driver-helper.js';
+import AsyncBaseContainer from '../../async-base-container.js';
+import * as driverManager from '../../driver-manager.js';
 
 const screenSize = driverManager.currentScreenSize();
 

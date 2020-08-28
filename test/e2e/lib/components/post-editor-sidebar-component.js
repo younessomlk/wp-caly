@@ -7,7 +7,7 @@ import { By, Key, until } from 'selenium-webdriver';
  * Internal dependencies
  */
 import * as driverHelper from '../driver-helper.js';
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 
 export default class PostEditorSidebarComponent extends AsyncBaseContainer {
 	constructor( driver ) {
@@ -162,13 +162,11 @@ export default class PostEditorSidebarComponent extends AsyncBaseContainer {
 	}
 
 	async setPublicizeMessage( message ) {
-		await driverHelper.setWhenSettable(
-			this.driver,
-			this.publicizeMessageSelector,
-			message
-		);
+		await driverHelper.setWhenSettable( this.driver, this.publicizeMessageSelector, message );
 		// This seems to help with https://github.com/Automattic/wp-calypso/issues/38697
-		return this.driver.findElement( By.css( '.editor-sharing__publicize-options-description' ) ).click();
+		return this.driver
+			.findElement( By.css( '.editor-sharing__publicize-options-description' ) )
+			.click();
 	}
 
 	async setSharingButtons( allow = true ) {

@@ -6,8 +6,8 @@ import { By } from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../../async-base-container';
-import * as dataHelper from '../../data-helper';
+import AsyncBaseContainer from '../../async-base-container.js';
+import * as dataHelper from '../../data-helper.js';
 
 export default class DesignSelectorPage extends AsyncBaseContainer {
 	constructor( driver ) {

@@ -6,7 +6,7 @@ import webdriver from 'selenium-webdriver';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 
 const by = webdriver.By;
 

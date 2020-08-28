@@ -7,7 +7,7 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 
 export default class TransferDomainPrecheckPage extends AsyncBaseContainer {
 	constructor( driver ) {

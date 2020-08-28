@@ -9,10 +9,10 @@ import { By } from 'selenium-webdriver';
 import * as driverHelper from '../driver-helper.js';
 import * as driverManager from '../driver-manager.js';
 
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 import PostPreviewComponent from './post-preview-component.js';
-import EditorConfirmationSidebarComponent from './editor-confirmation-sidebar-component';
-import NoticesComponent from './notices-component';
+import EditorConfirmationSidebarComponent from './editor-confirmation-sidebar-component.js';
+import NoticesComponent from './notices-component.js';
 
 export default class PostEditorToolbarComponent extends AsyncBaseContainer {
 	constructor( driver ) {

@@ -7,11 +7,11 @@ import config from 'config';
 /**
  * Internal dependencies
  */
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 import * as driverHelper from '../driver-helper.js';
-import { currentScreenSize } from '../driver-manager';
-import { getJetpackHost } from '../data-helper';
-import NoticesComponent from './notices-component';
+import { currentScreenSize } from '../driver-manager.js';
+import { getJetpackHost } from '../data-helper.js';
+import NoticesComponent from './notices-component.js';
 
 export default class SecurePaymentComponent extends AsyncBaseContainer {
 	constructor( driver ) {

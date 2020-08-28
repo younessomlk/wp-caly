@@ -7,7 +7,7 @@ import { By as by } from 'selenium-webdriver';
  * Internal dependencies
  */
 import * as driverHelper from '../driver-helper.js';
-import AsyncBaseContainer from '../async-base-container';
+import AsyncBaseContainer from '../async-base-container.js';
 
 export default class ManagePurchasePage extends AsyncBaseContainer {
 	constructor( driver ) {
