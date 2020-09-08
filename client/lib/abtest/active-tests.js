@@ -230,14 +230,4 @@ export default {
 		allowExistingUsers: true,
 		localeTargets: [ 'en' ],
 	},
-	gutenbergInCalypso: {
-		datestamp: '20200903',
-		variations: {
-			on: 0,
-			off: 100,
-		},
-		defaultVariation: 'off',
-		allowExistingUsers: true,
-		localeTargets: 'any',
-	},
 };
