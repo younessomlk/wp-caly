@@ -18,6 +18,7 @@ import FormFooter from 'my-sites/domains/domain-management/components/form-foote
 import FormLabel from 'components/forms/form-label';
 import FormSelect from 'components/forms/form-select';
 import MxRecord from './mx-record';
+import NsRecord from './ns-record';
 import TxtRecord from './txt-record';
 import SrvRecord from './srv-record';
 import formState from 'lib/form-state';
@@ -60,6 +61,14 @@ class DnsAddNew extends React.Component {
 				name: '',
 				data: '',
 				aux: 10,
+			},
+		},
+		{
+			component: NsRecord,
+			types: [ 'NS' ],
+			initialFields: {
+				name: '',
+				data: '',
 			},
 		},
 		{
