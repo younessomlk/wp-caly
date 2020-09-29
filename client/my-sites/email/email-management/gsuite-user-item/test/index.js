@@ -17,6 +17,7 @@ describe( 'GSuiteUserItem', () => {
 			.create(
 				<GSuiteUserItem
 					onClick={ noop }
+					isSubscriptionActive={ false }
 					user={ { email: 'foo@bar.buzz', domain: 'bar.buzz', agreed_to_terms: true } }
 				/>
 			)
