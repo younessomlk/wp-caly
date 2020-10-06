@@ -1,12 +1,15 @@
 @startuml
+
+'red: #facfd2
+'orange: #f7dcc6
+'yellow: #f5e6b3
+'green: #b8e6bf
+
 skinparam ParticipantPadding 5
 skinparam BoxPadding 5
-box #facfd2
-  participant Database
-end box
-box "WordPress.com" #f7dcc6
-  participant Store_Shopping_Cart
-  participant WPCOM_JSON_API_Me_Shopping_Cart_Endpoint
+
+box "" #f7dcc6
+  participant WordPress.com
 end box
 box "Calypso" #f5e6b3
   participant Undocumented
@@ -19,21 +22,17 @@ box "Composite Checkout" #b8e6bf
 end box
 
 Undocumented -> CompositeCheckout : import getCart
+note over CompositeCheckout
+	getCart from props
+	or fall back to import
+end note
 CompositeCheckout -> useShoppingCartManager : cartKey, getCart
 note over useShoppingCartManager : getCart bound to cartKey
 useShoppingCartManager -> useInitializeCartFromServer : getCart
 useInitializeCartFromServer -> Undocumented : << getCart >>
 activate Undocumented
-Undocumented -> WPCOM_JSON_API_Me_Shopping_Cart_Endpoint : /me/shopping-cart/{cartKey}
-activate WPCOM_JSON_API_Me_Shopping_Cart_Endpoint
-note over WPCOM_JSON_API_Me_Shopping_Cart_Endpoint : $cart_key
-WPCOM_JSON_API_Me_Shopping_Cart_Endpoint -> Store_Shopping_Cart
-activate Store_Shopping_Cart
-note over Store_Shopping_Cart : 'shopping_cart_' . $cart_key
-Store_Shopping_Cart -> Database : wp_user_attributes.meta_key
-activate Database
-return meta_value
-return ->to_js_cart()
+Undocumented -> WordPress.com : GET /me/shopping-cart/{cartKey}
+activate WordPress.com
 return
 return
 useInitializeCartFromServer -> useShoppingCartReducer : dispatch RECEIVE_INITIAL_RESPONSE_CART
