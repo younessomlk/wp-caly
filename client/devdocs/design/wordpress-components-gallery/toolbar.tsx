@@ -25,7 +25,7 @@ import {
 	DropdownMenu,
 	SVG,
 	Path,
-	__experimentalToolbarItem as ToolbarItem,
+	ToolbarItem,
 } from '@wordpress/components';
 
 function InlineImageIcon() {
