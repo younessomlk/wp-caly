@@ -58,6 +58,7 @@ describe( 'getSite', () => {
 		// First call returns undefined
 		expect( select( store ).getSite( slug ) ).toEqual( undefined );
 		await listenForStateUpdate();
+		await listenForStateUpdate();
 
 		// By the second call, the resolver will have resolved
 		expect( select( store ).getSite( slug ) ).toEqual( apiResponse );
