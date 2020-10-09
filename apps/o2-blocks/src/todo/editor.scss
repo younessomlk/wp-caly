@@ -75,7 +75,7 @@ $color-accent-green: #31843f;
 			border-color: $gray-100;
 
 			.dashicon {
-				fill: $dark-gray-500;
+				fill: $gray-700;
 			}
 		}
 	}
@@ -86,7 +86,7 @@ $color-accent-green: #31843f;
 
 		.components-button {
 			font-size: 13px !important; // yep, I'm a monster.
-			color: $dark-gray-500;
+			color: $gray-700;
 			border: 1px solid $light-gray-700;
 			background: $gray-100;
 			box-shadow: 0 1px 0 $light-gray-700;
@@ -98,7 +98,7 @@ $color-accent-green: #31843f;
 			white-space: nowrap;
 
 			.dashicon {
-				fill: $dark-gray-200;
+				fill: $gray-600;
 				vertical-align: middle;
 				display: inline;
 			}
