@@ -151,7 +151,7 @@ $sidebar-nav-header-background-color: #32373d; // WP-admin gray to match the clo
 	}
 
 	a {
-		color: $light-gray-900;
+		color: $gray-600;
 	}
 
 	.is-selected {
@@ -169,7 +169,7 @@ $sidebar-nav-header-background-color: #32373d; // WP-admin gray to match the clo
 }
 
 .wpcom-block-editor-nav-sidebar-nav-sidebar__bottom-buttons {
-	border-top: 1px solid $light-gray-900;
+	border-top: 1px solid $gray-600;
 	position: absolute;
 	bottom: 0;
 	width: 100%;
