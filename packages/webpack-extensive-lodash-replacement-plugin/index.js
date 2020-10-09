@@ -67,7 +67,8 @@ class ExtensiveLodashReplacementPlugin {
 			throw createError( 'Could not determine root `lodash-es` version.' );
 		}
 
-		if ( baseLodashVersion !== this.baseLodashESVersion ) {
+		// TODO: change these to the exact versions when lodash and lodash-es releases match again
+		if ( semver.major( baseLodashVersion ) !== semver.major( this.baseLodashESVersion ) ) {
 			throw createError( 'Root `lodash` and `lodash-es` versions do not match.' );
 		}
 	}
