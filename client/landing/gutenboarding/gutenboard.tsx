@@ -86,6 +86,13 @@ const Gutenboard: React.FunctionComponent = () => {
 						settings={ {
 							templateLock: 'all',
 							alignWide: true,
+							/**
+							 * @todo Remove patch once https://github.com/WordPress/gutenberg/pull/25976 is release
+							 *
+							 * This is necessary to prevent null-unsafe access in the useIsFontSizeDisabled
+							 * hook in the `@wordpress/block-editor` package.
+							 */
+							fontSizes: [],
 						} }
 					>
 						<div className="gutenboarding__content edit-post-layout__content">
