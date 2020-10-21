@@ -1,0 +1,65 @@
+@startuml
+
+'red: #facfd2
+'orange: #f7dcc6
+'yellow: #f5e6b3
+'green: #b8e6bf
+
+skinparam ParticipantPadding 5
+skinparam BoxPadding 5
+
+box "Actions" #f5e6b3
+	control CheckoutController as "/checkout/"
+end box
+box "Composite Checkout" #b8e6bf
+  participant CompositeCheckout
+  participant usePrepareProductsForCart as "usePrepare\nProductsForCart"
+  participant useAddProductsFromUrl as "useAddProducts\nFromUrl"
+  participant useShoppingCartManager as "useShopping\nCartManager"
+  participant useShoppingCartReducer as "useShopping\nCartReducer"
+end box
+
+'Page load
+note over CheckoutController
+	Extracts parameters
+	from URL path
+end note
+CheckoutController -> CompositeCheckout : productAliasFromUrl, purchaseId
+
+CompositeCheckout -> usePrepareProductsForCart : productAliasFromUrl, purchaseId
+alt Renewal
+	hnote over usePrepareProductsForCart
+		has purchaseId
+		return 'addRenewalItems' from chooseAddHandler
+	end hnote
+	usePrepareProductsForCart -> CompositeCheckout : << createRenewalItemToAddToCart >>\n\t<< getRenewalItemFromCartItem >>\nrenewalsForCart
+else Plan
+	hnote over usePrepareProductsForCart
+		no purchaseId
+		&& getUpgradePlanSlugFromPath( productAliasFromUrl )
+		return 'addPlanFromSlug' from chooseAddHandler
+	end hnote
+	usePrepareProductsForCart -> CompositeCheckout : << createItemToAddToCart >>\nproductsForCart
+else Product
+	hnote over usePrepareProductsForCart
+		no purchaseId
+		&& ! getUpgradePlanSlugFromPath( productAliasFromUrl )
+		&& has productAliasFromUrl
+		return 'addProductFromSlug' from chooseAddHandler
+	end hnote
+	usePrepareProductsForCart -> CompositeCheckout : << createItemToAddToCart >>\nproductsForCart
+end
+useShoppingCartManager -> CompositeCheckout : addProductsToCart, replaceProductsInCart
+CompositeCheckout -> useAddProductsFromUrl : addProductsToCart, replaceProductsInCart\nproductsForCart renewalsForCart
+alt Renewal
+	useAddProductsFromUrl -> useShoppingCartManager : << replaceProductsInCart >>\nrenewalsForCart
+	useShoppingCartManager -> useShoppingCartReducer : dispatches\nCART_PRODUCTS_ADD
+else Plan/Product
+	useAddProductsFromUrl -> useShoppingCartManager : << addProductsToCart >>\nproductsForCart
+	useShoppingCartManager -> useShoppingCartReducer : dispatches\nCART_PRODUCTS_REPLACE_ALL
+end
+note over useShoppingCartReducer
+	cacheStatus: 'invalid'
+end note
+
+@enduml

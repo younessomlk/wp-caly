@@ -1,0 +1,77 @@
+@startuml
+
+'red: #facfd2
+'orange: #f7dcc6
+'yellow: #f5e6b3
+'green: #b8e6bf
+
+skinparam ParticipantPadding 5
+skinparam BoxPadding 5
+box "WordPress.com" #facfd2
+  participant WPCOM_JSON_API_Me_Shopping_Cart_Endpoint as "WPCOM_JSON_API_\nMe_Shopping_Cart_\nEndpoint"
+end box
+box "Calypso" #f7dcc6
+  participant Undocumented
+end box
+box "Actions" #f5e6b3
+	control SecondaryCartPromotions as "SecondaryCart\nPromotions"
+	control UpcomingRenewalsReminder as "Upcoming\nRenewalsReminder"
+	control CartFreeUserPlanUpsell as "CartFreeUser\nPlanUpsell"
+end box
+box "Composite Checkout" #b8e6bf
+  participant CompositeCheckout
+  participant useShoppingCartManager as "useShopping\nCartManager"
+  participant useShoppingCartReducer as "useShopping\nCartReducer"
+  participant useCartUpdateAndRevalidate as "useCartUpdate\nAndRevalidate"
+end box
+
+'Imports
+Undocumented -> CompositeCheckout : import setCart
+note over CompositeCheckout
+	setCart from props
+	or fall back to import
+end note
+CompositeCheckout -> useShoppingCartManager : setCart
+useShoppingCartManager -> useCartUpdateAndRevalidate : setCart
+
+'Props
+useShoppingCartManager -> CompositeCheckout : addProductsToCart
+CompositeCheckout -> SecondaryCartPromotions : addProductsToCart
+SecondaryCartPromotions -> UpcomingRenewalsReminder : addProductsToCart
+note over UpcomingRenewalsReminder
+	<< getRenewableSitePurchases >>
+	sent to
+	<< getRenewalItemFromProduct >>
+		<< getRenewalItemFromCartItem >>
+end note
+UpcomingRenewalsReminder -> useShoppingCartManager : << addProductsToCart >>
+useShoppingCartManager -> useShoppingCartReducer : dispatches\nCART_PRODUCTS_ADD
+SecondaryCartPromotions -> CartFreeUserPlanUpsell : addProductsToCart
+
+
+'Cache invalidation
+CheckoutController -> useShoppingCartReducer : << addItem >>\ndispatches\nADD_CART_ITEM
+note over useShoppingCartReducer
+	cacheStatus: 'invalid'
+end note
+useShoppingCartReducer -> useCartUpdateAndRevalidate : cacheStatus
+note over useCartUpdateAndRevalidate
+	Dispatch
+	REQUEST_UPDATED_RESPONSE_CART
+end note
+useCartUpdateAndRevalidate -> Undocumented : << setCart >>
+activate Undocumented
+Undocumented -> WPCOM_JSON_API_Me_Shopping_Cart_Endpoint : POST\n/me/shopping-cart/{cartKey}
+activate WPCOM_JSON_API_Me_Shopping_Cart_Endpoint
+'Explain renewal flags
+note over WPCOM_JSON_API_Me_Shopping_Cart_Endpoint
+	getRenewalItemFromCartItem adds
+
+	{ extra: {
+		purchaseType: 'renewal'
+	} }
+end note
+return
+return
+
+@enduml
