@@ -10,8 +10,7 @@
 		"clean": "npx rimraf dist \"../../.tsc-cache/packages__composite-checkout*\"",
 		"prepare": "tsc --project ./tsconfig.json && tsc --project ./tsconfig-cjs.json",
 		"prepublish": "yarn run clean",
-		"watch": "tsc --project ./tsconfig.json --watch",
-		"build:docs": "node bin/build-docs.js"
+		"watch": "tsc --project ./tsconfig.json --watch"
 	},
 	"files": [
 		"dist",
