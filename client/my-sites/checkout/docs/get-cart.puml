@@ -8,7 +8,7 @@
 skinparam ParticipantPadding 5
 skinparam BoxPadding 5
 
-box "" #f7dcc6
+box " " #f7dcc6
   participant WordPress.com
 end box
 box "Calypso" #f5e6b3

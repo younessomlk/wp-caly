@@ -7,8 +7,8 @@
 
 skinparam ParticipantPadding 5
 skinparam BoxPadding 5
-box "WordPress.com" #facfd2
-  participant WPCOM_JSON_API_Me_Shopping_Cart_Endpoint as "WPCOM_JSON_API_\nMe_Shopping_Cart_\nEndpoint"
+box " " #facfd2
+  participant WordPress.com
 end box
 box "Calypso" #f7dcc6
   participant Undocumented
@@ -38,10 +38,10 @@ note over useCartUpdateAndRevalidate
 end note
 useCartUpdateAndRevalidate -> Undocumented : << setCart >>
 activate Undocumented
-Undocumented -> WPCOM_JSON_API_Me_Shopping_Cart_Endpoint : POST\n/me/shopping-cart/{cartKey}
-activate WPCOM_JSON_API_Me_Shopping_Cart_Endpoint
+Undocumented -> WordPress.com : POST\n/me/shopping-cart/{cartKey}
+activate WordPress.com
 'Explain renewal flags
-note over WPCOM_JSON_API_Me_Shopping_Cart_Endpoint
+note over WordPress.com
 	May be passed:
 
 	{ extra: {
