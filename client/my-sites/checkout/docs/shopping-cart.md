@@ -15,3 +15,7 @@ When on a shopping cart page, renewals may be added to the cart by directly modi
 Outside of the shopping cart, items are added through the controller with item details extracted from the URL path.
 
 ![Add to cart via routing](set-cart-via-routing.svg)
+
+## Save Cart
+
+![Set cart](set-cart.svg)
