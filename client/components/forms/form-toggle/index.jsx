@@ -24,20 +24,16 @@ import './style.scss';
 export default class FormToggle extends PureComponent {
 	static propTypes = {
 		onChange: PropTypes.func,
-		onKeyDown: PropTypes.func,
 		checked: PropTypes.bool,
 		disabled: PropTypes.bool,
 		id: PropTypes.string,
-		className: PropTypes.string,
 		wrapperClassName: PropTypes.string,
-		toggling: PropTypes.bool,
 		'aria-label': PropTypes.string,
 	};
 
 	static defaultProps = {
 		checked: false,
 		disabled: false,
-		onKeyDown: noop,
 		onChange: noop,
 	};
 
@@ -56,8 +52,6 @@ export default class FormToggle extends PureComponent {
 			event.preventDefault();
 			this.props.onChange( ! this.props.checked );
 		}
-
-		this.props.onKeyDown( event );
 	};
 
 	onClick = ( event ) => {
@@ -84,18 +78,15 @@ export default class FormToggle extends PureComponent {
 
 	render() {
 		const id = this.props.id || 'toggle-' + this.id;
-		const wrapperClasses = classNames( 'form-toggle__wrapper', this.props.wrapperClassName, {
+		const wrapperClasses = classNames( 'form-toggle__wrapper', {
 			'is-disabled': this.props.disabled,
-		} );
-		const toggleClasses = classNames( 'form-toggle', this.props.className, {
-			'is-toggling': this.props.toggling,
 		} );
 
 		return (
 			<span className={ wrapperClasses }>
 				<FormInputCheckbox
 					id={ id }
-					className={ toggleClasses }
+					className="form-toggle"
 					checked={ this.props.checked }
 					readOnly={ true }
 					disabled={ this.props.disabled }
