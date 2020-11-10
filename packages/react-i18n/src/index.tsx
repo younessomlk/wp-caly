@@ -18,7 +18,6 @@ export interface I18nReact {
 	hasTranslation: ( singular: string, context?: string ) => boolean;
 	addFilter: typeof addFilter;
 	removeFilter: typeof removeFilter;
-	applyFilters: typeof applyFilters;
 }
 
 /**
@@ -211,6 +210,5 @@ function makeContextValue( localeData?: LocaleData, options?: MakeContextValueOp
 		hasTranslation: boundHasTranslation,
 		addFilter,
 		removeFilter,
-		applyFilters,
 	};
 }
