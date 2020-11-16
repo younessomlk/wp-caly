@@ -214,7 +214,8 @@ export class JetpackAuthorize extends Component {
 			this.isFromJpo() ||
 			this.isFromBlockEditor() ||
 			this.shouldRedirectJetpackStart() ||
-			getRoleFromScope( scope ) === 'subscriber'
+			getRoleFromScope( scope ) === 'subscriber' ||
+			this.isJetpackUpgradeFlow()
 		) {
 			debug(
 				'Going back to WP Admin.',
@@ -269,6 +270,17 @@ export class JetpackAuthorize extends Component {
 	isSso( props = this.props ) {
 		const { from, clientId } = props.authQuery;
 		return 'sso' === from && isSsoApproved( clientId );
+	}
+
+	/**
+	 * Check if the user is coming from the Jetpack upgrade flow.
+	 *
+	 * @returns {boolean} True if the user is coming from the Jetpack upgrade flow, false otherwise.
+	 */
+	isJetpackUpgradeFlow() {
+		return this.props.authQuery.redirectAfterAuth.includes(
+			'page=jetpack&action=authorize_redirect'
+		);
 	}
 
 	isWooRedirect = ( props = this.props ) => {
