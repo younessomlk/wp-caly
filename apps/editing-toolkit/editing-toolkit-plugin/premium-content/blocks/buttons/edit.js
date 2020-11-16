@@ -43,7 +43,7 @@ function ButtonsEdit( { context, subscribeButton, setSubscribeButtonPlan } ) {
 	const template = [
 		[
 			'jetpack/recurring-payments',
-			{ planId },
+			{ planId: planId > 0 ? planId : null },
 			[
 				[
 					'jetpack/button',
