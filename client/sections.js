@@ -461,6 +461,12 @@ const sections = [
 			},
 		],
 	},
+	{
+		name: 'jetpack-cloud-licensing',
+		paths: [ '/licenses' ],
+		module: 'calypso/jetpack-cloud/sections/licensing',
+		group: 'jetpack-cloud',
+	},
 ];
 
 for ( const extension of require( './extensions' ) ) {
