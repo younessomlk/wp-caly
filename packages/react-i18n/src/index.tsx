@@ -2,7 +2,7 @@
  * External dependencies
  */
 import * as React from 'react';
-import { createI18n, I18n, LocaleData } from '@wordpress/i18n';
+import { createI18n, I18n, LocaleData, __, _n, _nx, _x, isRTL } from '@wordpress/i18n';
 import { createHigherOrderComponent } from '@wordpress/compose';
 
 export interface I18nReact {
@@ -18,12 +18,18 @@ const I18nContext = React.createContext< I18nReact >( makeContextValue() );
 
 interface Props {
 	localeData?: LocaleData;
+	localeSlug?: string;
 }
 
-export const I18nProvider: React.FunctionComponent< Props > = ( { children, localeData } ) => {
-	const contextValue = React.useMemo< I18nReact >( () => makeContextValue( localeData ), [
-		localeData,
-	] );
+export const I18nProvider: React.FunctionComponent< Props > = ( {
+	children,
+	localeData,
+	localeSlug,
+} ) => {
+	const contextValue = React.useMemo< I18nReact >(
+		() => makeContextValue( localeData, localeSlug ),
+		[ localeData, localeSlug ]
+	);
 	return <I18nContext.Provider value={ contextValue }>{ children }</I18nContext.Provider>;
 };
 
@@ -65,12 +71,19 @@ export const withI18n = createHigherOrderComponent< I18nReact >( ( InnerComponen
  * Utility to make a new context value
  *
  * @param localeData The localeData
+ * @param localeSlug Locale slug to use instead of the one found in `localeData`
  *
  * @returns The context value with bound translation functions
  */
-function makeContextValue( localeData?: LocaleData ): I18nReact {
+function makeContextValue( localeData?: LocaleData, localeSlug?: string ): I18nReact {
+	const i18nLocale = localeSlug ?? localeData?.[ '' ]?.localeSlug ?? 'en';
+
+	if ( localeData ) {
+		return { __, _n, _nx, _x, isRTL, i18nLocale };
+	}
+
 	const i18n = createI18n( localeData );
-	const i18nLocale = localeData?.[ '' ]?.localeSlug ?? 'en';
+
 	return {
 		__: i18n.__.bind( i18n ),
 		_n: i18n._n.bind( i18n ),
