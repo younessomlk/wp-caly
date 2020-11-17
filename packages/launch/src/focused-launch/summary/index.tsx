@@ -9,6 +9,7 @@ import { createInterpolateElement } from '@wordpress/element';
 import { TextControl, SVG, Path, Tooltip, Circle, Rect } from '@wordpress/components';
 import React, { ReactNode, useContext, useEffect } from 'react';
 import DomainPicker from '@automattic/domain-picker';
+import classNames from 'classnames';
 import { Icon, check } from '@wordpress/icons';
 import { Link } from 'react-router-dom';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -44,10 +45,15 @@ const info = (
 type SummaryStepProps = {
 	input: ReactNode;
 	commentary?: ReactNode;
+	highlighted: boolean;
 };
 
-const SummaryStep: React.FunctionComponent< SummaryStepProps > = ( { input, commentary } ) => (
-	<div className="focused-launch-summary__step">
+const SummaryStep: React.FunctionComponent< SummaryStepProps > = ( {
+	input,
+	commentary,
+	highlighted,
+} ) => (
+	<div className={ classNames( 'focused-launch-summary__step', { highlighted } ) }>
 		<div className="focused-launch-summary__data-input">
 			<div className="focused-launch-summary__section">{ input }</div>
 		</div>
@@ -57,6 +63,7 @@ const SummaryStep: React.FunctionComponent< SummaryStepProps > = ( { input, comm
 
 type CommonStepProps = {
 	stepIndex?: number;
+	highlighted: boolean;
 };
 
 // Props in common between all summary steps + a few props from <TextControl>
@@ -68,9 +75,11 @@ const SiteTitleStep: React.FunctionComponent< SiteTitleStepProps > = ( {
 	value,
 	onChange,
 	onBlur,
+	highlighted,
 } ) => {
 	return (
 		<SummaryStep
+			highlighted={ highlighted }
 			input={
 				<TextControl
 					className="focused-launch-summary__input"
@@ -112,9 +121,11 @@ const DomainStep: React.FunctionComponent< DomainStepProps > = ( {
 	onDomainSelect,
 	onExistingSubdomainSelect,
 	locale,
+	highlighted,
 } ) => {
 	return (
 		<SummaryStep
+			highlighted={ highlighted }
 			input={
 				hasPaidDomain ? (
 					<>
@@ -265,6 +276,7 @@ const PlanStep: React.FunctionComponent< PlanStepProps > = ( {
 	onSetPlan,
 	onUnsetPlan,
 	sitePlan,
+	highlighted,
 } ) => {
 	useEffect( () => {
 		// To keep the launch store state valid,
@@ -280,6 +292,7 @@ const PlanStep: React.FunctionComponent< PlanStepProps > = ( {
 
 	return (
 		<SummaryStep
+			highlighted={ highlighted }
 			input={
 				hasPaidPlan ? (
 					<>
@@ -432,6 +445,7 @@ const PlanStep: React.FunctionComponent< PlanStepProps > = ( {
 type StepIndexRenderFunction = ( renderOptions: {
 	stepIndex: number;
 	forwardStepIndex: boolean;
+	highlighted: boolean;
 } ) => ReactNode;
 
 const Summary: React.FunctionComponent = () => {
@@ -460,17 +474,26 @@ const Summary: React.FunctionComponent = () => {
 	const hasPaidPlan = site.isPaidPlan;
 
 	// Prepare Steps
-	const renderSiteTitleStep: StepIndexRenderFunction = ( { stepIndex, forwardStepIndex } ) => (
+	const renderSiteTitleStep: StepIndexRenderFunction = ( {
+		stepIndex,
+		forwardStepIndex,
+		highlighted,
+	} ) => (
 		<SiteTitleStep
 			stepIndex={ forwardStepIndex ? stepIndex : undefined }
 			key={ stepIndex }
 			value={ title }
 			onChange={ updateTitle }
 			onBlur={ saveTitle }
+			highlighted={ highlighted }
 		/>
 	);
 
-	const renderDomainStep: StepIndexRenderFunction = ( { stepIndex, forwardStepIndex } ) => (
+	const renderDomainStep: StepIndexRenderFunction = ( {
+		stepIndex,
+		forwardStepIndex,
+		highlighted,
+	} ) => (
 		<DomainStep
 			stepIndex={ forwardStepIndex ? stepIndex : undefined }
 			key={ stepIndex }
@@ -479,6 +502,7 @@ const Summary: React.FunctionComponent = () => {
 			initialDomainSearch={ domainSearch }
 			hasPaidDomain={ hasPaidDomain }
 			onDomainSelect={ setDomain }
+			highlighted={ highlighted }
 			/** NOTE: this makes the assumption that the user has a free domain,
 			 * thus when they click the free domain, we just remove the value from the store
 			 * this is a valid strategy in this context because they won't even see this step if
@@ -489,13 +513,18 @@ const Summary: React.FunctionComponent = () => {
 		/>
 	);
 
-	const renderPlanStep: StepIndexRenderFunction = ( { stepIndex, forwardStepIndex } ) => (
+	const renderPlanStep: StepIndexRenderFunction = ( {
+		stepIndex,
+		forwardStepIndex,
+		highlighted,
+	} ) => (
 		<PlanStep
 			hasPaidPlan={ hasPaidPlan }
 			selectedPaidDomain={ selectedDomain && ! selectedDomain.is_free }
 			hasPaidDomain={ hasPaidDomain }
 			stepIndex={ forwardStepIndex ? stepIndex : undefined }
 			key={ stepIndex }
+			highlighted={ highlighted }
 			defaultPaidPlan={ defaultPaidPlan }
 			defaultFreePlan={ defaultFreePlan }
 			selectedPlan={ selectedPlan }
@@ -515,6 +544,9 @@ const Summary: React.FunctionComponent = () => {
 	isSiteTitleStepVisible && activeSteps.push( renderSiteTitleStep );
 	( hasPaidDomain ? disabledSteps : activeSteps ).push( renderDomainStep );
 	( hasPaidPlan ? disabledSteps : activeSteps ).push( renderPlanStep );
+
+	// for now, highlight all the steps until we figure out a way to determine to highlight which step when
+	const highlightedSteps = [ renderSiteTitleStep, renderDomainStep, renderPlanStep ];
 
 	return (
 		<div className="focused-launch-summary__container">
@@ -538,13 +570,18 @@ const Summary: React.FunctionComponent = () => {
 			</div>
 			{ disabledSteps.map( ( disabledStepRenderer, disabledStepIndex ) =>
 				// Disabled steps don't show the step index
-				disabledStepRenderer( { stepIndex: disabledStepIndex + 1, forwardStepIndex: false } )
+				disabledStepRenderer( {
+					stepIndex: disabledStepIndex + 1,
+					forwardStepIndex: false,
+					highlighted: highlightedSteps.indexOf( disabledStepRenderer ) > -1,
+				} )
 			) }
 			{ activeSteps.map( ( activeStepRenderer, activeStepIndex ) =>
 				// Active steps show the step index only if there are at least 2 steps
 				activeStepRenderer( {
 					stepIndex: activeStepIndex + 1,
 					forwardStepIndex: activeSteps.length > 1,
+					highlighted: highlightedSteps.indexOf( activeStepRenderer ) > -1,
 				} )
 			) }
 		</div>

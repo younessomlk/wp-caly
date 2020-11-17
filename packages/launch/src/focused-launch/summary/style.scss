@@ -71,18 +71,12 @@
 	@include break-large {
 		gap: 100px;
 	}
-}
 
-// by default: highlight all steps when nothing is in focus
-.focused-launch-summary__container:not( :focus-within ) {
-	.focused-launch-summary__step {
+	// this is unused yet, find the right logic to determine
+	// when a step should be highlighted
+	&.highlighted {
 		opacity: 1;
 	}
-}
-
-// highlight the focused step
-.focused-launch-summary__step:focus-within {
-	opacity: 1;
 }
 
 .focused-launch-summary__side-commentary {
