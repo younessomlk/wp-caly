@@ -88,7 +88,7 @@ class Block_Patterns_From_API {
 		}
 
 		foreach ( (array) $block_patterns as $pattern ) {
-			$is_premium = in_array( 'premium_block_pattern', array_keys( $pattern['tags'] ), true ) ? true : false;
+			$is_premium = in_array( 'premium_block_pattern', array_keys( $pattern['tags'] ), true );
 			register_block_pattern(
 				Block_Patterns_From_API::PATTERN_NAMESPACE . $pattern['name'],
 				array(
