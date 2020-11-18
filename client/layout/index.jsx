@@ -43,6 +43,7 @@ import { getCurrentOAuth2Client } from 'calypso/state/oauth2-clients/ui/selector
 import LayoutLoader from './loader';
 import wooDnaConfig from 'calypso/jetpack-connect/woo-dna-config';
 import { withCurrentRoute } from 'calypso/components/route';
+import QueryExperiments from 'calypso/components/data/query-experiments';
 import { getVariationForUser } from 'calypso/state/experiments/selectors';
 
 /**
@@ -161,7 +162,7 @@ class Layout extends Component {
 				config.isEnabled( 'woocommerce/onboarding-oauth' ) &&
 				isWooOAuth2Client( this.props.oauth2Client ) &&
 				this.props.wccomFrom,
-			'is-nav-unification': config.isEnabled( 'nav-unification' ),
+			'is-nav-unification': this.props.navUnificationVariation === 'treatment',
 		} );
 
 		const optionalBodyProps = () => {
@@ -177,6 +178,7 @@ class Layout extends Component {
 		const { shouldShowAppBanner } = this.props;
 		return (
 			<div className={ sectionClass }>
+				<QueryExperiments />
 				<BodySectionCssClass
 					group={ this.props.sectionGroup }
 					section={ this.props.sectionName }
