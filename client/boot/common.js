@@ -453,7 +453,11 @@ function waitForCookieAuth( user ) {
 		return new Promise( function ( resolve ) {
 			const sendUserAuth = () => {
 				debug( 'Sending user info to desktop...' );
-				window.electron.send( 'user-auth', user, getToken() );
+				window.electron.send(
+					'user-auth',
+					{ id: user.data.ID, username: user.data.username },
+					getToken()
+				);
 			};
 
 			if ( loggedIn ) {
