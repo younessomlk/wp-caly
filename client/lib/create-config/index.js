@@ -38,8 +38,8 @@ const config = ( data ) => ( key ) => {
 	// display console error only in a browser
 	// (not in tests, for example)
 	if ( 'undefined' !== typeof window ) {
+		// eslint-disable-next-line no-console
 		console.error(
-			//eslint-disable-line no-console
 			'%cCore Error: ' +
 				'%cCould not find config value for key %c${ key }%c. ' +
 				'Please make sure that if you need it then it has a default value assigned in ' +
@@ -66,9 +66,38 @@ const config = ( data ) => ( key ) => {
 const isEnabled = ( data ) => ( feature ) =>
 	( data.features && !! data.features[ feature ] ) || false;
 
+/**
+ * Enables a specific feature.
+ *
+ * @param {string} feature Feature name
+ * @param {object} data the json environment configuration to use for getting config values
+ * @api public
+ */
+const enable = ( data ) => ( feature ) => {
+	if ( data.features ) {
+		data.features[ feature ] = true;
+	}
+};
+
+/**
+ * Disables a specific feature.
+ *
+ * @param {string} feature Feature name
+ * @param {object} data the json environment configuration to use for getting config values
+ * @api public
+ */
+
+const disable = ( data ) => ( feature ) => {
+	if ( data.features ) {
+		data.features[ feature ] = false;
+	}
+};
+
 module.exports = ( data ) => {
 	const configApi = config( data );
 	configApi.isEnabled = isEnabled( data );
+	configApi.enable = enable( data );
+	configApi.disable = disable( data );
 
 	return configApi;
 };
