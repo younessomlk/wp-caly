@@ -109,3 +109,11 @@
 .focused-launch-success__go-back-button {
 	color: var( --studio-gray-50 );
 }
+
+.focused-launch-summary__launch-button {
+	flex: 1;
+
+	@include break-small {
+		flex: 0;
+	}
+}
